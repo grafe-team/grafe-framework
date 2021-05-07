@@ -16,6 +16,9 @@
     "framework",
     "backend"
   ],
+  "bin": {
+    "grafe": "./build/index.js"
+  },
   "author": "Stefan Streimel, Marvin Koch",
   "license": "MIT",
   "bugs": {

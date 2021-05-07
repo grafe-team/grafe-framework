@@ -1,0 +1,34 @@
+{
+  "name": "@grafe/grafe-cli",
+  "version": "0.0.1",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/streimelstefan/grafe-framework.git"
+  },
+  "keywords": [
+    "grafe",
+    "rest-server",
+    "framework",
+    "backend"
+  ],
+  "author": "Stefan Streimel, Marvin Koch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/streimelstefan/grafe-framework/issues"
+  },
+  "homepage": "https://github.com/streimelstefan/grafe-framework#readme",
+  "devDependencies": {
+    "@types/yargs": "^16.0.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@types/inquirer": "^7.3.1",
+    "inquirer": "^8.0.0",
+    "yargs": "^17.0.1"
+  }
+}

@@ -3,6 +3,7 @@ import yargs, { Options } from 'yargs';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
+import { Z_PARTIAL_FLUSH } from 'zlib';
 
 export function generateCommand(yargs: yargs.Argv<{}>) {
     return yargs;
@@ -160,11 +161,11 @@ export async function generateRoute(path: string, method: string, mw: any[]) {
     let paths = path.split('/');
 
     let _path = "/src/routes/";
-    for (let pathSplit of paths) {
-        if (!(pathSplit === paths[paths.length - 1])) {
-            _path += pathSplit + "/";
-        }
+    for (let i = 0; i < paths.length - 1; i++) {
+        _path += paths[i] + "/";
     }
+
+    console.log(_path);
 
     let middlewares = mw;
     if (middlewares != undefined && middlewares.length != 0) {

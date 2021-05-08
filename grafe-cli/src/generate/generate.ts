@@ -1,8 +1,14 @@
 import inquirer from 'inquirer';
-import { choices } from 'yargs';
+import { array, choices, conflicts } from 'yargs';
 import fs from 'fs';
+import mkdirp from 'mkdirp';
+import pkgDir from 'pkg-dir';
+import { setFlagsFromString } from 'v8';
 
-function generate() {
+/**
+ * Starts the prompt for generating a new component
+ */
+function generateCLI() {
     inquirer.prompt([
         {
             type: 'list',
@@ -10,9 +16,22 @@ function generate() {
             message: 'What do you want to generate',
             choices: ['Route', 'Middleware'],
         }
-    ]).then(answers => {
+    ]).then(async (answers) => {
         if (answers.type === 'Route') {
-            inquirer.prompt([
+
+            const rootDir = await pkgDir(process.cwd());
+
+            let raw;
+            try {
+                raw = fs.readFileSync(rootDir + "/grafe.json");
+            } catch (err) {
+                console.log("The grafe command must be used within a grafe project.");
+                return;
+            }
+
+            let data = JSON.parse(raw.toString());
+
+            let questions = [
                 {
                     type: 'input',
                     name: 'path',
@@ -28,46 +47,163 @@ function generate() {
                     type: 'checkbox',
                     message: 'Select the middlewares for this route',
                     name: 'middlewares',
-                    choices: [
-                        {
-                            name: 'not protected',
-                            value: 'np'
-                        }, 
-                        {
-                            name: 'only as user',
-                            value: 'user'
-                        }
-                    ]
+                    choices: data.middlewares
                 }
-            ]).then(answers => {
-                console.log(answers);
-                let paths = answers.path.split('/');
-                console.log(paths);
-                
-                let path = "./src/";
-                for(let pathSplit of paths) {
-                    if(!(pathSplit === paths[paths.length - 1])) {
-                        path += pathSplit + "/";
-                    }
-                }
+            ];
 
-                let middlewares = answers.middlewares;
+            if (questions[2].choices == undefined || questions[2]?.choices?.length == 0) {
+                questions.splice(2, 1);
+            }
 
-                if(middlewares.length == 1) {
-                    path += middlewares[0] + "/";
-                }else {
-                    for(let i = 0; i < middlewares.length - 1; i++) {
-                        path += middlewares[i] + ".";
-                    }
-                    path += middlewares[middlewares.legth - 1];
-                }
-
-                path += paths[paths.length - 1] + "." + answers.method.toLowerCase() + ".ts";
-
-                console.log(path);
+            inquirer.prompt(questions).then(async (answers) => {
+                generateRoute(answers.path, answers.method, answers.middlewares);
+            });
+        } else if (answers.type === "Middleware") {
+            inquirer.prompt([{
+                type: 'input',
+                name: 'name',
+                message: 'How is the Middleware called'
+            }, {
+                type: 'input',
+                name: 'short',
+                message: 'What is the shortcut for this Middleware'
+            }, {
+                type: 'input',
+                name: 'description',
+                message: 'What is the description of this Middleware',
+                default: ''
+            },]).then(async (answers) => {
+                await generateMiddleWare(answers.name, answers.short, answers.description);
             });
         }
     });
+}
+
+/**
+ * 
+ * @param name The name of the middleware
+ * @param short The shortcut of the middleware
+ * @param description The description of the middleware
+ * @returns if everything correct, creates new file
+ */
+async function generateMiddleWare(name: string, short: string, description: string) {
+    const rootDir = await pkgDir(process.cwd());
+
+    let raw;
+    try {
+        raw = fs.readFileSync(rootDir + "/grafe.json");
+    } catch (err) {
+        console.log("The grafe command must be used within a grafe project.");
+        return;
+    }
+
+    let data = JSON.parse(raw.toString());
+
+    if (data.middlewares.some((item: any) => item.name === name) || data.middlewares.some((item: any) => item.value === short)) {
+        console.log("Either the name or the shortcut of this middleware is already in use");
+        return;
+    }
+
+    data.middlewares.push({
+        name: name,
+        description: description,
+        value: short,
+    });
+
+
+    let _path = "/src/middlewares/" + short + "/";
+
+    await mkdirp(rootDir + _path);
+
+    _path += name + ".ts";
+
+    fs.writeFile(rootDir + _path, '', err => {
+        if (err) return console.log(err);
+        console.log("Created new Middleware " + _path);
+    });
+
+    fs.writeFileSync(rootDir + "/grafe.json", JSON.stringify(data, null, 4));
+}
+
+/**
+ * 
+ * @param path The path of the route
+ * @param method The HTTP-Method
+ * @param mw List of preceding middlewares
+ * @returns if everything correct, creates new file
+ */
+async function generateRoute(path: string, method: string, mw: any[]) {
+
+    const rootDir = await pkgDir(process.cwd());
+
+    let raw;
+    try {
+        raw = fs.readFileSync(rootDir + "/grafe.json");
+    } catch (err) {
+        console.log("The grafe command must be used within a grafe project.");
+        return;
+    }
+
+    let data = JSON.parse(raw.toString());
+
+    if (path.startsWith('/')) {
+        path = path.substring(1);
+    }
+
+    if (path.endsWith('/')) {
+        path = path.substring(0, path.length - 1);
+    }
+
+    let paths = path.split('/');
+
+    let _path = "/src/routes/";
+    for (let pathSplit of paths) {
+        if (!(pathSplit === paths[paths.length - 1])) {
+            _path += pathSplit + "/";
+        }
+    }
+
+    let middlewares = mw;
+    if (middlewares != undefined && middlewares.length != 0) {
+
+        for (let mid of middlewares) {
+            if (!(data.middlewares.some((item: any) => item.value === mid))) {
+                console.log("There is no Middleware with the shortcut " + mid);
+                return;
+            }
+        }
+
+        if (middlewares.length > 1) {
+            for (let i = 0; i < middlewares.length - 1; i++) {
+                _path += middlewares[i] + ".";
+            }
+
+            _path += middlewares[middlewares.length - 1] + "/";
+        } else {
+            _path += middlewares[0] + "/";
+        }
+    }
+
+    await mkdirp(rootDir + _path);
+
+    // add filename to create file with fs
+    _path += paths[paths.length - 1] + "." + method.toLowerCase() + ".ts";
+
+    if(fs.existsSync(rootDir + _path)) {
+        console.log("This route does already exist");
+        return;
+    }
+
+    fs.writeFile(rootDir + _path, '', err => {
+        if (err) return console.log(err);
+        console.log("Created new file " + _path);
+    });
+}
+
+const generate = {
+    generateCLI,
+    generateMiddleWare,
+    generateRoute,
 }
 
 export = generate;

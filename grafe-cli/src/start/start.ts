@@ -2,13 +2,32 @@ import yargs from 'yargs';
 import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as path from 'path';
-import { StarterTemplateOptions, createDirectoryContents } from '../utils/templating'
+import { createDirectoryContents } from '../utils/templating'
 
+export interface StarterTemplateOptions {
+    templatePath: string; // Path to the template
+    templateName: string; // Name of the template
+    projectPath: string;  // Path to the project of the user
+    projectName: string;  // Name of the project from the user
+}
+
+/**
+ * Describes the syntax of the start command 
+ * 
+ * @param yargs Yargs object to add information to 
+ * @returns The same Yargs object
+ */
 export function startCommand(yargs: yargs.Argv<{}>) {
     return yargs;
 }
 
-export async function startHandler(argv: any) {
+/**
+ * Hanles the start command. Gets the projectName from the user and lets him select what project he wants to use.
+ * 
+ * @param argv Arguments from Yargs 
+ * @returns Promise<undefined>
+ */
+export async function startHandler(argv: any): Promise<undefined> {
 
     const templateStartersPath = path.join(__dirname, '..', '..', 'templates', 'starters'); 
 
@@ -44,6 +63,14 @@ export async function startHandler(argv: any) {
 
 }
 
+/**
+ * Creates the folder where the project that the user whants to create residse in
+ * 
+ * Throws an error if the folder could not be created
+ * 
+ * @param options Options from the User regarding the project 
+ * @returns true if folder was created. False if it already exists
+ */
 function createProjectFolder(options: StarterTemplateOptions): boolean {
     if (fs.existsSync(options.projectPath)) {
         console.error(`Folder ${options.projectPath} already exists. Delete it or use another name!`);

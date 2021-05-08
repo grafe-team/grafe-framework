@@ -10,6 +10,7 @@ const app = express();
 
 // install errorHandler
 
+// get the port the server should use
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {

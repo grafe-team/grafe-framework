@@ -2,14 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ejs from 'ejs';
 
-
-export interface StarterTemplateOptions {
-    templatePath: string;
-    templateName: string;
-    projectPath: string;
-    projectName: string;
-}
-
+/**
+ * Recursivly copies a template into a target folder. It also populates the template with the options provided if needed
+ * 
+ * @param templatePath Path to the template that should be copied
+ * @param currentFolder Where the data should be copied to 
+ * @param options the data that needs to be inserted into the template
+ */
 export function createDirectoryContents(templatePath: string, currentFolder: string, options: any) {
     const SKIP_FILES = ['node_modules', '.template.json', 'build'];
 

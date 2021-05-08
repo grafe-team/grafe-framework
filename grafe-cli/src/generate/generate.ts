@@ -5,82 +5,83 @@ import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
 import * as path from 'path';
 
-export function generateCommand(yargs: yargs.Argv<{}>) : yargs.Argv<{}> {
+export function generateCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
     return yargs;
 }
 
 /**
  * Starts the prompt for generating a new component
  */
-export function generateCLI() : void {
-    inquirer.prompt([
+export async function generateCLI(): Promise<void> {
+
+    let answers = await inquirer.prompt([
         {
             type: 'list',
             name: 'type',
             message: 'What do you want to generate',
             choices: ['Route', 'Middleware'],
         }
-    ]).then(async (answers) => {
-        if (answers.type === 'Route') {
+    ]);
 
-            const rootDir = await pkgDir(process.cwd());
+    if (answers.type === 'Route') {
 
-            let raw;
-            try {
-                raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
-            } catch (err) {
-                console.log("The grafe command must be used within a grafe project.");
-                return;
-            }
+        const rootDir = await pkgDir(process.cwd());
 
-            let data = JSON.parse(raw.toString());
-
-            let questions = [
-                {
-                    type: 'input',
-                    name: 'path',
-                    message: 'How is the new route called'
-                },
-                {
-                    type: 'list',
-                    name: 'method',
-                    message: 'Which HTTP-Method should the new route be',
-                    choices: ['GET', 'POST', 'PUT', 'DELETE'],
-                },
-                {
-                    type: 'checkbox',
-                    message: 'Select the middlewares for this route',
-                    name: 'middlewares',
-                    choices: data.middlewares
-                }
-            ];
-
-            if (questions[2].choices == undefined || questions[2]?.choices?.length == 0) {
-                questions.splice(2, 1);
-            }
-
-            inquirer.prompt(questions).then(async (answers) => {
-                generateRoute(answers.path, answers.method, answers.middlewares);
-            });
-        } else if (answers.type === "Middleware") {
-            inquirer.prompt([{
-                type: 'input',
-                name: 'name',
-                message: 'How is the Middleware called'
-            }, {
-                type: 'input',
-                name: 'short',
-                message: 'What is the shortcut for this Middleware'
-            }, {
-                type: 'input',
-                name: 'description',
-                message: 'What is the description of this Middleware',
-                default: ''
-            },]).then(async (answers) => {
-                await generateMiddleWare(answers.name, answers.short, answers.description);
-            });
+        let raw;
+        try {
+            raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
+        } catch (err) {
+            console.log("The grafe command must be used within a grafe project.");
+            return;
         }
-    });
+
+        let data = JSON.parse(raw.toString());
+
+        let questions = [
+            {
+                type: 'input',
+                name: 'path',
+                message: 'How is the new route called'
+            },
+            {
+                type: 'list',
+                name: 'method',
+                message: 'Which HTTP-Method should the new route be',
+                choices: ['GET', 'POST', 'PUT', 'DELETE'],
+            },
+            {
+                type: 'checkbox',
+                message: 'Select the middlewares for this route',
+                name: 'middlewares',
+                choices: data.middlewares
+            }
+        ];
+
+        if (questions[2].choices == undefined || questions[2]?.choices?.length == 0) {
+            questions.splice(2, 1);
+        }
+
+        inquirer.prompt(questions).then(async (answers) => {
+            generateRoute(answers.path, answers.method, answers.middlewares);
+        });
+    } else if (answers.type === "Middleware") {
+        inquirer.prompt([{
+            type: 'input',
+            name: 'name',
+            message: 'How is the Middleware called'
+        }, {
+            type: 'input',
+            name: 'short',
+            message: 'What is the shortcut for this Middleware'
+        }, {
+            type: 'input',
+            name: 'description',
+            message: 'What is the description of this Middleware',
+            default: ''
+        },]).then(async (answers) => {
+            await generateMiddleWare(answers.name, answers.short, answers.description);
+        });
+    }
 }
 
 /**
@@ -90,7 +91,7 @@ export function generateCLI() : void {
  * @param description The description of the middleware
  * @returns if everything correct, creates new file
  */
-export async function generateMiddleWare(name: string, short: string, description: string) : Promise<void> {
+export async function generateMiddleWare(name: string, short: string, description: string): Promise<void> {
     const rootDir = await pkgDir(process.cwd());
 
     let raw;
@@ -121,7 +122,7 @@ export async function generateMiddleWare(name: string, short: string, descriptio
 
     _path = path.join(_path, name + ".ts");
 
-    const templateMiddleWarePath = path.join(__dirname, '..', '..', 'templates', 'starters', 'express', 'src', 'middlewares', 'pt', 'protected.ts'); 
+    const templateMiddleWarePath = path.join(__dirname, '..', '..', 'templates', 'starters', 'express', 'src', 'middlewares', 'pt', 'protected.ts');
 
     fs.copyFileSync(templateMiddleWarePath, path.join(rootDir, _path));
     console.log("Created new middleware " + path.join(rootDir, _path));
@@ -135,7 +136,7 @@ export async function generateMiddleWare(name: string, short: string, descriptio
  * @param mw List of preceding middlewares
  * @returns if everything correct, creates new file
  */
-export async function generateRoute(routePath: string, method: string, mw: any[]) : Promise<void> {
+export async function generateRoute(routePath: string, method: string, mw: any[]): Promise<void> {
 
     const rootDir = await pkgDir(process.cwd());
 
@@ -195,7 +196,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
         return;
     }
 
-    const templateRoutePath = path.join(__dirname, '..', '..', 'templates', 'starters', 'express', 'src', 'routes', 'index.ts'); 
+    const templateRoutePath = path.join(__dirname, '..', '..', 'templates', 'starters', 'express', 'src', 'routes', 'index.ts');
 
     fs.copyFileSync(templateRoutePath, path.join(rootDir, _path));
     console.log("Created new route " + path.join(rootDir, _path));

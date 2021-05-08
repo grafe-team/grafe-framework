@@ -6,6 +6,6 @@ import { generateCLI, generateMiddleWare, generateRoute, generateCommand} from '
 
 yargs(process.argv.slice(2))
     .command('start', 'Generates a new grafe project', startCommand, startHandler)
-    .command('generate', 'Generate a new grafe component', generateCommand, generateCLI)
+    .command('generate [type]', 'Generate a new grafe component', generateCommand, generateCLI)
     .parse();
 

@@ -3,7 +3,6 @@ import yargs, { Options } from 'yargs';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
-import { Z_PARTIAL_FLUSH } from 'zlib';
 
 export function generateCommand(yargs: yargs.Argv<{}>) {
     return yargs;

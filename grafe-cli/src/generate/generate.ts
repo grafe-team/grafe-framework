@@ -3,6 +3,7 @@ import yargs, { Options } from 'yargs';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
+import * as path from 'path';
 
 export function generateCommand(yargs: yargs.Argv<{}>) : yargs.Argv<{}> {
     return yargs;
@@ -26,7 +27,7 @@ export function generateCLI() : void {
 
             let raw;
             try {
-                raw = fs.readFileSync(rootDir + "/grafe.json");
+                raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
             } catch (err) {
                 console.log("The grafe command must be used within a grafe project.");
                 return;
@@ -94,7 +95,7 @@ export async function generateMiddleWare(name: string, short: string, descriptio
 
     let raw;
     try {
-        raw = fs.readFileSync(rootDir + "/grafe.json");
+        raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
     } catch (err) {
         console.log("The grafe command must be used within a grafe project.");
         return;
@@ -114,18 +115,17 @@ export async function generateMiddleWare(name: string, short: string, descriptio
     });
 
 
-    let _path = "/src/middlewares/" + short + "/";
+    let _path = path.join('src', 'middlewares', short);
 
-    await mkdirp(rootDir + _path);
+    await mkdirp(path.join(rootDir, _path));
 
-    _path += name + ".ts";
+    _path = path.join(_path, name + ".ts");
 
-    fs.writeFile(rootDir + _path, '', err => {
-        if (err) return console.log(err);
-        console.log("Created new Middleware " + _path);
-    });
+    const templateMiddleWarePath = path.join(__dirname, '..', '..', 'templates', 'starters', 'express', 'src', 'middlewares', 'pt', 'protected.ts'); 
 
-    fs.writeFileSync(rootDir + "/grafe.json", JSON.stringify(data, null, 4));
+    fs.copyFileSync(templateMiddleWarePath, path.join(rootDir, _path));
+    console.log("Created new middleware " + path.join(rootDir, _path));
+    fs.writeFileSync(path.join(rootDir, 'grafe.json'), JSON.stringify(data, null, 4));
 }
 
 /**
@@ -135,13 +135,13 @@ export async function generateMiddleWare(name: string, short: string, descriptio
  * @param mw List of preceding middlewares
  * @returns if everything correct, creates new file
  */
-export async function generateRoute(path: string, method: string, mw: any[]) : Promise<void> {
+export async function generateRoute(routePath: string, method: string, mw: any[]) : Promise<void> {
 
     const rootDir = await pkgDir(process.cwd());
 
     let raw;
     try {
-        raw = fs.readFileSync(rootDir + "/grafe.json");
+        raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
     } catch (err) {
         console.log("The grafe command must be used within a grafe project.");
         return;
@@ -149,19 +149,19 @@ export async function generateRoute(path: string, method: string, mw: any[]) : P
 
     let data = JSON.parse(raw.toString());
 
-    if (path.startsWith('/')) {
-        path = path.substring(1);
+    if (routePath.startsWith('/')) {
+        routePath = routePath.substring(1);
     }
 
-    if (path.endsWith('/')) {
-        path = path.substring(0, path.length - 1);
+    if (routePath.endsWith('/')) {
+        routePath = routePath.substring(0, routePath.length - 1);
     }
 
-    let paths = path.split('/');
+    let paths = routePath.split('/');
 
-    let _path = "/src/routes/";
+    let _path = path.join('src', 'routes');
     for (let i = 0; i < paths.length - 1; i++) {
-        _path += paths[i] + "/";
+        _path = path.join(_path, paths[i]);
     }
 
     let middlewares = mw;
@@ -176,27 +176,27 @@ export async function generateRoute(path: string, method: string, mw: any[]) : P
 
         if (middlewares.length > 1) {
             for (let i = 0; i < middlewares.length - 1; i++) {
-                _path += middlewares[i] + ".";
+                _path = path.join(_path, middlewares[i] + ".");
             }
 
-            _path += middlewares[middlewares.length - 1] + "/";
+            _path = path.join(_path, middlewares[middlewares.length - 1]);
         } else {
-            _path += middlewares[0] + "/";
+            _path = path.join(_path, middlewares[0]);
         }
     }
 
-    await mkdirp(rootDir + _path);
+    await mkdirp(path.join(rootDir, _path));
 
     // add filename to create file with fs
-    _path += paths[paths.length - 1] + "." + method.toLowerCase() + ".ts";
+    _path = path.join(_path, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");
 
-    if (fs.existsSync(rootDir + _path)) {
+    if (fs.existsSync(path.join(rootDir, _path))) {
         console.log("This route does already exist");
         return;
     }
 
-    fs.writeFile(rootDir + _path, '', err => {
-        if (err) return console.log(err);
-        console.log("Created new file " + _path);
-    });
+    const templateRoutePath = path.join(__dirname, '..', '..', 'templates', 'starters', 'express', 'src', 'routes', 'index.ts'); 
+
+    fs.copyFileSync(templateRoutePath, path.join(rootDir, _path));
+    console.log("Created new route " + path.join(rootDir, _path));
 }

@@ -19,7 +19,11 @@ export interface StarterTemplateOptions {
  * @returns The same Yargs object
  */
 export function startCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
-    return yargs;
+    return yargs.option('template', {
+        alias: 't',
+        type: 'string',
+        description: 'What template should be used'
+    });
 }
 
 /**
@@ -44,28 +48,18 @@ export async function startHandler(argv: any): Promise<void> {
 
         projectName = answers.projectName;
     }
-
+    
     // create the path to the template starter dir
-    const templateStartersPath = path.join(__dirname, '..', '..', 'templates', 'starters'); 
+    const templateStartersPath = path.join(__dirname, '..', '..', 'templates', 'starters');
 
-    // read all templates and put them into an array
-    const templateChoises = fs.readdirSync(templateStartersPath);
-
-    // get the template to use from the user
-    const answers = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'templateType',
-            message: 'What project template would you like to use?',
-            choices: templateChoises
-        }
-    ]);
+    // get the template the user specified
+    const templateType = await getTemplate(templateStartersPath, argv);
 
     const projectOptions: StarterTemplateOptions = {
         projectName: projectName,
         projectPath: path.join(process.cwd(), projectName),
-        templateName: answers.templateType,
-        templatePath: path.join(templateStartersPath, answers.templateType)
+        templateName: templateType,
+        templatePath: path.join(templateStartersPath, templateType)
     };
 
     // create project folder 
@@ -89,6 +83,48 @@ export async function startHandler(argv: any): Promise<void> {
     }
 
     console.log("Project created!");
+}
+
+/**
+ * Returns the template the user whants to use
+ * @param templateDirPath The path to the directory where the templates lay
+ * @param argv the arguements you got from yargs
+ * @returns Promise<string> of the name form the template
+ */
+async function getTemplate(templateDirPath: string, argv: any): Promise<string> {
+    // get the template from command line agruments
+    let template = argv.template;
+
+    // read all templates and put them into an array
+    const templateChoises = fs.readdirSync(templateDirPath);
+
+    // check if the user has specified a template in the arguments
+    if (template === undefined) {
+        // get the template to use from the user
+        template = await getTemplateFromUser(templateChoises);
+    }
+
+    // check if the template does not exist
+    if (templateChoises.indexOf(template) === -1) {
+        console.log(`Template "${template}" not found!`);
+        // get the template to use from the user
+        template = await getTemplateFromUser(templateChoises);
+    }
+
+    return template;
+}
+
+async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
+    const answers = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'templateType',
+            message: 'What project template would you like to use?',
+            choices: templateChoises
+        }
+    ]);
+
+    return answers.templateType;
 }
 
 /**

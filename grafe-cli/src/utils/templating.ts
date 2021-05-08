@@ -11,7 +11,7 @@ export interface StarterTemplateOptions {
 }
 
 export function createDirectoryContents(templatePath: string, currentFolder: string, options: any) {
-    const SKIP_FILES = ['node_modules', '.template.json'];
+    const SKIP_FILES = ['node_modules', '.template.json', 'build'];
 
     // read all files/folders (1 level) from template folder
     const filesToCreate = fs.readdirSync(templatePath);

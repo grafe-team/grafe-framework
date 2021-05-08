@@ -165,8 +165,6 @@ export async function generateRoute(path: string, method: string, mw: any[]) {
         _path += paths[i] + "/";
     }
 
-    console.log(_path);
-
     let middlewares = mw;
     if (middlewares != undefined && middlewares.length != 0) {
 

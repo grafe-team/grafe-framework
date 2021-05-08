@@ -29,18 +29,30 @@ export function startCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
  * @returns Promise<undefined>
  */
 export async function startHandler(argv: any): Promise<void> {
+    // get project name from the arguments
+    let projectName: string = argv.projectName;
 
+    // if the project name was not provided get it from the user
+    if (projectName.length === 0) {
+        const answers = await inquirer.prompt([
+            {
+                type: 'input',
+                message: 'Whats the name of your project?',
+                name: 'projectName'
+            }
+        ]);
+
+        projectName = answers.projectName;
+    }
+
+    // create the path to the template starter dir
     const templateStartersPath = path.join(__dirname, '..', '..', 'templates', 'starters'); 
 
     // read all templates and put them into an array
     const templateChoises = fs.readdirSync(templateStartersPath);
 
+    // get the template to use from the user
     const answers = await inquirer.prompt([
-        {
-            type: 'input',
-            message: 'Whats the name of your project?',
-            name: 'projectName'
-        },
         {
             type: 'list',
             name: 'templateType',
@@ -50,8 +62,8 @@ export async function startHandler(argv: any): Promise<void> {
     ]);
 
     const projectOptions: StarterTemplateOptions = {
-        projectName: answers.projectName,
-        projectPath: path.join(process.cwd(), answers.projectName),
+        projectName: projectName,
+        projectPath: path.join(process.cwd(), projectName),
         templateName: answers.templateType,
         templatePath: path.join(templateStartersPath, answers.templateType)
     };
@@ -67,8 +79,10 @@ export async function startHandler(argv: any): Promise<void> {
     // install packages
     console.log('Installing packages ...');
 
+    // install the node packages
     const packagesInstalled = installPackages(projectOptions.projectPath)
 
+    // check if there was an error when installing the packages
     if (packagesInstalled.length !== 0) {
         console.error(packagesInstalled);
         return;

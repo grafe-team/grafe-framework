@@ -4,14 +4,14 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
 
-export function generateCommand(yargs: yargs.Argv<{}>) {
+export function generateCommand(yargs: yargs.Argv<{}>) : yargs.Argv<{}> {
     return yargs;
 }
 
 /**
  * Starts the prompt for generating a new component
  */
-export function generateCLI() {
+export function generateCLI() : void {
     inquirer.prompt([
         {
             type: 'list',
@@ -89,7 +89,7 @@ export function generateCLI() {
  * @param description The description of the middleware
  * @returns if everything correct, creates new file
  */
-export async function generateMiddleWare(name: string, short: string, description: string) {
+export async function generateMiddleWare(name: string, short: string, description: string) : Promise<void> {
     const rootDir = await pkgDir(process.cwd());
 
     let raw;
@@ -135,7 +135,7 @@ export async function generateMiddleWare(name: string, short: string, descriptio
  * @param mw List of preceding middlewares
  * @returns if everything correct, creates new file
  */
-export async function generateRoute(path: string, method: string, mw: any[]) {
+export async function generateRoute(path: string, method: string, mw: any[]) : Promise<void> {
 
     const rootDir = await pkgDir(process.cwd());
 

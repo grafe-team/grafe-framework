@@ -1,14 +1,17 @@
 import inquirer from 'inquirer';
-import { array, choices, conflicts } from 'yargs';
+import yargs, { Options } from 'yargs';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
-import { setFlagsFromString } from 'v8';
+
+export function generateCommand(yargs: yargs.Argv<{}>) {
+    return yargs;
+}
 
 /**
  * Starts the prompt for generating a new component
  */
-function generateCLI() {
+export function generateCLI() {
     inquirer.prompt([
         {
             type: 'list',
@@ -86,7 +89,7 @@ function generateCLI() {
  * @param description The description of the middleware
  * @returns if everything correct, creates new file
  */
-async function generateMiddleWare(name: string, short: string, description: string) {
+export async function generateMiddleWare(name: string, short: string, description: string) {
     const rootDir = await pkgDir(process.cwd());
 
     let raw;
@@ -132,7 +135,7 @@ async function generateMiddleWare(name: string, short: string, description: stri
  * @param mw List of preceding middlewares
  * @returns if everything correct, creates new file
  */
-async function generateRoute(path: string, method: string, mw: any[]) {
+export async function generateRoute(path: string, method: string, mw: any[]) {
 
     const rootDir = await pkgDir(process.cwd());
 
@@ -189,7 +192,7 @@ async function generateRoute(path: string, method: string, mw: any[]) {
     // add filename to create file with fs
     _path += paths[paths.length - 1] + "." + method.toLowerCase() + ".ts";
 
-    if(fs.existsSync(rootDir + _path)) {
+    if (fs.existsSync(rootDir + _path)) {
         console.log("This route does already exist");
         return;
     }
@@ -199,11 +202,3 @@ async function generateRoute(path: string, method: string, mw: any[]) {
         console.log("Created new file " + _path);
     });
 }
-
-const generate = {
-    generateCLI,
-    generateMiddleWare,
-    generateRoute,
-}
-
-export = generate;

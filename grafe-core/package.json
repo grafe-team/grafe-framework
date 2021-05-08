@@ -1,0 +1,25 @@
+{
+  "name": "@grafe/grafe-core",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/streimelstefan/grafe-framework.git"
+  },
+  "keywords": [
+    "grafe-core",
+    "rest-server",
+    "backend",
+    "framework"
+  ],
+  "author": "Stefan Streimel, Marvin Koch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/streimelstefan/grafe-framework/issues"
+  },
+  "homepage": "https://github.com/streimelstefan/grafe-framework#readme"
+}

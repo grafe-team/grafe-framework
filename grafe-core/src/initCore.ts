@@ -1,0 +1,51 @@
+import * as fs from 'fs';
+import { setConfig, Config } from './config';
+import * as path from 'path';
+
+/**
+ * Loades the config and checks if everything checks out
+ * 
+ * @param configPath The absolut path to the config file
+ * @returns true if config was loaded false if something whent wrong
+ */
+export function initCore(configPath: string): boolean {
+    // check if the config file exists
+    try {
+
+        if (!fs.existsSync(configPath)) {
+            console.error('Unable to initialize grafe-core. Config file not found please check the path you provided!');
+            return false;
+        }
+    } catch (error) {
+        console.error('An error accoured reading the config file: ' + error);
+        return false;
+    }
+
+    let config: Config;
+
+    // read the config file and set the global config
+    try {
+        config = JSON.parse(fs.readFileSync(configPath).toString());
+    } catch(error) {
+        console.error('Unable to read/pares grafe cofnig file: ' + error);
+        return false;
+    }
+
+    // set base dir in the config
+    config.baseDir = path.parse(configPath).dir;
+
+    config = createMiddlewareLinks(config);
+
+    // set the created config so it can be used globaly
+    setConfig(config);
+
+    return true;
+}
+
+function createMiddlewareLinks(config: Config): Config {
+    config.middlewares.forEach(mw => {
+        mw.link = path.join(config.baseDir, config.middlewarePath, mw.value, mw.name + '.js');
+    });
+
+    return config;
+}

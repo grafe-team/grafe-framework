@@ -403,10 +403,10 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
             }
             middlewareName += middlewares[middlewares.length - 1];
 
-            _path = path.join(_path, middlewareName);
+            _path = path.join(_path, "mw." + middlewareName);
         } else {
             // if the user only wants one then just use it as directory name
-            _path = path.join(_path, middlewares[0]);
+            _path = path.join(_path, "mw." + middlewares[0]);
         }
     }
 

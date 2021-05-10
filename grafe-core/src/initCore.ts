@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { setConfig, Config } from './config';
 import * as path from 'path';
+import { initMiddlewares } from './initMiddlewares';
 
 /**
  * Loades the config and checks if everything checks out
@@ -39,6 +40,11 @@ export function initCore(configPath: string): boolean {
 
     // remove middlewares that do not exist
     config = removeNonExistantMiddlewares(config);
+    console.log('setting config');
+
+    // initiate Middlewares
+    initMiddlewares(config);
+
 
     // set the created config so it can be used globaly
     setConfig(config);

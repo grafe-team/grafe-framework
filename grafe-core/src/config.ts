@@ -46,6 +46,11 @@ interface Middleware {
      * Points to the file of the middleware 
     */
     link: string;
+
+    /**
+     * Is the function of the middle ware
+     */
+    func?: (req: any, res: any, next: any) => any;
 }
 
 /**

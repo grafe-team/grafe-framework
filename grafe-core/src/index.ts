@@ -1,4 +1,5 @@
+import { initCore } from './initCore';
 
-export function initRoutes() {
-
-}
+export = {
+    initCore
+};

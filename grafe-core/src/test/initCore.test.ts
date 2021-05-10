@@ -6,12 +6,13 @@ import * as sinon from 'sinon';
 import * as chai from 'chai';
 import 'mocha';
 import { initCore } from '../initCore';
+import * as requireMock from 'mock-require';
 
 describe('initCore file', () => {
 
     describe('initCore function', () => {
         
-        const basicConfig = `{
+        const basicConfigObj = {
             "projectType": "express",
             "routepath": "src/routes",
             "middlewarePath": "src/middlewares",
@@ -22,12 +23,21 @@ describe('initCore file', () => {
                     "value": "pt"
                 }
             ]
-        }`;
+        };
+
+        const basicConfig = JSON.stringify(basicConfigObj);
+
+        const basePath = path.join(__dirname);
+
+        const middlewareRequirePath = 
+            path.join(basePath, basicConfigObj.middlewarePath, basicConfigObj.middlewares[0].value, basicConfigObj.middlewares[0].name);
 
         let fsExistsStub: sinon.SinonStub;
         let fsReadFileStub: sinon.SinonStub;
         let consoleErrorStub: sinon.SinonStub;
         let setConfigSpy: sinon.SinonSpy;
+        let requireSpy: sinon.SinonStub;
+        let requiredFunctionSpy: sinon.SinonSpy;
 
         beforeEach(() => {
             fsExistsStub = sinon.stub(fs, 'existsSync').returns(true);
@@ -35,7 +45,13 @@ describe('initCore file', () => {
             fsReadFileStub = sinon.stub(fs, 'readFileSync');
             // i am stubing this because i dont want logs to the console while the test runs
             consoleErrorStub = sinon.stub(console, 'error');
-            setConfigSpy = sinon.spy(Config, 'setConfig'); 
+            setConfigSpy = sinon.spy(Config, 'setConfig');
+            
+            // requiredFunctionSpy = sinon.spy();
+            // requireSpy = sinon.stub().returns(requiredFunctionSpy);
+
+            // requireMock.default(middlewareRequirePath, requireSpy);
+
         });
 
         afterEach(() => {
@@ -43,22 +59,31 @@ describe('initCore file', () => {
             fsReadFileStub.restore();
             consoleErrorStub.restore();
             setConfigSpy.restore();
+
+            // requiredFunctionSpy.resetHistory();
+            // requireSpy.reset();
+            // requireMock.stopAll();
         });
 
         it ('should check if file exists, read file, parse it, set base dir, createMiddlewareLinks and return true', () => {
             fsExistsStub.returns(true);
             fsReadFileStub.returns(basicConfig);
+            
+            const rewired = rewire('../initCore');
+            rewired.__set__('initMiddlewares', (stuff: any) => {});
+            const initCore = rewired.__get__('initCore');
 
-            const basePath = path.join(__dirname);
+            let results: boolean;
 
-            const resulst = initCore(path.join(basePath, 'grafe.json'));
+            // check if funktio throws an error
+            chai.expect(() => {results = initCore(path.join(basePath, 'grafe.json'))}).to.not.throw('initCore is not allowed to throw an error');
 
             // check if all functions that should/shouldnt be called where called acordingly
             chai.expect(fsExistsStub.callCount).to.deep.eq(2, 'fs.existsSync should be called once');
             chai.expect(fsReadFileStub.callCount).to.deep.eq(1, 'fs.readFileSync should be called once');
             chai.expect(setConfigSpy.callCount).to.deep.eq(1, 'setConfig should be called once');
             chai.expect(consoleErrorStub.called).to.deep.eq(false, 'console.error should not be called');
-            chai.expect(resulst).to.deep.equal(true, 'initCore has to deeply return true');
+            chai.expect(results).to.deep.equal(true, 'initCore has to deeply return true');
 
             const config = Config.getConfig();
 

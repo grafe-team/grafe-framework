@@ -4,6 +4,7 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
 import * as path from 'path';
+import messages from './generate.messages';
 
 /**
  * Describes the syntax of the generate command 
@@ -17,31 +18,37 @@ export function generateCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
         return y.option('routePath', {
             alias: 'r',
             type: 'string',
-            description: 'Path of the new route'
+            description: messages.commands.route.routePath.description
         }).option('method', {
             alias: 'm',
             type: 'string',
-            description: 'HTTP-Method of the route'
+            description: messages.commands.route.method.description
         }).option('middlewares', {
             alias: 'w',
             type: 'array',
-            description: 'Middlewares for this route'
+            description: messages.commands.route.middlewares.description
         });
     }, generateRouteHandler).command('middleware', '', y => {
         return y.option('name', {
             alias: 'n',
             type: 'string',
-            description: 'Name of the middleware'
+            description: messages.commands.middleware.name.description
         }).option('short', {
             alias: 's',
             type: 'string',
-            description: 'Short name of the middleware'
+            description: messages.commands.middleware.short.description
         }).option('description', {
             alias: 'd',
             type: 'string',
-            description: 'Description of the middleware'
+            description: messages.commands.middleware.description.description
         });
-    }, generateMiddleWareHandler);
+    }, generateMiddleWareHandler).command('static', '', y => {
+        return y.option('name', {
+            alias: 'n',
+            type: 'string',
+            description: messages.commands.static.name.descirption
+        })
+    }, generateStaticHandler);;
 }
 
 /**
@@ -58,8 +65,8 @@ export async function generateHandler(argv: any): Promise<void> {
         {
             type: 'list',
             name: 'type',
-            message: 'What do you want to generate',
-            choices: ['Route', 'Middleware'],
+            message: messages.questions.mainHandler.message,
+            choices: ['Route', 'Middleware', 'Static Folder'],
         }
     ]);
 
@@ -73,6 +80,9 @@ export async function generateHandler(argv: any): Promise<void> {
     } else if (answers.type === "middleware") {
         // if choice is middleware generate middleware
         generateMiddleWareHandler(argv);
+    }else if (answers.type === "static folder") {
+        // if choice is satic folder generate static
+        generateStaticHandler(argv);
     }
 }
 
@@ -83,7 +93,7 @@ export async function generateHandler(argv: any): Promise<void> {
  * @returns Promise<undefined>
  */
 async function generateRouteHandler(argv: any): Promise<void> {
-    
+
     // get root directory (where package.json is in)
     const rootDir = await pkgDir(process.cwd());
 
@@ -92,7 +102,7 @@ async function generateRouteHandler(argv: any): Promise<void> {
     try {
         raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
     } catch (err) {
-        return console.log("The grafe command must be used within a grafe project.");
+        return console.log(messages.not_grafe);
     }
 
     let data = JSON.parse(raw.toString());
@@ -104,7 +114,7 @@ async function generateRouteHandler(argv: any): Promise<void> {
         questions.push({
             type: 'input',
             name: 'path',
-            message: 'What is the new route called'
+            message: messages.questions.routeHandler.routePath
         });
     }
 
@@ -113,7 +123,7 @@ async function generateRouteHandler(argv: any): Promise<void> {
         questions.push({
             type: 'list',
             name: 'method',
-            message: 'Which HTTP-Method should the new route be',
+            message: messages.questions.routeHandler.method,
             choices: ['GET', 'POST', 'PUT', 'DELETE'],
         });
     }
@@ -122,7 +132,7 @@ async function generateRouteHandler(argv: any): Promise<void> {
     if (argv.middlewares == undefined) {
         questions.push({
             type: 'checkbox',
-            message: 'Select the middlewares for this route',
+            message: messages.questions.routeHandler.middlewares,
             name: 'middlewares',
             choices: data.middlewares
         });
@@ -150,7 +160,7 @@ async function generateRouteHandler(argv: any): Promise<void> {
     answers.method = answers.method || argv.method;
     answers.middlewares = answers.middlewares || argv.middlewares;
 
-     // generate the new route
+    // generate the new route
     await generateRoute(answers.path, answers.method, answers.middlewares);
 }
 
@@ -168,7 +178,7 @@ async function generateMiddleWareHandler(argv: any): Promise<void> {
         questions.push({
             type: 'input',
             name: 'name',
-            message: 'How is the new middleware called'
+            message: messages.questions.middleWareHandler.name
         });
     }
 
@@ -177,7 +187,7 @@ async function generateMiddleWareHandler(argv: any): Promise<void> {
         questions.push({
             type: 'input',
             name: 'short',
-            message: 'What is the shortcut for this Middleware'
+            message: messages.questions.middleWareHandler.short
         });
     }
 
@@ -186,11 +196,11 @@ async function generateMiddleWareHandler(argv: any): Promise<void> {
         questions.push({
             type: 'input',
             name: 'description',
-            message: 'What is the description of this Middleware',
+            message: messages.questions.middleWareHandler.description,
             default: ''
         });
     }
-    
+
     let answers = [];
     // Check if there is at least one question
     if (questions.length > 0) {
@@ -206,6 +216,65 @@ async function generateMiddleWareHandler(argv: any): Promise<void> {
     // generate the new middleware
     await generateMiddleWare(answers.name, answers.short, answers.description);
 }
+
+/**
+ * Generates the CLI for creating a new static folder
+ * 
+ * @param argv Arguments of the CLI
+ * @returns Promise<undefined>
+ */
+async function generateStaticHandler(argv: any): Promise<void> {
+    // get root directory (where package.json is in)
+    const rootDir = await pkgDir(process.cwd());
+
+    // check if the project is a grafe project
+    try {
+        fs.readFileSync(path.join(rootDir, '/grafe.json'));
+    } catch (err) {
+        return console.log(messages.not_grafe);
+    }
+
+    let questions = [];
+
+    if (argv.name == undefined) {
+        questions.push({
+            type: 'input',
+            name: 'name',
+            message: messages.questions.staticHandler.name
+        });
+    }
+
+    let answers = [];
+    // Check if there is at least one question
+    if (questions.length > 0) {
+        // prompt the user the questions
+        answers = await inquirer.prompt(questions);
+    }
+
+    answers.name = answers.name || argv.name;
+
+    generateStatic(answers.name);
+}
+
+/**
+ * Generate a new static folder
+ * 
+ * @param name name of the new static folder
+ * @returns Promise<undefined>
+ */
+export async function generateStatic(name: string): Promise<void> {
+    // get root directory (where package.json is in)
+    const rootDir = await pkgDir(process.cwd());
+
+    const _path = path.join(rootDir, 'src', 'static', name);
+
+    // create all non-existing directorys
+    await mkdirp(_path);
+
+    console.log(messages.generateStatic.success, _path);
+}
+
+
 /**
  * Generates a new folder structor for the new middleware and creates a template file
  * 
@@ -224,19 +293,19 @@ export async function generateMiddleWare(name: string, short: string, descriptio
     try {
         raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
     } catch (err) {
-        return console.log("The grafe command must be used within a grafe project.");
+        return console.log(messages.not_grafe);
     }
 
     let data = JSON.parse(raw.toString());
 
     // Check if the name of the new middleware already exists
     if (data.middlewares.some((item: any) => item.name === name)) {
-        return console.log("The name of this middleware is already in use");
+        return console.log(messages.generateMiddleware.middleware_in_use);
     }
 
     // Check if the shortcut of the new middleware already exists
     if (data.middlewares.some((item: any) => item.value === short)) {
-        return console.log("The shortcut of this middleware is already in use");
+        return console.log(messages.generateMiddleware.shortcut_in_use);
     }
 
     // add new midddleware to grafe.json list
@@ -245,7 +314,7 @@ export async function generateMiddleWare(name: string, short: string, descriptio
         description: description,
         value: short,
     });
-    
+
     // build path to the new middleware
     let _path = path.join('src', 'middlewares', short);
 
@@ -261,7 +330,7 @@ export async function generateMiddleWare(name: string, short: string, descriptio
     // copy the template to the given destination
     fs.copyFileSync(templateMiddleWarePath, path.join(rootDir, _path));
     fs.writeFileSync(path.join(rootDir, 'grafe.json'), JSON.stringify(data, null, 4));
-    console.log("Created new middleware " + path.join(rootDir, _path));
+    console.log(messages.generateMiddleware.success, path.join(rootDir, _path));
 }
 
 /**
@@ -282,7 +351,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     try {
         raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
     } catch (err) {
-        return console.log("The grafe command must be used within a grafe project.");
+        return console.log(messages.not_grafe);
     }
 
     let data = JSON.parse(raw.toString());
@@ -308,7 +377,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
 
     // check if given method is eiter get post put or delete
     if (!['get', 'post', 'put', 'delete'].includes(method.toLocaleLowerCase())) {
-        return console.log("Please use a valid HTTP-Method [GET, POST, PUT, DELETE]");
+        return console.log(messages.generateRoute.invalid_method);
     }
 
     let middlewares = mw;
@@ -320,7 +389,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
         for (let mid of middlewares) {
             // check if the middleware exists or not
             if (!(data.middlewares.some((item: any) => item.value === mid))) {
-                return console.log("There is no Middleware with the shortcut " + mid);
+                return console.log(messages.generateRoute.invalid_shortcut, mid);
             }
         }
 
@@ -349,7 +418,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
 
     // check if this route already exitsts or not
     if (fs.existsSync(path.join(rootDir, _path))) {
-        return console.log("This route does already exist");
+        return console.log(messages.generateRoute.exists);
     }
 
     // build template file path
@@ -357,5 +426,5 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
 
     // copy the template file to the destination
     fs.copyFileSync(templateRoutePath, path.join(rootDir, _path));
-    console.log("Created new route " + path.join(rootDir, _path));
+    console.log(messages.generateRoute.success, path.join(rootDir, _path));
 }

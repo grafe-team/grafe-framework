@@ -51,6 +51,17 @@ import messages from './generate.messages';
  * @returns Promise<undefined>
  */
 export async function generateStatic(name: string): Promise<void> {
+
+    let confirm = await inquirer.prompt({
+        message: messages.confirm,
+        type: 'confirm',
+        name: 'confirm'
+    });
+
+    if(!confirm.confirm) {
+        return;
+    }
+
     // get root directory (where package.json is in)
     const rootDir = await pkgDir(process.cwd());
 

@@ -106,8 +106,18 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     } catch (err) {
         return console.log(messages.not_grafe);
     }
-
+    
     let data = JSON.parse(raw.toString());
+
+    let confirm = await inquirer.prompt({
+        message: messages.confirm,
+        type: 'confirm',
+        name: 'confirm'
+    });
+
+    if(!confirm.confirm) {
+        return;
+    }
 
     // remove first slash if it has one
     if (routePath.startsWith('/')) {
@@ -166,18 +176,21 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     // create all non-existing directorys
     await mkdirp(path.join(rootDir, _path));
 
+    let _testPath;
+    
     // check if tests are enabled
     if (data.tests) {
-        let _testPath = path.join(rootDir, _path, 'tests');
+        _testPath = path.join(rootDir, _path, 'tests');
         await mkdirp(_testPath);
 
         _testPath = path.join(_testPath, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");
 
-        // check if this route already exitsts or not
+        // check if this file already exitsts or not
         if (fs.existsSync(_testPath)) {
             return console.log(messages.generateRoute.exists);
         }
 
+        // get the path of the template file for tests
         const templateTestPath = path.join(__dirname, '..', '..', 'templates', 'tests', 'mocha', 'template.test.ts');
 
         // read file content and transform it using template engine
@@ -188,6 +201,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
             fileName: paths[paths.length - 1] + "." + method.toLowerCase() + ".ts"
         });
 
+        // write with changed content
         fs.writeFileSync(_testPath, contents, 'utf8');
         
         console.log(messages.generateRoute.tests, _testPath);
@@ -207,4 +221,5 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     // copy the template file to the destination
     fs.copyFileSync(templateRoutePath, path.join(rootDir, _path));
     console.log(messages.generateRoute.success, path.join(rootDir, _path));
+
 }

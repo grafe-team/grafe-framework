@@ -81,6 +81,16 @@ import messages from './generate.messages';
 
     let data = JSON.parse(raw.toString());
 
+    let confirm = await inquirer.prompt({
+        message: messages.confirm,
+        type: 'confirm',
+        name: 'confirm'
+    });
+
+    if(!confirm.confirm) {
+        return;
+    }
+
     // Check if the name of the new middleware already exists
     if (data.middlewares.some((item: any) => item.name === name)) {
         return console.log(messages.generateMiddleware.middleware_in_use);

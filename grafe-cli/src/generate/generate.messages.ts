@@ -60,5 +60,6 @@ export = {
         success: 'Created new route %s',
         tests: 'Created new test-file %s',
     },
+    confirm: 'Is everything correct',
     not_grafe: 'The grafe command must be used within a grafe project.'
 }

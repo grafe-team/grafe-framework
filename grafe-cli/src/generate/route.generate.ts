@@ -4,6 +4,7 @@ import mkdirp from 'mkdirp';
 import pkgDir from 'pkg-dir';
 import * as path from 'path';
 import messages from './generate.messages';
+import * as ejs from 'ejs';
 
 
 /**
@@ -12,7 +13,7 @@ import messages from './generate.messages';
  * @param argv Arguments of the CLI
  * @returns Promise<undefined>
  */
- export async function generateRouteHandler(argv: any): Promise<void> {
+export async function generateRouteHandler(argv: any): Promise<void> {
 
     // get root directory (where package.json is in)
     const rootDir = await pkgDir(process.cwd());
@@ -93,7 +94,7 @@ import messages from './generate.messages';
  * @param mw List of preceding middlewares
  * @returns Promise<undefined>
  */
- export async function generateRoute(routePath: string, method: string, mw: any[]): Promise<void> {
+export async function generateRoute(routePath: string, method: string, mw: any[]): Promise<void> {
 
     // get root directory (where package.json is in)
     const rootDir = await pkgDir(process.cwd());
@@ -164,6 +165,33 @@ import messages from './generate.messages';
 
     // create all non-existing directorys
     await mkdirp(path.join(rootDir, _path));
+
+    // check if tests are enabled
+    if (data.tests) {
+        let _testPath = path.join(rootDir, _path, 'tests');
+        await mkdirp(_testPath);
+
+        _testPath = path.join(_testPath, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");
+
+        // check if this route already exitsts or not
+        if (fs.existsSync(_testPath)) {
+            return console.log(messages.generateRoute.exists);
+        }
+
+        const templateTestPath = path.join(__dirname, '..', '..', 'templates', 'tests', 'mocha', 'template.test.ts');
+
+        // read file content and transform it using template engine
+        let contents = fs.readFileSync(templateTestPath, 'utf8');
+
+        // insert dynamic content 
+        contents = ejs.render(contents, {
+            fileName: paths[paths.length - 1] + "." + method.toLowerCase() + ".ts"
+        });
+
+        fs.writeFileSync(_testPath, contents, 'utf8');
+        
+        console.log(messages.generateRoute.tests, _testPath);
+    }
 
     // add filename to create file with fs
     _path = path.join(_path, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");

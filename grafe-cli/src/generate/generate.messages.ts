@@ -57,7 +57,8 @@ export = {
         invalid_method: 'Please use a valid HTTP-Method [GET, POST, PUT, DELETE]',
         invalid_shortcut: 'There is no Middleware with the shortcut %s',
         exists: 'This route does already exist',
-        success: 'Created new route %s'
+        success: 'Created new route %s',
+        tests: 'Created new test-file %s',
     },
     not_grafe: 'The grafe command must be used within a grafe project.'
 }

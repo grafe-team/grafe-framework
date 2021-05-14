@@ -129,6 +129,8 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
         routePath = routePath.substring(0, routePath.length - 1);
     }
 
+    routePath = routePath.replace(':', '%');
+
     let paths = routePath.split('/');
 
     // starting path is ./src/routes

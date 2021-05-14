@@ -3,6 +3,7 @@ import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as shell from 'shelljs'
+import pkgDir from 'pkg-dir';
 import { createDirectoryContents } from '../utils/templating'
 
 export interface StarterTemplateOptions {
@@ -23,6 +24,9 @@ export function startCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
         alias: 't',
         type: 'string',
         description: 'What template should be used'
+    }).option('testing', {
+        type: 'boolean',
+        description: 'Enable testing for the project'
     });
 }
 
@@ -48,7 +52,7 @@ export async function startHandler(argv: any): Promise<void> {
 
         projectName = answers.projectName;
     }
-    
+
     // create the path to the template starter dir
     const templateStartersPath = path.join(__dirname, '..', '..', 'templates', 'starters');
 
@@ -69,6 +73,21 @@ export async function startHandler(argv: any): Promise<void> {
 
     // copy template into projet folder
     createDirectoryContents(projectOptions.templatePath, projectOptions.projectName, projectOptions);
+
+    if (argv.testing) {
+        let raw;
+        try {
+            raw = fs.readFileSync(path.join(projectOptions.projectPath, 'grafe.json'));
+        } catch (err) {
+            console.log("The grafe command must be used within a grafe project.");
+            return;
+        }
+
+        let data = JSON.parse(raw.toString());
+
+        data.tests = true;
+        fs.writeFileSync(path.join(projectOptions.projectPath, 'grafe.json') , JSON.stringify(data, null, 4));
+    }
 
     // install packages
     console.log('Installing packages ...');
@@ -159,7 +178,7 @@ function installPackages(projectFolder: string): string {
         const result = shell.exec('npm install', {
             silent: true
         });
-    
+
         if (result.code !== 0) {
             return 'Something whent wrong';
         }

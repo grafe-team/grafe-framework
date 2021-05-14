@@ -65,6 +65,7 @@ export async function startHandler(argv: any): Promise<void> {
         name: 'confirm'
     });
 
+    // check if everything is right
     if (!confirm.confirm) {
         return;
     }

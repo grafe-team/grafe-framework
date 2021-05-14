@@ -59,6 +59,16 @@ export async function startHandler(argv: any): Promise<void> {
     // get the template the user specified
     const templateType = await getTemplate(templateStartersPath, argv);
 
+    let confirm = await inquirer.prompt({
+        message: messages.confirm,
+        type: 'confirm',
+        name: 'confirm'
+    });
+
+    if (!confirm.confirm) {
+        return;
+    }
+
     const projectOptions: StarterTemplateOptions = {
         projectName: projectName,
         projectPath: path.join(process.cwd(), projectName),
@@ -86,7 +96,7 @@ export async function startHandler(argv: any): Promise<void> {
         let data = JSON.parse(raw.toString());
 
         data.tests = true;
-        fs.writeFileSync(path.join(projectOptions.projectPath, 'grafe.json') , JSON.stringify(data, null, 4));
+        fs.writeFileSync(path.join(projectOptions.projectPath, 'grafe.json'), JSON.stringify(data, null, 4));
     }
 
     // install packages

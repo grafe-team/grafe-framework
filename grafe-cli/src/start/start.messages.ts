@@ -13,8 +13,8 @@ export = {
     },
     questions: {
         startHandler: {
-            projectName: 'Whats the name of your project?',
-            template: 'What project template would you like to use?'
+            projectName: 'Whats the name of your project',
+            template: 'What project template would you like to use'
         }
     },
     templating: {
@@ -26,4 +26,5 @@ export = {
     already_exists: 'Folder %s already exists. Delete it or use another name!',
     no_package: 'No package.json',
     went_wrong: 'Something whent wrong',
+    confirm: 'Is everything correct',
 }

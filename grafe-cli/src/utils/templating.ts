@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ejs from 'ejs';
+import 'colors';
 
 /**
  * Recursivly copies a template into a target folder. It also populates the template with the options provided if needed
@@ -34,6 +35,7 @@ export function createDirectoryContents(templatePath: string, currentFolder: str
             // write file to destination folder
             const writePath = path.join(process.cwd(), currentFolder, file);
             fs.writeFileSync(writePath, contents, 'utf8');
+            console.log('CREATE '.green + path.join(process.cwd(), currentFolder, file));
         } else if (stats.isDirectory()) {
             // create folder in destination folder
             fs.mkdirSync(path.join(process.cwd(), currentFolder, file));

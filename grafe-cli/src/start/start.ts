@@ -41,7 +41,7 @@ export async function startHandler(argv: any): Promise<void> {
     let projectName: string = argv.projectName;
 
     // if the project name was not provided get it from the user
-    if (projectName.length === 0) {
+    if (projectName === undefined || projectName.length === 0) {
         const answers = await inquirer.prompt([
             {
                 type: 'input',

@@ -26,7 +26,7 @@ export interface Config {
     baseDir: string;
 }
 
-interface Middleware {
+export interface Middleware {
     /**
      * Long name of the middleware.
      */

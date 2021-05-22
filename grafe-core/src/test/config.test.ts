@@ -25,7 +25,7 @@ describe('config file', () => {
                 value: 'second',
                 link: ''
             }
-        ]
+        ],
     };
 
     afterEach(() => {

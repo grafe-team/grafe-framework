@@ -26,7 +26,7 @@ export interface Config {
     baseDir: string;
 }
 
-interface Middleware {
+export interface Middleware {
     /**
      * Long name of the middleware.
      */
@@ -51,6 +51,30 @@ interface Middleware {
      * Is the function of the middle ware
      */
     func?: (req: any, res: any, next: any) => any;
+
+    /**
+     * The route tree representing all the routes that need to be created
+     */
+    routeTree?: RoutePart;
+}
+
+export interface RoutePart {
+    /**
+     * the name of the next tree is the next part of the route that needs to be taken
+    */ 
+    [route: string]: RoutePart | Route;
+}
+
+export interface Route {
+    /**
+     * Rest method that should be used for that route
+     */
+    method: 'post' | 'get' | 'put' | 'delete';
+    
+    /**
+     * What middlewares should be used on that route
+     */
+    middlewares: Middleware[];
 }
 
 /**

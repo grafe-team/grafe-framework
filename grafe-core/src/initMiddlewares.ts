@@ -1,4 +1,4 @@
-import { Config } from './config';
+import { Config, Middleware } from './config';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -10,16 +10,18 @@ import * as fs from 'fs';
 export function initMiddlewares(config: Config): void {
     // currently this is not very performant i could do everything in one for loop
 
-    // create path links for the middlewares
-    createMiddlewareLinks(config);
+    for (let i = 0; i < config.middlewares.length; i++) {
+        // create path links for the middlewares
+        createMiddlewareLinks(config, config.middlewares[i]);
 
-    // check if the mw files exist, if they dont delete em
-    removeNonExistantMiddlewares(config);
+        // check if the mw files exist, if they dont delete em
+        if(removeNonExistantMiddlewares(config, config.middlewares[i])) {
+            i--;
+        }
 
-    // load the middleware functions
-    config.middlewares.forEach(mw => {
-        mw.func = require(mw.link);
-    });
+        // load the middleware functions
+        config.middlewares[i].func = require(config.middlewares[i].link);
+    };
 }
 
 /**
@@ -28,13 +30,11 @@ export function initMiddlewares(config: Config): void {
  * @param config the grafe config
  * @returns the new grafe config with the middleware links
  */
-function createMiddlewareLinks(config: Config): Config {
-    config.middlewares.forEach(mw => {
-        // build the link 
-        // middlewares are stored in the path: 'BASE_DIR/MW_STORAGE_PATH/MW_SHORT/MW_NAME.js
-        // exapmle: BASEDIR/src/middlewares/usr/users_only.js
-        mw.link = path.join(config.baseDir, config.middlewarePath, mw.value, mw.name + '.js');
-    });
+function createMiddlewareLinks(config: Config, mw: Middleware): Config {
+    // build the link 
+    // middlewares are stored in the path: 'BASE_DIR/MW_STORAGE_PATH/MW_SHORT/MW_NAME.js
+    // exapmle: BASEDIR/src/middlewares/usr/users_only.js
+    mw.link = path.join(config.baseDir, config.middlewarePath, mw.value, mw.name + '.js');
 
     return config;
 }
@@ -47,23 +47,18 @@ function createMiddlewareLinks(config: Config): Config {
  * @param config The grafe config
  * @returns The new grafe config
  */
-function removeNonExistantMiddlewares(config: Config): Config {
-    for (let i = 0; i < config.middlewares.length; i++) {
-        
-        // if a link is undefind throw an error
-        if (config.middlewares[i].link === undefined) {
-            throw `No link for middleware ${config.middlewares[i].name} found. Where the links build?`;
-        }
-
-        // check if the middleware file exists
-        if (!fs.existsSync(config.middlewares[i].link)) {
-            // remove the mw because it does not exist
-            config.middlewares.splice(i, 1);
-
-            // decrease i by one so we dont skip a mw
-            i--;
-        }
+function removeNonExistantMiddlewares(config: Config, mw: Middleware): boolean {
+    // if a link is undefind throw an error
+    if (mw.link === undefined) {
+        throw `No link for middleware ${mw.name} found. Where the links build?`;
     }
 
-    return config;
+    // check if the middleware file exists
+    if (!fs.existsSync(mw.link)) {
+        // remove the mw because it does not exist
+        config.middlewares.splice(config.middlewares.indexOf(mw), 1);
+        return true;
+    }
+
+    return false;
 }

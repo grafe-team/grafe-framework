@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { setConfig, Config } from './config';
 import * as path from 'path';
 import { initMiddlewares } from './initMiddlewares';
+import { createRouteTree } from './routes';
 
 /**
  * Loads the config and checks if everything checks out
@@ -37,6 +38,9 @@ export function initCore(configPath: string): boolean {
 
     // initiate Middlewares
     initMiddlewares(config);
+
+    // createRouteTree
+    config = createRouteTree(config);
 
     // set the created config so it can be used globaly
     setConfig(config);

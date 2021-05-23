@@ -18,9 +18,9 @@
         }
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "test/**/*"
     ],
     "exclude": [
-        "src/templates/**/*" // templates
     ]
 }

@@ -1,5 +1,5 @@
-import { initCore } from './initCore';
 import { readAllFilesStats } from './file';
+import { initCore } from './initCore';
 
 export = {
     initCore

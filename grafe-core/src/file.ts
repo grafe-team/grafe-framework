@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-interface FileInfo {
+export interface FileInfo {
     path: string;
     name: string;
     isDirectory: Boolean;

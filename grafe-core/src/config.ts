@@ -24,6 +24,11 @@ export interface Config {
      * String to the directory where the grafe.json file lives
      */
     baseDir: string;
+
+    /**
+     * The route tree representing all the routes that need to be created
+     */
+     routeTree: RoutePart;
 }
 
 export interface Middleware {
@@ -51,11 +56,6 @@ export interface Middleware {
      * Is the function of the middle ware
      */
     func?: (req: any, res: any, next: any) => any;
-
-    /**
-     * The route tree representing all the routes that need to be created
-     */
-    routeTree?: RoutePart;
 }
 
 export interface RoutePart {
@@ -67,6 +67,18 @@ export interface RoutePart {
 
 export interface Route {
     /**
+     * The last part of the whole Rest endpoint
+     * 
+     * Example:
+     * 
+     * If the enpoint is: /auth/login
+     * 
+     * Then this value will be: login
+     * 
+     */
+    endpoint: string;
+
+    /**
      * Rest method that should be used for that route
      */
     method: 'post' | 'get' | 'put' | 'delete';
@@ -75,6 +87,11 @@ export interface Route {
      * What middlewares should be used on that route
      */
     middlewares: Middleware[];
+
+    /**
+     * This is only a temporary fix. Without it typescirpt will think that a routPart is a route and throw an error
+     */
+    [route: string]: any;
 }
 
 /**

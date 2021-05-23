@@ -168,10 +168,10 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
             }
             middlewareName += middlewares[middlewares.length - 1];
 
-            _path = path.join(_path, "mw." + middlewareName);
+            _path = path.join(_path, "_mw." + middlewareName);
         } else {
             // if the user only wants one then just use it as directory name
-            _path = path.join(_path, "mw." + middlewares[0]);
+            _path = path.join(_path, "_mw." + middlewares[0]);
         }
     }
 
@@ -182,7 +182,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     
     // check if tests are enabled
     if (data.tests) {
-        _testPath = path.join(rootDir, _path, 'tests');
+        _testPath = path.join(rootDir, _path, '_tests');
         await mkdirp(_testPath);
 
         _testPath = path.join(_testPath, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");

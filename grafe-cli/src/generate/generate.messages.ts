@@ -1,3 +1,5 @@
+import 'colors';
+
 export = {
     commands: {
         route: {
@@ -46,18 +48,20 @@ export = {
         }
     },
     generateStatic: {
-        success: 'Created new static folder %s'
+        success: 'CREATE'.green + ' %s'
     },
     generateMiddleware: {
         middleware_in_use: 'The name of this middleware is already in use',
         shortcut_in_use: 'The shortcut of this middleware is already in use',
-        success: 'Created new middleware %s'
+        success: 'CREATE'.green + ' %s'
     },
     generateRoute: {
         invalid_method: 'Please use a valid HTTP-Method [GET, POST, PUT, DELETE]',
         invalid_shortcut: 'There is no Middleware with the shortcut %s',
         exists: 'This route does already exist',
-        success: 'Created new route %s'
+        success: 'CREATE'.green + ' %s',
+        tests: 'CREATE'.green +  ' %s',
     },
+    confirm: 'Is everything correct',
     not_grafe: 'The grafe command must be used within a grafe project.'
 }

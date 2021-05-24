@@ -45,6 +45,9 @@ export = {
         },
         staticHandler: {
             name: 'How is the new static folder called'
+        },
+        utilsHandler: {
+            type: 'What do you want to generate',
         }
     },
     generateStatic: {

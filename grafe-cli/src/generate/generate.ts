@@ -4,6 +4,7 @@ import messages from './generate.messages';
 import { generateRouteHandler } from './route.generate';
 import { generateMiddleWareHandler } from './middleware.generate';
 import { generateStaticHandler } from './static.generate';
+import { generateUtilsHandler } from './utils.generate';
 
 /**
  * Describes the syntax of the generate command 
@@ -13,7 +14,7 @@ import { generateStaticHandler } from './static.generate';
  */
 export function generateCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
     // returns two subcommands with the arguments
-    return yargs.command('route', 'generate ', y => {
+    return yargs.command('route', 'insert desc', y => {
         return y.option('routePath', {
             alias: 'r',
             type: 'string',
@@ -27,7 +28,7 @@ export function generateCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
             type: 'array',
             description: messages.commands.route.middlewares.description
         });
-    }, generateRouteHandler).command('middleware', '', y => {
+    }, generateRouteHandler).command('middleware', 'insert desc', y => {
         return y.option('name', {
             alias: 'n',
             type: 'string',
@@ -41,13 +42,15 @@ export function generateCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
             type: 'string',
             description: messages.commands.middleware.description.description
         });
-    }, generateMiddleWareHandler).command('static', '', y => {
+    }, generateMiddleWareHandler).command('static', 'insert desc', y => {
         return y.option('name', {
             alias: 'n',
             type: 'string',
             description: messages.commands.static.name.descirption
         })
-    }, generateStaticHandler);;
+    }, generateStaticHandler).command('util', 'insert desc', y => {
+        return y;
+    }, generateUtilsHandler);
 }
 
 /**
@@ -65,7 +68,7 @@ export async function generateHandler(argv: any): Promise<void> {
             type: 'list',
             name: 'type',
             message: messages.questions.mainHandler.message,
-            choices: ['Route', 'Middleware', 'Static Folder'],
+            choices: ['Route', 'Middleware', 'Static Folder', 'Util Component'],
         }
     ]);
 
@@ -82,5 +85,8 @@ export async function generateHandler(argv: any): Promise<void> {
     } else if (answers.type === "static folder") {
         // if choice is satic folder generate static
         generateStaticHandler(argv);
+    } else if(answers.type === "util component") {
+        // if choice is util component generate util 
+        generateUtilsHandler(argv);
     }
 }

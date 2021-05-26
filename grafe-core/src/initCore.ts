@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { setConfig, Config } from './config';
+import { Config } from './config';
 import * as path from 'path';
 import { initMiddlewares } from './initMiddlewares';
 import { createRouteTree } from './routes';
@@ -41,9 +41,6 @@ export function initCore(configPath: string): boolean {
 
     // createRouteTree
     config = createRouteTree(config);
-
-    // set the created config so it can be used globaly
-    setConfig(config);
 
     return true;
 }

@@ -94,27 +94,3 @@ export interface Route {
     [route: string]: any;
 }
 
-/**
- * Global config for used inside all grafe core functions 
- */
-let __grafe_core_config: Config;
-
-/**
- * Returns the global grafe config
- * @returns Config
- */
-export function getConfig(): Config {
-    return __grafe_core_config;
-}
-
-/**
- * Sets the global config to the config provided
- * @param config The new config to set
- * @returns The new config
- */
-export function setConfig(config: Config): Config {
-    __grafe_core_config = config;
-    return config;
-}
-
-

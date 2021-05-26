@@ -4,7 +4,6 @@ import { FileInfo } from '../src/file';
 import rewire = require("rewire");
 import Sinon = require('sinon');
 import * as chai from 'chai';
-import { read } from 'fs';
 
 
 describe('routes.ts file', () => {

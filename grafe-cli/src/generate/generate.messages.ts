@@ -51,7 +51,10 @@ export = {
         }
     },
     generateStatic: {
-        success: 'CREATE'.green + ' %s'
+        success: 'CREATE'.green + ' %s',
+        to_small: 'The directory has to be at least 1 character long',
+        no_colon: 'Colons are not allowed as directory names',
+        exists: 'This directory already exist'
     },
     generateMiddleware: {
         middleware_in_use: 'The name of this middleware is already in use',

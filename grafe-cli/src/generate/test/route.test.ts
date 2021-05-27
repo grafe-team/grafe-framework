@@ -221,4 +221,108 @@ describe('route.generate.ts file', () => {
             chai.expect(copyFileSyncStub.lastCall.args[1]).to.deep.eq('C:\\grafe\\project_1\\src\\routes\\_mw.pt.adm\\helloworld%id.put.ts');
         });
     });
+
+    describe('generateRouteHandler function', () => {
+            
+        const consoleErrorStub = Sinon.stub();
+        const readFileSyncStub = Sinon.stub();
+        const promptStub = Sinon.stub();
+        const pkgDirStub = Sinon.stub();
+        const generateRouteStub = Sinon.stub();
+
+        let generateRouteHandler: (argv: any) => Promise<void> 
+                = route.__get__('generateRouteHandler');
+
+        const fsMock = {
+            readFileSync: readFileSyncStub,
+        };
+
+        const inquirerMock = {
+            prompt: promptStub
+        };
+
+        const pkgDirMock = {
+            default: pkgDirStub
+        }
+
+        beforeEach(() => {
+            consoleErrorStub.reset();
+            
+            route.__set__({
+                generateRoute: generateRouteStub
+            });
+
+            route.__set__({
+                console: {
+                    error: consoleErrorStub,
+                }
+            });
+
+            route.__set__({
+                fs: fsMock,
+                inquirer: inquirerMock,
+                pkgDir: pkgDirMock,
+            });
+
+            generateRouteHandler = route.__get__('generateRouteHandler');
+
+            readFileSyncStub.reset();
+            promptStub.reset();
+            pkgDirStub.reset();
+        });
+
+        it('should log an error when not in a grafe project', async () => {
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+            readFileSyncStub.throws({ code: 'ENOENT' });
+
+            await generateRouteHandler({});
+            
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'console.error should be called once');
+            chai.expect(promptStub.callCount).to.deep.eq(0, 'should not prompt the user');
+            chai.expect(consoleErrorStub.calledWith(messages.not_grafe)).to.deep.eq(true, 'console.error should log not_grafe message');
+        });
+
+        it('should start generateRoute with given parameters', async () => {
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+            readFileSyncStub.returns(JSON.stringify(grafeConfig));
+
+            await generateRouteHandler({routePath: '/test', method: 'get', middlewares: []});
+            
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'console.error should not be called once');
+            chai.expect(promptStub.callCount).to.deep.eq(0, 'should not prompt the user');
+            chai.expect(generateRouteStub.lastCall.args[0]).to.deep.eq('/test', 'should be the given routePath');
+            chai.expect(generateRouteStub.lastCall.args[1]).to.deep.eq('get', 'should be the given method');
+            chai.expect(generateRouteStub.lastCall.args[2]).to.deep.eq([], 'should be the given middlewares');
+        });
+
+        it('should remove the middleware question', async () => {
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+            readFileSyncStub.returns(JSON.stringify({
+                middlewares: []
+            }));
+            promptStub.resolves({path: '/test', method: 'get'})
+
+            await generateRouteHandler({});
+            
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'console.error should not be called once');
+            chai.expect(promptStub.callCount).to.deep.eq(1, 'should not prompt the user');
+            chai.expect(generateRouteStub.lastCall.args[0]).to.deep.eq('/test', 'should be the given routePath');
+            chai.expect(generateRouteStub.lastCall.args[1]).to.deep.eq('get', 'should be the given method');
+            chai.expect(generateRouteStub.lastCall.args[2]).to.deep.eq(undefined, 'should be the given middlewares');
+        });
+
+        it('should prompt the user all questions', async () => {
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+            readFileSyncStub.returns(JSON.stringify(grafeConfig));
+            promptStub.resolves({path: '/test', method: 'get', middlewares: []})
+
+            await generateRouteHandler({});
+            
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'console.error should not be called once');
+            chai.expect(promptStub.callCount).to.deep.eq(1, 'should not prompt the user');
+            chai.expect(generateRouteStub.lastCall.args[0]).to.deep.eq('/test', 'should be the given routePath');
+            chai.expect(generateRouteStub.lastCall.args[1]).to.deep.eq('get', 'should be the given method');
+            chai.expect(generateRouteStub.lastCall.args[2]).to.deep.eq([], 'should be the given middlewares');
+        });
+    });
 });

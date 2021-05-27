@@ -23,7 +23,7 @@ export async function generateRouteHandler(argv: any): Promise<void> {
     try {
         raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
     } catch (err) {
-        return console.log(messages.not_grafe);
+        return console.error(messages.not_grafe);
     }
 
     let data = JSON.parse(raw.toString());
@@ -100,14 +100,14 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     const rootDir = await pkgDir.default(process.cwd());
 
     // check if the project is a grafe project
-    let raw;
+    let raw : string;
     try {
-        raw = fs.readFileSync(path.join(rootDir, '/grafe.json'));
+        raw = fs.readFileSync(path.join(rootDir, '/grafe.json')).toString();
     } catch (err) {
-        return console.log(messages.not_grafe);
+        return console.error(messages.not_grafe);
     }
     
-    let data = JSON.parse(raw.toString());
+    let data = JSON.parse(raw);
 
     let confirm = await inquirer.prompt({
         message: messages.confirm,
@@ -142,11 +142,11 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
 
     // check if given method is eiter get post put or delete
     if (!['get', 'post', 'put', 'delete'].includes(method.toLocaleLowerCase())) {
-        return console.log(messages.generateRoute.invalid_method);
+        return console.error(messages.generateRoute.invalid_method);
     }
 
     let middlewares = mw;
-
+    
     // check if the user wants a middleware 
     if (middlewares != undefined && middlewares.length != 0) {
 
@@ -154,7 +154,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
         for (let mid of middlewares) {
             // check if the middleware exists or not
             if (!(data.middlewares.some((item: any) => item.value === mid))) {
-                return console.log(messages.generateRoute.invalid_shortcut, mid);
+                return console.error(messages.generateRoute.invalid_shortcut, mid);
             }
         }
 
@@ -189,7 +189,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
 
         // check if this file already exitsts or not
         if (fs.existsSync(_testPath)) {
-            return console.log(messages.generateRoute.exists);
+            return console.error(messages.generateRoute.exists);
         }
 
         // get the path of the template file for tests
@@ -214,7 +214,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
 
     // check if this route already exitsts or not
     if (fs.existsSync(_path)) {
-        return console.log(messages.generateRoute.exists);
+        return console.error(messages.generateRoute.exists);
     }
 
     // build template file path

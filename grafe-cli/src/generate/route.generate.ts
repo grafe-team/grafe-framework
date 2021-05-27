@@ -210,10 +210,10 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     }
 
     // add filename to create file with fs
-    _path = path.join(_path, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");
+    _path = path.join(rootDir, _path, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");
 
     // check if this route already exitsts or not
-    if (fs.existsSync(path.join(rootDir, _path))) {
+    if (fs.existsSync(_path)) {
         return console.log(messages.generateRoute.exists);
     }
 
@@ -221,7 +221,7 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     const templateRoutePath = path.join(__dirname, '..', '..', 'templates', 'routes', 'express', 'template.route.ts');
 
     // copy the template file to the destination
-    fs.copyFileSync(templateRoutePath, path.join(rootDir, _path));
-    console.log(messages.generateRoute.success, path.join(rootDir, _path));
+    fs.copyFileSync(templateRoutePath, _path);
+    console.log(messages.generateRoute.success, _path);
 
 }

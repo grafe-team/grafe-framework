@@ -3,7 +3,6 @@ import rewire = require("rewire");
 import Sinon = require('sinon');
 import messages from '../generate.messages';
 import * as chai from 'chai';
-import mkdirp = require('mkdirp');
 
 describe('middleware.generate.ts file', () => {
 
@@ -67,7 +66,6 @@ describe('middleware.generate.ts file', () => {
             });
 
             middleware.__set__({
-
                 fs: fsMock,
                 inquirer: inquirerMock,
                 mkdirp: mkdirpMock,
@@ -161,14 +159,20 @@ describe('middleware.generate.ts file', () => {
 
     describe('generateMiddleWareHandler function', () => {
 
+        const consoleErrorStub = Sinon.stub();
         const promptStub = Sinon.stub();
         const generateMiddleWareStub = Sinon.stub();
+        const existsSyncStub = Sinon.stub();
 
         let generateMiddleWareHandler: (argv: any) => Promise<void> 
                 = middleware.__get__('generateMiddleWareHandler');
 
         const inquirerMock = {
             prompt: promptStub
+        };
+
+        const fsMock = {
+            existsSync: existsSyncStub,
         };
 
         beforeEach(() => {
@@ -178,16 +182,27 @@ describe('middleware.generate.ts file', () => {
             })
 
             middleware.__set__({
-                inquirer: inquirerMock
+                inquirer: inquirerMock,
+                fs: fsMock
+            });
+
+            middleware.__set__({
+                console: {
+                    error: consoleErrorStub,
+                }
             });
 
             generateMiddleWareHandler = middleware.__get__('generateMiddleWareHandler');
 
             promptStub.reset();
             generateMiddleWareStub.reset();
+            existsSyncStub.reset();
+            consoleErrorStub.reset();
         });
 
         it('should not prompt any questions and start generateMiddleWare function', async () => {
+
+            existsSyncStub.returns(true);
 
             await generateMiddleWareHandler({
                 name: 'Test',
@@ -196,7 +211,7 @@ describe('middleware.generate.ts file', () => {
             });
 
             chai.expect(promptStub.callCount).to.deep.eq(0, 'should not prompt once');
-
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'should not log an error');
             chai.expect(generateMiddleWareStub.lastCall.args[0]).to.deep.eq('Test', 'should be Test');
             chai.expect(generateMiddleWareStub.lastCall.args[1]).to.deep.eq('T', 'should be T');
             chai.expect(generateMiddleWareStub.lastCall.args[2]).to.deep.eq('Empty', 'should be Empty');
@@ -205,6 +220,8 @@ describe('middleware.generate.ts file', () => {
 
         it('should prompt 3 questions and start generateMiddleWare function', async () => {
             
+            existsSyncStub.returns(true);
+
             promptStub.resolves({
                 name: 'Test',
                 short: 'T',
@@ -214,11 +231,22 @@ describe('middleware.generate.ts file', () => {
             await generateMiddleWareHandler({ });
 
             chai.expect(promptStub.callCount).to.deep.eq(1, 'should not prompt once');
-
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'should not log an error');
             chai.expect(generateMiddleWareStub.lastCall.args[0]).to.deep.eq('Test', 'should be Test');
             chai.expect(generateMiddleWareStub.lastCall.args[1]).to.deep.eq('T', 'should be T');
             chai.expect(generateMiddleWareStub.lastCall.args[2]).to.deep.eq('Empty', 'should be Empty');
 
+        });
+
+        it('should log an error and abort if not in garfe project', async () => {
+
+            existsSyncStub.returns(false);
+
+            await generateMiddleWareHandler({ });
+            
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'should not log an error');
+            chai.expect(promptStub.callCount).to.deep.eq(0, 'should not prompt once');
+            chai.expect(consoleErrorStub.calledOnceWith(messages.not_grafe)).to.be.eq(true, 'console.error should be called with not_grafe message');
         });
     });
 });

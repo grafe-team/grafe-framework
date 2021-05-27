@@ -17,6 +17,7 @@ export function initMiddlewares(config: Config): void {
         // check if the mw files exist, if they dont delete em
         if(removeNonExistantMiddleware(config, config.middlewares[i])) {
             i--;
+            continue;
         }
 
         // load the middleware functions
@@ -45,7 +46,7 @@ function createMiddlewareLinks(config: Config, mw: Middleware): Config {
  * !The middleware links need to be constructed or errors will be thrown
  * 
  * @param config The grafe config
- * @returns The new grafe config
+ * @returns true if the middleware was removed and false if not
  */
 function removeNonExistantMiddleware(config: Config, mw: Middleware): boolean {
     // if a link is undefind throw an error

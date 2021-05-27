@@ -19,9 +19,9 @@
     },
     "include": [
         "src/**/*",
-        "test/**/*",
-        "coverage"
+        "test/**/*"
     ],
     "exclude": [
+        "coverage"
     ]
 }

@@ -1,8 +1,8 @@
-import inquirer from 'inquirer';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
-import pkgDir from 'pkg-dir';
+import * as inquirer from 'inquirer';
+import * as fs from 'fs';
 import * as path from 'path';
+import * as mkdirp from 'mkdirp';
+import * as pkgDir from 'pkg-dir';
 import messages from './generate.messages';
 
 /**
@@ -69,17 +69,17 @@ import messages from './generate.messages';
  export async function generateMiddleWare(name: string, short: string, description: string): Promise<void> {
 
     // get root directory (where package.json is in)
-    const rootDir = await pkgDir(process.cwd());
-
+    const rootDir = await pkgDir.default(process.cwd());
+    
     // check if the project is a grafe project
-    let raw;
+    let raw : string;
     try {
-        raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
+        raw = fs.readFileSync(path.join(rootDir, 'grafe.json')).toString();
     } catch (err) {
-        return console.log(messages.not_grafe);
+        return console.error(messages.not_grafe);
     }
 
-    let data = JSON.parse(raw.toString());
+    let data = JSON.parse(raw);
 
     let confirm = await inquirer.prompt({
         message: messages.confirm,
@@ -93,12 +93,12 @@ import messages from './generate.messages';
 
     // Check if the name of the new middleware already exists
     if (data.middlewares.some((item: any) => item.name === name)) {
-        return console.log(messages.generateMiddleware.middleware_in_use);
+        return console.error(messages.generateMiddleware.middleware_in_use);
     }
 
     // Check if the shortcut of the new middleware already exists
     if (data.middlewares.some((item: any) => item.value === short)) {
-        return console.log(messages.generateMiddleware.shortcut_in_use);
+        return console.error(messages.generateMiddleware.shortcut_in_use);
     }
 
     // add new midddleware to grafe.json list
@@ -109,10 +109,10 @@ import messages from './generate.messages';
     });
 
     // build path to the new middleware
-    let _path = path.join('src', 'middlewares', short);
+    let _path = path.join(rootDir, 'src', 'middlewares', short);
 
     // create all non-existing directorys
-    await mkdirp(path.join(rootDir, _path));
+    await mkdirp.default(_path);
 
     // add filename to path
     _path = path.join(_path, name + ".ts");
@@ -121,7 +121,7 @@ import messages from './generate.messages';
     const templateMiddleWarePath = path.join(__dirname, '..', '..', 'templates', 'middlewares', 'express', 'template.middleware.ts');
 
     // copy the template to the given destination
-    fs.copyFileSync(templateMiddleWarePath, path.join(rootDir, _path));
+    fs.copyFileSync(templateMiddleWarePath, _path);
     fs.writeFileSync(path.join(rootDir, 'grafe.json'), JSON.stringify(data, null, 4));
-    console.log(messages.generateMiddleware.success, path.join(rootDir, _path));
+    console.log(messages.generateMiddleware.success, _path);
 }

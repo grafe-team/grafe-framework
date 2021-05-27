@@ -12,6 +12,15 @@ import messages from './generate.messages';
  * @returns Promise<undefined>
  */
  export async function generateMiddleWareHandler(argv: any): Promise<void> {
+    
+    // get root directory (where package.json is in)
+    const rootDir = await pkgDir.default(process.cwd());
+    
+    // check if in grafe project
+    if(!fs.existsSync(path.join(rootDir, 'grafe.json'))) {
+        return console.error(messages.not_grafe);
+    }
+
     let questions = [];
 
     // If the name is not given via args add name question

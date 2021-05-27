@@ -4,10 +4,12 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-generate": "mocha build/generate/test/**/*.js",
     "build": "tsc",
     "build-w": "tsc --watch",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "coverage-generate": "nyc --reporter=html --reporter=text mocha build/generate/test/**/*.js",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -29,12 +31,20 @@
   },
   "homepage": "https://github.com/streimelstefan/grafe-framework#readme",
   "devDependencies": {
+    "@types/chai": "^4.2.18",
     "@types/ejs": "^3.0.6",
     "@types/inquirer": "^7.3.1",
     "@types/mkdirp": "^1.0.1",
+    "@types/mocha": "^8.2.2",
     "@types/node": "^15.0.2",
+    "@types/rewire": "^2.5.28",
     "@types/shelljs": "^0.8.8",
+    "@types/sinon": "^10.0.1",
     "@types/yargs": "^16.0.1",
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0",
+    "sinon": "^10.0.0",
     "typescript": "^4.2.4"
   },
   "dependencies": {
@@ -45,6 +55,9 @@
     "mkdirp": "^1.0.4",
     "pkg-dir": "^5.0.0",
     "shelljs": "^0.8.4",
-    "yargs": "^17.0.1"
+    "yargs": "^17.0.1",
+    "mock-require": "^3.0.3",
+    "patch-package": "^6.4.7",
+    "rewire": "^5.0.0"
   }
 }

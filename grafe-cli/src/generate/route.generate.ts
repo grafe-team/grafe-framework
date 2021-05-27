@@ -1,10 +1,10 @@
-import inquirer from 'inquirer';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
-import pkgDir from 'pkg-dir';
+import * as inquirer from 'inquirer';
+import * as fs from 'fs';
+import * as mkdirp from 'mkdirp';
+import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
-import messages from './generate.messages';
 import * as ejs from 'ejs';
+import messages from './generate.messages';
 
 
 /**
@@ -16,7 +16,7 @@ import * as ejs from 'ejs';
 export async function generateRouteHandler(argv: any): Promise<void> {
 
     // get root directory (where package.json is in)
-    const rootDir = await pkgDir(process.cwd());
+    const rootDir = await pkgDir.default(process.cwd());
 
     // check if the project is a grafe project
     let raw;
@@ -97,7 +97,7 @@ export async function generateRouteHandler(argv: any): Promise<void> {
 export async function generateRoute(routePath: string, method: string, mw: any[]): Promise<void> {
 
     // get root directory (where package.json is in)
-    const rootDir = await pkgDir(process.cwd());
+    const rootDir = await pkgDir.default(process.cwd());
 
     // check if the project is a grafe project
     let raw;
@@ -176,14 +176,14 @@ export async function generateRoute(routePath: string, method: string, mw: any[]
     }
 
     // create all non-existing directorys
-    await mkdirp(path.join(rootDir, _path));
+    await mkdirp.default(path.join(rootDir, _path));
 
     let _testPath;
     
     // check if tests are enabled
     if (data.tests) {
         _testPath = path.join(rootDir, _path, '_tests');
-        await mkdirp(_testPath);
+        await mkdirp.default(_testPath);
 
         _testPath = path.join(_testPath, paths[paths.length - 1] + "." + method.toLowerCase() + ".ts");
 

@@ -1,0 +1,224 @@
+import 'mocha';
+import rewire = require("rewire");
+import Sinon = require('sinon');
+import messages from '../generate.messages';
+import * as chai from 'chai';
+import mkdirp = require('mkdirp');
+
+describe('middleware.generate.ts file', () => {
+
+    let middleware = rewire('../middleware.generate');
+    let grafeConfig = {
+        middlewares: [
+            {
+                name: 'protected',
+                description: 'just for tests',
+                value: 'pt'
+            }
+        ]
+    };
+
+    beforeEach(() => {
+        middleware = rewire('../middleware.generate');
+    });
+
+    describe('generateMiddleWare function', () => {
+
+        const consoleErrorStub = Sinon.stub();
+        const consoleLogStub = Sinon.stub();
+        const readFileSyncStub = Sinon.stub();
+        const copyFileSyncStub = Sinon.stub();
+        const writeFileSyncStub = Sinon.stub();
+        const promptStub = Sinon.stub();
+        const mkdirpStub = Sinon.stub();
+        const pkgDirStub = Sinon.stub();
+
+        let generateMiddleWare: (name: string, short: string, description: string) => Promise<void> 
+                = middleware.__get__('generateMiddleWare');
+
+        const fsMock = {
+            readFileSync: readFileSyncStub,
+            copyFileSync: copyFileSyncStub,
+            writeFileSync: writeFileSyncStub
+        };
+
+        const inquirerMock = {
+            prompt: promptStub
+        };
+
+        const mkdirpMock = {
+            default: mkdirpStub
+        }
+
+        const pkgDirMock = {
+            default: pkgDirStub
+        }
+
+        beforeEach(() => {
+            consoleErrorStub.reset();
+            
+            consoleLogStub.reset();
+
+            middleware.__set__({
+                console: {
+                    error: consoleErrorStub,
+                    log: consoleLogStub
+                }
+            });
+
+            middleware.__set__({
+
+                fs: fsMock,
+                inquirer: inquirerMock,
+                mkdirp: mkdirpMock,
+                pkgDir: pkgDirMock
+            });
+
+            generateMiddleWare = middleware.__get__('generateMiddleWare');
+
+            readFileSyncStub.reset();
+            copyFileSyncStub.reset();
+            writeFileSyncStub.reset();
+            promptStub.reset();
+            mkdirpStub.reset();
+            pkgDirStub.reset();
+        });
+
+        it('should log an error when not in a grafe project', async () => {
+            readFileSyncStub.throws({ code: 'ENOENT' });
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+
+            await generateMiddleWare('TEST', 'T', 'Empty description');
+
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'console.error should be called once');
+            chai.expect(consoleErrorStub.calledOnceWith(messages.not_grafe)).to.be.eq(true, 'console.error should be called with not_grafe message');
+        });
+
+        it('should stop the process when not confirming', async () => {
+            readFileSyncStub.returns(JSON.stringify(grafeConfig));
+            promptStub.resolves({ confirm: false });
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+
+            await generateMiddleWare('TEST', 'T', 'Empty description');
+            
+            chai.expect(consoleLogStub.callCount).to.deep.eq(0, 'console.log should not be called');
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'console.error should not be called');
+        });
+
+        it('should log an error when the middleware name is in use', async () => {
+            readFileSyncStub.returns(JSON.stringify(grafeConfig));
+            promptStub.resolves({ confirm: true });
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+
+            await generateMiddleWare('protected', 'T', 'Empty description');
+            
+            chai.expect(consoleLogStub.callCount).to.deep.eq(0, 'console.log should not be called');
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'console.error should be called once');
+            chai.expect(consoleErrorStub.calledOnceWith(messages.generateMiddleware.middleware_in_use)).to.be.eq(true, 'console.error should be called with middleware_in_use message');
+        });
+
+        it('should log an error when the middleware shortcut is in use', async () => {
+            readFileSyncStub.returns(JSON.stringify(grafeConfig));
+            promptStub.resolves({ confirm: true });
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+
+            await generateMiddleWare('Test', 'pt', 'Empty description');
+            
+            chai.expect(consoleLogStub.callCount).to.deep.eq(0, 'console.log should not be called');
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'console.error should be called once');
+            chai.expect(consoleErrorStub.calledOnceWith(messages.generateMiddleware.shortcut_in_use)).to.be.eq(true, 'console.error should be called with shortcut_in_use message');
+        });
+
+        it('should log an error when the middleware shortcut is in use', async () => {
+            let expectedGrafeConfig = {
+                middlewares: [
+                    {
+                        name: 'protected',
+                        description: 'just for tests',
+                        value: 'pt'
+                    },
+                    {
+                        name: 'Test',
+                        description: 'Empty description',
+                        value: 't'
+                    }
+                ]
+            };
+
+            pkgDirStub.resolves('C:\\grafe\\project_1');
+            readFileSyncStub.returns(JSON.stringify(grafeConfig));
+            promptStub.resolves({ confirm: true });
+
+            await generateMiddleWare('Test', 't', 'Empty description');
+            
+            chai.expect(consoleLogStub.callCount).to.deep.eq(1, 'console.log should not be called');
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(0, 'console.error should be called once');
+            chai.expect(copyFileSyncStub.lastCall.args[1]).to.deep.eq('C:\\grafe\\project_1\\src\\middlewares\\t\\Test.ts', 'template copy Path should be given destination');
+            chai.expect(writeFileSyncStub.lastCall.args[0]).to.deep.eq('C:\\grafe\\project_1\\grafe.json', 'should be grafe.json of given root-dir');
+            chai.expect(writeFileSyncStub.lastCall.args[1]).to.deep.eq(JSON.stringify(expectedGrafeConfig, null, 4), 'should be default grafe.json incl. the new one');
+        });
+    });
+
+    describe('generateMiddleWareHandler function', () => {
+
+        const promptStub = Sinon.stub();
+        const generateMiddleWareStub = Sinon.stub();
+
+        let generateMiddleWareHandler: (argv: any) => Promise<void> 
+                = middleware.__get__('generateMiddleWareHandler');
+
+        const inquirerMock = {
+            prompt: promptStub
+        };
+
+        beforeEach(() => {
+
+            middleware.__set__({
+                generateMiddleWare: generateMiddleWareStub
+            })
+
+            middleware.__set__({
+                inquirer: inquirerMock
+            });
+
+            generateMiddleWareHandler = middleware.__get__('generateMiddleWareHandler');
+
+            promptStub.reset();
+            generateMiddleWareStub.reset();
+        });
+
+        it('should not prompt any questions and start generateMiddleWare function', async () => {
+
+            await generateMiddleWareHandler({
+                name: 'Test',
+                short: 'T',
+                description: 'Empty'
+            });
+
+            chai.expect(promptStub.callCount).to.deep.eq(0, 'should not prompt once');
+
+            chai.expect(generateMiddleWareStub.lastCall.args[0]).to.deep.eq('Test', 'should be Test');
+            chai.expect(generateMiddleWareStub.lastCall.args[1]).to.deep.eq('T', 'should be T');
+            chai.expect(generateMiddleWareStub.lastCall.args[2]).to.deep.eq('Empty', 'should be Empty');
+
+        });
+
+        it('should prompt 3 questions and start generateMiddleWare function', async () => {
+            
+            promptStub.resolves({
+                name: 'Test',
+                short: 'T',
+                description: 'Empty'
+            });
+
+            await generateMiddleWareHandler({ });
+
+            chai.expect(promptStub.callCount).to.deep.eq(1, 'should not prompt once');
+
+            chai.expect(generateMiddleWareStub.lastCall.args[0]).to.deep.eq('Test', 'should be Test');
+            chai.expect(generateMiddleWareStub.lastCall.args[1]).to.deep.eq('T', 'should be T');
+            chai.expect(generateMiddleWareStub.lastCall.args[2]).to.deep.eq('Empty', 'should be Empty');
+
+        });
+    });
+});

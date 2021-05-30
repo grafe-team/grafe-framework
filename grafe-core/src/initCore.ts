@@ -29,7 +29,7 @@ export function initCore(configPath: string): boolean {
     try {
         config = JSON.parse(fs.readFileSync(configPath).toString());
     } catch(error) {
-        console.error('Unable to read/pares grafe cofnig file: ' + error);
+        console.error('Unable to read/pares grafe config file: ' + error);
         return false;
     }
 

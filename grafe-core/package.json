@@ -8,7 +8,9 @@
     "test-w": "mocha build/test/**/*.js --watch --recursive",
     "build": "tsc",
     "build-w": "tsc --watch",
-    "coverage": "nyc --reporter=html --reporter=text mocha build/test/**/*.js",
+    "build-prod": "tsc --project tsconfig.prod.json",
+    "coverage": "nyc npm run test",
+    "coverage-check": "nyc check-coverage",
     "postinstall": "patch-package",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
@@ -29,7 +31,7 @@
     "url": "https://github.com/streimelstefan/grafe-framework/issues"
   },
   "files": [
-    "build/src/**/*"
+    "build/**/*"
   ],
   "homepage": "https://github.com/streimelstefan/grafe-framework#readme",
   "devDependencies": {

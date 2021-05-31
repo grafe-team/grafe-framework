@@ -9,7 +9,9 @@
     "build": "tsc",
     "build-w": "tsc --watch",
     "coverage": "nyc --reporter=html --reporter=text mocha build/test/**/*.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "lint": "eslint . --ext .ts",
+    "lint-fix": "eslint . --ext .ts --fix"
   },
   "repository": {
     "type": "git",
@@ -37,7 +39,13 @@
     "@types/node": "^15.0.2",
     "@types/rewire": "^2.5.28",
     "@types/sinon": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
     "chai": "^4.3.4",
+    "eslint": "^7.27.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "sinon": "^10.0.0",

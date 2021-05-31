@@ -6,8 +6,8 @@
         "target": "es6",
         "noImplicitAny": true,
         "moduleResolution": "node",
-        "sourceMap": true,
-        "outDir": "build",  
+        "sourceMap": false,
+        "outDir": "build",
         "baseUrl": ".",
         "declaration": true,
         "paths": {
@@ -18,8 +18,7 @@
         }
     },
     "include": [
-        "src/**/*",
-        "test/**/*"
+        "src/**/*"
     ],
     "exclude": [
         "coverage"

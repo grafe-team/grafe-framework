@@ -3,6 +3,8 @@ import { Config } from './config';
 import * as path from 'path';
 import { initMiddlewares } from './initMiddlewares';
 import { createRouteTree } from './routes';
+import { Express } from 'express';
+import { buildRoutes } from './buildRoutes';
 
 /**
  * Loads the config and checks if everything checks out
@@ -10,7 +12,7 @@ import { createRouteTree } from './routes';
  * @param configPath The absolut path to the config file
  * @return true if config was loaded false if something whent wrong
  */
-export function initCore(configPath: string): boolean {
+export function initCore(configPath: string, express: Express): boolean {
   // check if the config file exists
   try {
     if (!fs.existsSync(configPath)) {
@@ -42,6 +44,8 @@ export function initCore(configPath: string): boolean {
 
   // createRouteTree
   config = createRouteTree(config);
+
+  buildRoutes(config, express);
 
   return true;
 }

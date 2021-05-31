@@ -2,7 +2,7 @@ import { readAllFilesStats } from './file';
 import { initCore } from './initCore';
 
 export = {
-    initCore
+  initCore,
 };
 
 console.log(readAllFilesStats(__dirname));

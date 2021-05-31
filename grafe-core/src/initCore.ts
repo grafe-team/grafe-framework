@@ -6,41 +6,42 @@ import { createRouteTree } from './routes';
 
 /**
  * Loads the config and checks if everything checks out
- * 
+ *
  * @param configPath The absolut path to the config file
- * @returns true if config was loaded false if something whent wrong
+ * @return true if config was loaded false if something whent wrong
  */
 export function initCore(configPath: string): boolean {
-    // check if the config file exists
-    try {
-
-        if (!fs.existsSync(configPath)) {
-            console.error('Unable to initialize grafe-core. Config file not found please check the path you provided!');
-            return false;
-        }
-    } catch (error) {
-        console.error('An error accoured reading the config file: ' + error);
-        return false;
+  // check if the config file exists
+  try {
+    if (!fs.existsSync(configPath)) {
+      console.error(
+        'Unable to initialize grafe-core. Config file not found please check the path you provided!'
+      );
+      return false;
     }
+  } catch (error) {
+    console.error('An error accoured reading the config file: ' + error);
+    return false;
+  }
 
-    let config: Config;
+  let config: Config;
 
-    // read the config file and parse it
-    try {
-        config = JSON.parse(fs.readFileSync(configPath).toString());
-    } catch(error) {
-        console.error('Unable to read/pares grafe config file: ' + error);
-        return false;
-    }
+  // read the config file and parse it
+  try {
+    config = JSON.parse(fs.readFileSync(configPath).toString());
+  } catch (error) {
+    console.error('Unable to read/pares grafe config file: ' + error);
+    return false;
+  }
 
-    // set base dir in the config
-    config.baseDir = path.parse(configPath).dir;
+  // set base dir in the config
+  config.baseDir = path.parse(configPath).dir;
 
-    // initiate Middlewares
-    initMiddlewares(config);
+  // initiate Middlewares
+  initMiddlewares(config);
 
-    // createRouteTree
-    config = createRouteTree(config);
+  // createRouteTree
+  config = createRouteTree(config);
 
-    return true;
+  return true;
 }

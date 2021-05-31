@@ -64,6 +64,19 @@ export async function generateStatic(name: string): Promise<void> {
     return;
   }
 
+  // get root directory (where package.json is in)
+  const rootDir = await pkgDir.default(process.cwd());
+
+  // check if the project is a grafe project
+  let raw;
+  try {
+    raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
+  } catch (err) {
+    return console.error(messages.not_grafe);
+  }
+
+  const data = JSON.parse(raw.toString());
+
   // check if length is greater then 0
   if (name.length == 0) {
     return console.error(messages.generateStatic.to_small);
@@ -74,15 +87,16 @@ export async function generateStatic(name: string): Promise<void> {
     return console.error(messages.generateStatic.no_colon);
   }
 
-  // get root directory (where package.json is in)
-  const rootDir = await pkgDir.default(process.cwd());
-
-  const _path = path.join(rootDir, 'src', 'static', name);
+  const _path = path.join(rootDir, 'src', name);
 
   // check if directory already exists
   if (fs.existsSync(_path)) {
     return console.error(messages.generateStatic.exists);
   }
+
+  data.statics.push(name);
+
+  fs.writeFileSync(path.join(rootDir, 'grafe.json'), data);
 
   // create all non-existing directorys
   await mkdirp.default(_path);

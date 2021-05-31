@@ -6,6 +6,9 @@ import * as chai from 'chai';
 
 describe('static.generate.ts file', () => {
   let staticGenerate = rewire('../static.generate');
+  const grafeConfig = {
+    statics: ['name'],
+  };
 
   beforeEach(() => {
     staticGenerate = rewire('../static.generate');
@@ -18,12 +21,16 @@ describe('static.generate.ts file', () => {
     const promptStub = Sinon.stub();
     const mkdirpStub = Sinon.stub();
     const pkgDirStub = Sinon.stub();
+    const readFileSyncStub = Sinon.stub();
+    const writeFileSyncStub = Sinon.stub();
 
     let generateStatic: (name: string) => Promise<void> =
       staticGenerate.__get__('generateStatic');
 
     const fsMock = {
       existsSync: existsSyncStub,
+      readFileSync: readFileSyncStub,
+      writeFileSync: writeFileSyncStub,
     };
 
     const inquirerMock = {
@@ -62,10 +69,14 @@ describe('static.generate.ts file', () => {
       mkdirpStub.reset();
       pkgDirStub.reset();
       existsSyncStub.reset();
+      readFileSyncStub.reset();
+      writeFileSyncStub.reset();
     });
 
     it('should abort when not confirming the prompt', async () => {
       promptStub.resolves({ confirm: false });
+      pkgDirStub.resolves('C:\\grafe\\project_1');
+      readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
       await generateStatic('test');
 
@@ -82,6 +93,8 @@ describe('static.generate.ts file', () => {
 
     it('should log an error when length is 0', async () => {
       promptStub.resolves({ confirm: true });
+      pkgDirStub.resolves('C:\\grafe\\project_1');
+      readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
       await generateStatic('');
 
@@ -103,6 +116,8 @@ describe('static.generate.ts file', () => {
 
     it('should log an error when colon is in name', async () => {
       promptStub.resolves({ confirm: true });
+      pkgDirStub.resolves('C:\\grafe\\project_1');
+      readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
       await generateStatic('test:');
 
@@ -126,6 +141,7 @@ describe('static.generate.ts file', () => {
       promptStub.resolves({ confirm: true });
       pkgDirStub.resolves('C:\\grafe\\project_1');
       existsSyncStub.returns(true);
+      readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
       await generateStatic('test');
 
@@ -147,6 +163,7 @@ describe('static.generate.ts file', () => {
       promptStub.resolves({ confirm: true });
       pkgDirStub.resolves('C:\\grafe\\project_1');
       existsSyncStub.returns(false);
+      readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
       await generateStatic('test');
 
@@ -162,8 +179,32 @@ describe('static.generate.ts file', () => {
       chai
         .expect(mkdirpStub.lastCall.args[0])
         .to.deep.eq(
-          'C:\\grafe\\project_1\\src\\static\\test',
+          'C:\\grafe\\project_1\\src\\test',
           'should be this exact path'
+        );
+    });
+
+    it('should log an error not in a grafe project', async () => {
+      promptStub.resolves({ confirm: true });
+      pkgDirStub.resolves('C:\\grafe\\project_1');
+      readFileSyncStub.throws({ code: 'ENOENT' });
+
+      await generateStatic('test');
+
+      chai
+        .expect(promptStub.callCount)
+        .to.deep.eq(1, 'prompt should be called once');
+      chai
+        .expect(consoleErrorStub.callCount)
+        .to.deep.eq(1, 'console.error should be called once');
+      chai
+        .expect(consoleLogStub.callCount)
+        .to.deep.eq(0, 'console.log should not be called once');
+      chai
+        .expect(consoleErrorStub.calledOnceWith(messages.not_grafe))
+        .to.be.eq(
+          true,
+          'console.error should be called with not_grafe message'
         );
     });
   });

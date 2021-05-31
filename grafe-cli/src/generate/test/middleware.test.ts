@@ -175,8 +175,8 @@ describe('middleware.generate.ts file', () => {
           },
           {
             name: 'Test',
-            description: 'Empty description',
             value: 't',
+            description: 'Empty description',
           },
         ],
       };

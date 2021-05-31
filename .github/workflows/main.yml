@@ -12,9 +12,13 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  grafe-core:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./grafe-core
 
     strategy:
       matrix:
@@ -28,10 +32,15 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - run: cd grafe-core
-    - run: npm ci
-    - run: npm run lint
-    - run: npm run build
-    - run: npm test
-    - run: npm run coverage --reporter=text
-    - run: npm run coverage-check
+    - name: Install npm packages for grafe-core
+      run: npm ci
+    - name: Lint the grafe-core
+      run: npm run lint
+    - name: Build the grafe-core
+      run: npm run build
+    - name: Test the grefe-core
+      run: npm test
+    - name: Generate coverage for grafe-core
+      run: npm run coverage --reporter=text
+    - name: Check coverage for grafe-core
+      run: npm run coverage-check

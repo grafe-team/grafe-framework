@@ -7,86 +7,85 @@ import messages from './generate.messages';
 
 /**
  * Generates the CLI for creating a new static folder
- * 
+ *
  * @param argv Arguments of the CLI
  * @returns Promise<undefined>
  */
- export async function generateStaticHandler(argv: any): Promise<void> {
-    
-    // get root directory (where package.json is in)
-    const rootDir = await pkgDir.default(process.cwd());
-    
-    // check if in grafe project
-    if(!fs.existsSync(path.join(rootDir, 'grafe.json'))) {
-        return console.error(messages.not_grafe);
-    }
+export async function generateStaticHandler(
+  argv: Record<string, unknown>
+): Promise<void> {
+  // get root directory (where package.json is in)
+  const rootDir = await pkgDir.default(process.cwd());
 
-    let questions = [];
+  // check if in grafe project
+  if (!fs.existsSync(path.join(rootDir, 'grafe.json'))) {
+    return console.error(messages.not_grafe);
+  }
 
-    // if name is not given then
-    if (argv.name == undefined) {
-        questions.push({
-            type: 'input',
-            name: 'name',
-            message: messages.questions.staticHandler.name
-        });
-    }
+  const questions = [];
 
-    let answers = [];
-    // Check if there is at least one question
-    if (questions.length > 0) {
-        // prompt the user the questions
-        answers = await inquirer.prompt(questions);
-    }
+  // if name is not given then
+  if (argv.name == undefined) {
+    questions.push({
+      type: 'input',
+      name: 'name',
+      message: messages.questions.staticHandler.name,
+    });
+  }
 
-    answers.name = answers.name || argv.name;
+  let answers = [];
+  // Check if there is at least one question
+  if (questions.length > 0) {
+    // prompt the user the questions
+    answers = await inquirer.prompt(questions);
+  }
 
-    generateStatic(answers.name);
+  answers.name = answers.name || argv.name;
+
+  generateStatic(answers.name);
 }
 
 /**
  * Generate a new static folder
- * 
+ *
  * @param name name of the new static folder
  * @returns Promise<undefined>
  */
 export async function generateStatic(name: string): Promise<void> {
+  // prompt confirmation to user
+  const confirm = await inquirer.prompt({
+    message: messages.confirm,
+    type: 'confirm',
+    name: 'confirm',
+  });
 
-    // prompt confirmation to user
-    let confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm'
-    });
+  // if not confirming abort
+  if (!confirm.confirm) {
+    return;
+  }
 
-    // if not confirming abort
-    if(!confirm.confirm) {
-        return;
-    }
+  // check if length is greater then 0
+  if (name.length == 0) {
+    return console.error(messages.generateStatic.to_small);
+  }
 
-    // check if length is greater then 0
-    if(name.length == 0) {
-        return console.error(messages.generateStatic.to_small);
-    }
+  // check if name has a ':' in it
+  if (name.indexOf(':') != -1) {
+    return console.error(messages.generateStatic.no_colon);
+  }
 
-    // check if name has a ':' in it
-    if(name.indexOf(':') != -1) {
-        return console.error(messages.generateStatic.no_colon);
-    }
+  // get root directory (where package.json is in)
+  const rootDir = await pkgDir.default(process.cwd());
 
-    // get root directory (where package.json is in)
-    const rootDir = await pkgDir.default(process.cwd());
+  const _path = path.join(rootDir, 'src', 'static', name);
 
-    const _path = path.join(rootDir, 'src', 'static', name);
+  // check if directory already exists
+  if (fs.existsSync(_path)) {
+    return console.error(messages.generateStatic.exists);
+  }
 
-    // check if directory already exists
-    if(fs.existsSync(_path)) {
-        return console.error(messages.generateStatic.exists);
-    }
+  // create all non-existing directorys
+  await mkdirp.default(_path);
 
-    // create all non-existing directorys
-    await mkdirp.default(_path);
-
-    console.log(messages.generateStatic.success, _path);
+  console.log(messages.generateStatic.success, _path);
 }
-

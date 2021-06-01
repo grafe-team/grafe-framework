@@ -7,6 +7,7 @@
     "test-generate": "mocha build/generate/test/**/*.js",
     "build": "tsc",
     "build-w": "tsc --watch",
+    "build-prod": "tsc --project tsconfig.prod.json",
     "start": "node build/index.js",
     "coverage-generate": "nyc npm run test-generate",
     "postinstall": "patch-package",

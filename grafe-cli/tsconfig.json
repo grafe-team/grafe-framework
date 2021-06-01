@@ -17,9 +17,11 @@
         }
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "src/**/test/**/*"
     ],
     "exclude": [
-        "src/templates/**/*"
+        "src/templates/**/*",
+        "coverage"
     ]
 }

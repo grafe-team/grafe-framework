@@ -66,5 +66,21 @@ function registerRoute(
     mws.push(mw.func);
   });
 
-  express[route.method](endpoint, ...mws);
+  // eslint-disable-next-line
+  const routeFunction = require(route.link);
+
+  if (typeof routeFunction !== 'function') {
+    console.error(
+      `File ${route.link} can not be imorted because it does not export a function!`
+    );
+    return;
+  }
+
+  if (mws.length > 0) {
+    express[route.method](endpoint, ...mws, routeFunction);
+  } else {
+    express[route.method](endpoint, routeFunction);
+  }
+
+  console.log(`Registered route ${route.method} ${endpoint}`);
 }

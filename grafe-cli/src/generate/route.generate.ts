@@ -67,7 +67,7 @@ export async function generateRouteHandler(
     // If choices dont exists or the length is 0 (which means there are no middleares) delete question
     if (
       questions[index].choices == undefined ||
-      questions[index]?.choices?.length == 0
+      questions[index].choices.length == 0
     ) {
       questions.splice(index, 1);
     }

@@ -1,5 +1,6 @@
 import { Config, Middleware, Route, RoutePart } from './config';
 import { readAllFilesStats } from './file';
+import * as path from 'path';
 
 /**
  * Builds the routeTree. It reads all the directories in the routePath and acoridng to the file-/dirnames it builds up a tree
@@ -16,7 +17,12 @@ import { readAllFilesStats } from './file';
 export function createRouteTree(config: Config): Config {
   const routeTree: RoutePart = {};
 
-  _createRouteTree(config.routePath, routeTree, [], config.middlewares);
+  _createRouteTree(
+    path.join(config.baseDir, config.routePath),
+    routeTree,
+    [],
+    config.middlewares
+  );
 
   config.routeTree = routeTree;
 
@@ -42,6 +48,7 @@ function _createRouteTree(
 
   filesStats.forEach((file) => {
     if (file.isDirectory) {
+      // parse directory
       const dirParseInfo = parseDirectoryName(
         file.name,
         inheritedMiddlewares,
@@ -52,15 +59,27 @@ function _createRouteTree(
         return;
       }
 
-      const newRoutePart: RoutePart = {};
-      routePart[dirParseInfo.route] = newRoutePart;
+      if (dirParseInfo.route === '') {
+        // folder that adds middlewares
+        _createRouteTree(
+          file.path,
+          routePart,
+          dirParseInfo.middlewares,
+          allMiddlewares
+        );
+      } else {
+        // normal path folder
+        const newRoutePart: RoutePart = {};
 
-      _createRouteTree(
-        file.path,
-        newRoutePart,
-        inheritedMiddlewares,
-        allMiddlewares
-      );
+        routePart[dirParseInfo.route] = newRoutePart;
+
+        _createRouteTree(
+          file.path,
+          newRoutePart,
+          inheritedMiddlewares,
+          allMiddlewares
+        );
+      }
     } else if (file.isFile) {
       // parse the file name
       let parseInfo: {
@@ -84,6 +103,8 @@ function _createRouteTree(
       if (parseInfo.ignored) {
         return;
       }
+
+      parseInfo.route.link = file.path;
 
       routePart[parseInfo.route.endpoint] = parseInfo.route;
     }

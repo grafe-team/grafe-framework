@@ -4,7 +4,7 @@ import messages from './generate.messages';
 import { generateRouteHandler } from './route.generate';
 import { generateMiddleWareHandler } from './middleware.generate';
 import { generateStaticHandler } from './static.generate';
-import { generateUtilsHandler } from './utils.generate';
+// import { generateUtilsHandler } from './utils.generate';
 
 /**
  * Describes the syntax of the generate command
@@ -74,15 +74,15 @@ export function generateCommand(
         });
       },
       generateStaticHandler
-    )
-    .command(
-      'util',
-      'insert desc',
-      (y) => {
-        return y;
-      },
-      generateUtilsHandler
     );
+  // .command(
+  //   'util',
+  //   'insert desc',
+  //   (y) => {
+  //     return y;
+  //   },
+  //   generateUtilsHandler
+  // );
 }
 
 /**
@@ -101,7 +101,7 @@ export async function generateHandler(
       type: 'list',
       name: 'type',
       message: messages.questions.mainHandler.message,
-      choices: ['Route', 'Middleware', 'Static Folder', 'Util Component'],
+      choices: ['Route', 'Middleware', 'Static Folder'], // , 'Util Component'],
     },
   ]);
 
@@ -118,8 +118,8 @@ export async function generateHandler(
   } else if (answers.type === 'static folder') {
     // if choice is satic folder generate static
     generateStaticHandler(argv);
-  } else if (answers.type === 'util component') {
-    // if choice is util component generate util
-    generateUtilsHandler(argv);
-  }
+  } // else if (answers.type === 'util component') {
+  // if choice is util component generate util
+  //   generateUtilsHandler(argv);
+  // }
 }

@@ -102,6 +102,11 @@ export interface Route {
   middlewares: Middleware[];
 
   /**
+   * Represents the absolute path to the file where the route logic is hosted
+   */
+  link?: string;
+
+  /**
    * This is only a temporary fix. Without it typescirpt will think that a routPart is a route and throw an error
    */
   [route: string]: any;

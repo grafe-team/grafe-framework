@@ -1,5 +1,8 @@
 {
     "tests": false,
+    "statics": [
+        "static"
+    ],
     "projectType": "express",
     "routePath": "build/routes",
     "middlewarePath": "build/middlewares",

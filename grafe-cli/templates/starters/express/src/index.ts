@@ -1,9 +1,10 @@
 import express = require('express');
 import { initCore } from '@grafe/grafe-core/build';
+import * as path from 'path';
 
 const app = express();
 
-initCore('../grafe.json', app);
+initCore(path.join(__dirname, '../grafe.json'), app);
 
 // get the port the server should use
 const port = process.env.PORT || 3000;

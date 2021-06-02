@@ -19,7 +19,7 @@ export function generateCommand(
     return yargs
         .command(
             'route',
-            'insert desc',
+            'generates a new route',
             (y) => {
                 return y
                     .option('routePath', {
@@ -44,7 +44,7 @@ export function generateCommand(
         )
         .command(
             'middleware',
-            'insert desc',
+            'generates a new middleware',
             (y) => {
                 return y
                     .option('name', {
@@ -71,7 +71,7 @@ export function generateCommand(
         )
         .command(
             'static',
-            'insert desc',
+            'generates a new static folder',
             (y) => {
                 return y.option('name', {
                     alias: 'n',

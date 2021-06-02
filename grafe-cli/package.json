@@ -4,12 +4,13 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "test-generate": "mocha build/generate/test/**/*.js",
+    "test": "mocha build/**/test/**/*.js",
     "build": "tsc",
     "build-w": "tsc --watch",
     "build-prod": "tsc --project tsconfig.prod.json",
     "start": "node build/index.js",
-    "coverage-generate": "nyc npm run test-generate",
+    "coverage": "nyc npm run test",
+    "coverage-check": "nyc check-coverage",
     "postinstall": "patch-package",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"

@@ -2,6 +2,7 @@ import 'mocha';
 import rewire = require('rewire');
 import Sinon = require('sinon');
 import messages from '../generate.messages';
+import * as path from 'path';
 import * as chai from 'chai';
 
 describe('route.generate.ts file', () => {
@@ -95,7 +96,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should log an error when not in grafe project', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.throws({ code: 'ENOENT' });
 
             await generateRoute('', '', []);
@@ -114,7 +115,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should abort when not confirming the prompt', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: false });
 
@@ -135,7 +136,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should abort not using a given rest-method', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
 
@@ -164,7 +165,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should abort when middleware shortcut is not in grafe.json', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
 
@@ -185,7 +186,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should abort when route already exists', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
             existsSyncStub.returns(true);
@@ -218,7 +219,7 @@ describe('route.generate.ts file', () => {
             });
             newGrageConfig.tests = true;
 
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub
                 .onFirstCall()
                 .returns(JSON.stringify(newGrageConfig));
@@ -246,7 +247,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should create route when everything is correct', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
             existsSyncStub.returns(false);
@@ -266,7 +267,14 @@ describe('route.generate.ts file', () => {
                 'prompt should be called once'
             );
             chai.expect(copyFileSyncStub.lastCall.args[1]).to.deep.eq(
-                'C:\\grafe\\project_1\\src\\routes\\_mw.pt\\test.get.ts'
+                path.join(
+                    'grafe',
+                    'project_1',
+                    'src',
+                    'routes',
+                    '_mw.pt',
+                    'test.get.ts'
+                )
             );
         });
 
@@ -279,7 +287,7 @@ describe('route.generate.ts file', () => {
             });
             newGrageConfig.tests = true;
 
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub
                 .onFirstCall()
                 .returns(JSON.stringify(newGrageConfig));
@@ -305,10 +313,25 @@ describe('route.generate.ts file', () => {
                 'prompt should be called once'
             );
             chai.expect(writeFileSyncStub.lastCall.args[0]).to.deep.eq(
-                'C:\\grafe\\project_1\\src\\routes\\_mw.pt.adm\\_tests\\helloworld%id.put.ts'
+                path.join(
+                    'grafe',
+                    'project_1',
+                    'src',
+                    'routes',
+                    '_mw.pt.adm',
+                    '_tests',
+                    'helloworld%id.put.ts'
+                )
             );
             chai.expect(copyFileSyncStub.lastCall.args[1]).to.deep.eq(
-                'C:\\grafe\\project_1\\src\\routes\\_mw.pt.adm\\helloworld%id.put.ts'
+                path.join(
+                    'grafe',
+                    'project_1',
+                    'src',
+                    'routes',
+                    '_mw.pt.adm',
+                    'helloworld%id.put.ts'
+                )
             );
         });
     });
@@ -363,7 +386,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should log an error when not in a grafe project', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.throws({ code: 'ENOENT' });
 
             await generateRouteHandler({});
@@ -382,7 +405,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should start generateRoute with given parameters', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
             await generateRouteHandler({
@@ -414,7 +437,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should remove the middleware question', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(
                 JSON.stringify({
                     middlewares: [],
@@ -447,7 +470,7 @@ describe('route.generate.ts file', () => {
         });
 
         it('should prompt the user all questions', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({
                 path: '/test',

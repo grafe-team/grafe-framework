@@ -1,5 +1,8 @@
 {
     "tests": false,
+    "statics": [
+        "static"
+    ],
     "middlewares": [
         {
             "name": "protected",

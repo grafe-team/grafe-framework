@@ -1,5 +1,8 @@
 {
     "tests": false,
+    "projectType": "express",
+    "routePath": "build/routes",
+    "middlewarePath": "build/middlewares",
     "middlewares": [
         {
             "name": "protected",

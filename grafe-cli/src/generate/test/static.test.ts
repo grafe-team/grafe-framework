@@ -2,6 +2,7 @@ import 'mocha';
 import rewire = require('rewire');
 import Sinon = require('sinon');
 import messages from '../generate.messages';
+import * as path from 'path';
 import * as chai from 'chai';
 
 describe('static.generate.ts file', () => {
@@ -75,7 +76,7 @@ describe('static.generate.ts file', () => {
 
         it('should abort when not confirming the prompt', async () => {
             promptStub.resolves({ confirm: false });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
             await generateStatic('test');
@@ -96,7 +97,7 @@ describe('static.generate.ts file', () => {
 
         it('should log an error when length is 0', async () => {
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
             await generateStatic('');
@@ -125,7 +126,7 @@ describe('static.generate.ts file', () => {
 
         it('should log an error when colon is in name', async () => {
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
             await generateStatic('test:');
@@ -154,7 +155,7 @@ describe('static.generate.ts file', () => {
 
         it('should log an error when file already exists', async () => {
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(true);
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
@@ -182,7 +183,7 @@ describe('static.generate.ts file', () => {
 
         it('should log an error when file already exists', async () => {
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(false);
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
@@ -201,14 +202,14 @@ describe('static.generate.ts file', () => {
                 'console.log should be called once'
             );
             chai.expect(mkdirpStub.lastCall.args[0]).to.deep.eq(
-                'C:\\grafe\\project_1\\src\\test',
+                path.join('grafe', 'project_1', 'src', 'test'),
                 'should be this exact path'
             );
         });
 
         it('should log an error not in a grafe project', async () => {
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.throws({ code: 'ENOENT' });
 
             await generateStatic('test');
@@ -288,7 +289,7 @@ describe('static.generate.ts file', () => {
         });
 
         it('should log an error when not in a grafe project', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(false);
 
             await generateStaticHandler({});
@@ -306,7 +307,7 @@ describe('static.generate.ts file', () => {
         });
 
         it('should prompt the user when name not given', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(true);
             promptStub.resolves({ name: 'Test' });
 
@@ -327,7 +328,7 @@ describe('static.generate.ts file', () => {
         });
 
         it('should not prompt the user when name given', async () => {
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(true);
 
             await generateStaticHandler({ name: 'Test' });

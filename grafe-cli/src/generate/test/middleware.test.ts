@@ -2,6 +2,7 @@ import 'mocha';
 import rewire = require('rewire');
 import Sinon = require('sinon');
 import messages from '../generate.messages';
+import * as path from 'path';
 import * as chai from 'chai';
 
 describe('middleware.generate.ts file', () => {
@@ -85,7 +86,7 @@ describe('middleware.generate.ts file', () => {
 
         it('should log an error when not in a grafe project', async () => {
             readFileSyncStub.throws({ code: 'ENOENT' });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
             await generateMiddleWare('TEST', 'T', 'Empty description');
 
@@ -104,7 +105,7 @@ describe('middleware.generate.ts file', () => {
         it('should stop the process when not confirming', async () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: false });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
             await generateMiddleWare('TEST', 'T', 'Empty description');
 
@@ -121,7 +122,7 @@ describe('middleware.generate.ts file', () => {
         it('should log an error when the middleware name is in use', async () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
             await generateMiddleWare('protected', 'T', 'Empty description');
 
@@ -146,7 +147,7 @@ describe('middleware.generate.ts file', () => {
         it('should log an error when the middleware shortcut is in use', async () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
             await generateMiddleWare('Test', 'pt', 'Empty description');
 
@@ -184,7 +185,7 @@ describe('middleware.generate.ts file', () => {
                 ],
             };
 
-            pkgDirStub.resolves('C:\\grafe\\project_1');
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
 
@@ -199,11 +200,18 @@ describe('middleware.generate.ts file', () => {
                 'console.error should be called once'
             );
             chai.expect(copyFileSyncStub.lastCall.args[1]).to.deep.eq(
-                'C:\\grafe\\project_1\\src\\middlewares\\t\\Test.ts',
+                path.join(
+                    'grafe',
+                    'project_1',
+                    'src',
+                    'middlewares',
+                    't',
+                    'Test.ts'
+                ),
                 'template copy Path should be given destination'
             );
             chai.expect(writeFileSyncStub.lastCall.args[0]).to.deep.eq(
-                'C:\\grafe\\project_1\\grafe.json',
+                path.join('grafe', 'project_1', 'grafe.json'),
                 'should be grafe.json of given root-dir'
             );
             chai.expect(writeFileSyncStub.lastCall.args[1]).to.deep.eq(

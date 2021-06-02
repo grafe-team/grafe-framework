@@ -1,7 +1,7 @@
 {
   "name": "@grafe/grafe-core",
   "version": "0.1.0",
-  "description": "",
+  "description": "This is the core module of grafe. With the help of the core, all routes are created according to the corresponding folder structure.",
   "main": "built/index.js",
   "scripts": {
     "test": "mocha build/test/**/*.js",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/streimelstefan/grafe-framework.git"
+    "url": "git+https://github.com/grafe-team/grafe-framework.git"
   },
   "keywords": [
     "grafe-core",
@@ -28,12 +28,13 @@
   "author": "Stefan Streimel, Marvin Koch",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/streimelstefan/grafe-framework/issues"
+    "url": "https://github.com/grafe-team/grafe-framework/issues"
   },
   "files": [
-    "build/**/*"
+    "build/**/*",
+    "README.md"
   ],
-  "homepage": "https://github.com/streimelstefan/grafe-framework#readme",
+  "homepage": "https://github.com/grafe-team/grafe-framework",
   "devDependencies": {
     "@types/chai": "^4.2.18",
     "@types/mocha": "^8.2.2",

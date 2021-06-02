@@ -8,27 +8,27 @@ import messages from './generate.messages';
  * @returns Promise<undefined>
  */
 export async function generateUtilsHandler(
-  argv: Record<string, unknown>
+    argv: Record<string, unknown>
 ): Promise<void> {
-  const questions = [];
+    const questions = [];
 
-  if (argv.type == undefined) {
-    questions.push({
-      type: 'list',
-      name: 'component',
-      message: messages.questions.utilsHandler.type,
-      choices: ['Database-Component'],
-    });
-  }
+    if (argv.type == undefined) {
+        questions.push({
+            type: 'list',
+            name: 'component',
+            message: messages.questions.utilsHandler.type,
+            choices: ['Database-Component'],
+        });
+    }
 
-  let answers = [];
-  // Check if there is at least one question
-  if (questions.length > 0) {
-    // prompt the user the questions
-    answers = await inquirer.prompt(questions);
-  }
+    let answers = [];
+    // Check if there is at least one question
+    if (questions.length > 0) {
+        // prompt the user the questions
+        answers = await inquirer.prompt(questions);
+    }
 
-  answers.component = answers.component || argv.type;
+    answers.component = answers.component || argv.type;
 
-  // generateStatic(answers.name);
+    // generateStatic(answers.name);
 }

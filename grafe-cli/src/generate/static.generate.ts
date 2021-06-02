@@ -12,37 +12,37 @@ import messages from './generate.messages';
  * @returns Promise<undefined>
  */
 export async function generateStaticHandler(
-  argv: Record<string, unknown>
+    argv: Record<string, unknown>
 ): Promise<void> {
-  // get root directory (where package.json is in)
-  const rootDir = await pkgDir.default(process.cwd());
+    // get root directory (where package.json is in)
+    const rootDir = await pkgDir.default(process.cwd());
 
-  // check if in grafe project
-  if (!fs.existsSync(path.join(rootDir, 'grafe.json'))) {
-    return console.error(messages.not_grafe);
-  }
+    // check if in grafe project
+    if (!fs.existsSync(path.join(rootDir, 'grafe.json'))) {
+        return console.error(messages.not_grafe);
+    }
 
-  const questions = [];
+    const questions = [];
 
-  // if name is not given then
-  if (argv.name == undefined) {
-    questions.push({
-      type: 'input',
-      name: 'name',
-      message: messages.questions.staticHandler.name,
-    });
-  }
+    // if name is not given then
+    if (argv.name == undefined) {
+        questions.push({
+            type: 'input',
+            name: 'name',
+            message: messages.questions.staticHandler.name,
+        });
+    }
 
-  let answers = [];
-  // Check if there is at least one question
-  if (questions.length > 0) {
-    // prompt the user the questions
-    answers = await inquirer.prompt(questions);
-  }
+    let answers = [];
+    // Check if there is at least one question
+    if (questions.length > 0) {
+        // prompt the user the questions
+        answers = await inquirer.prompt(questions);
+    }
 
-  answers.name = answers.name || argv.name;
+    answers.name = answers.name || argv.name;
 
-  generateStatic(answers.name);
+    generateStatic(answers.name);
 }
 
 /**
@@ -52,54 +52,54 @@ export async function generateStaticHandler(
  * @returns Promise<undefined>
  */
 export async function generateStatic(name: string): Promise<void> {
-  // prompt confirmation to user
-  const confirm = await inquirer.prompt({
-    message: messages.confirm,
-    type: 'confirm',
-    name: 'confirm',
-  });
+    // prompt confirmation to user
+    const confirm = await inquirer.prompt({
+        message: messages.confirm,
+        type: 'confirm',
+        name: 'confirm',
+    });
 
-  // if not confirming abort
-  if (!confirm.confirm) {
-    return;
-  }
+    // if not confirming abort
+    if (!confirm.confirm) {
+        return;
+    }
 
-  // get root directory (where package.json is in)
-  const rootDir = await pkgDir.default(process.cwd());
+    // get root directory (where package.json is in)
+    const rootDir = await pkgDir.default(process.cwd());
 
-  // check if the project is a grafe project
-  let raw;
-  try {
-    raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
-  } catch (err) {
-    return console.error(messages.not_grafe);
-  }
+    // check if the project is a grafe project
+    let raw;
+    try {
+        raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
+    } catch (err) {
+        return console.error(messages.not_grafe);
+    }
 
-  const data = JSON.parse(raw.toString());
+    const data = JSON.parse(raw.toString());
 
-  // check if length is greater then 0
-  if (name.length == 0) {
-    return console.error(messages.generateStatic.to_small);
-  }
+    // check if length is greater then 0
+    if (name.length == 0) {
+        return console.error(messages.generateStatic.to_small);
+    }
 
-  // check if name has a ':' in it
-  if (name.indexOf(':') != -1) {
-    return console.error(messages.generateStatic.no_colon);
-  }
+    // check if name has a ':' in it
+    if (name.indexOf(':') != -1) {
+        return console.error(messages.generateStatic.no_colon);
+    }
 
-  const _path = path.join(rootDir, 'src', name);
+    const _path = path.join(rootDir, 'src', name);
 
-  // check if directory already exists
-  if (fs.existsSync(_path)) {
-    return console.error(messages.generateStatic.exists);
-  }
+    // check if directory already exists
+    if (fs.existsSync(_path)) {
+        return console.error(messages.generateStatic.exists);
+    }
 
-  data.statics.push(name);
+    data.statics.push(name);
 
-  fs.writeFileSync(path.join(rootDir, 'grafe.json'), data);
+    fs.writeFileSync(path.join(rootDir, 'grafe.json'), data);
 
-  // create all non-existing directorys
-  await mkdirp.default(_path);
+    // create all non-existing directorys
+    await mkdirp.default(_path);
 
-  console.log(messages.generateStatic.success, _path);
+    console.log(messages.generateStatic.success, _path);
 }

@@ -1,14 +1,27 @@
 {
     "compilerOptions": {
-        "outDir": "./build",
-        "allowJs": true,
-        "target": "es5",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "es6",
         "noImplicitAny": true,
-        "strictNullChecks": true,
-        "noImplicitThis": true,
-        "sourceMap": false,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "build",  
+        "baseUrl": ".",
+        "declaration": true,
+        "paths": {
+            "*": [
+                "node_modules/*",
+                "src/types/*"
+            ]
+        }
     },
     "include": [
-        "./src/**/*"
+        "src/**/*",
+        "test/**/*"
+    ],
+    "exclude": [
+        "coverage"
     ]
 }

@@ -43,6 +43,7 @@ export function createDirectoryContents(
         } else if (stats.isDirectory()) {
             // create folder in destination folder
             fs.mkdirSync(path.join(process.cwd(), currentFolder, file));
+            console.log('CREATE '.green + path.join(process.cwd(), currentFolder, file));
             // copy files/folder inside current folder recursively
             createDirectoryContents(
                 path.join(templatePath, file),

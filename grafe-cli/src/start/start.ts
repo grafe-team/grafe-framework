@@ -42,10 +42,10 @@ export async function startHandler(
     argv: Record<string, unknown>
 ): Promise<void> {
     // get project name from the arguments
-    let projectName = String(argv.projectName);
+    let projectName = argv.projectName;
 
     // if the project name was not provided get it from the user
-    if (projectName === undefined || projectName.length === 0) {
+    if (projectName === undefined || String(projectName).length === 0) {
         const answers = await inquirer.prompt([
             {
                 type: 'input',
@@ -81,8 +81,8 @@ export async function startHandler(
     }
 
     const projectOptions: StarterTemplateOptions = {
-        projectName: projectName,
-        projectPath: path.join(process.cwd(), projectName),
+        projectName: String(projectName),
+        projectPath: path.join(process.cwd(), String(projectName)),
         templateName: templateType,
         templatePath: path.join(templateStartersPath, templateType),
     };
@@ -140,7 +140,7 @@ async function getTemplate(
     argv: Record<string, unknown>
 ): Promise<string> {
     // get the template from command line agruments
-    let template = String(argv.template);
+    let template = argv.template;
 
     // read all templates and put them into an array
     const templateChoises = fs.readdirSync(templateDirPath);
@@ -152,13 +152,13 @@ async function getTemplate(
     }
 
     // check if the template does not exist
-    if (templateChoises.indexOf(template) === -1) {
+    if (templateChoises.indexOf(String(template)) === -1) {
         console.log(messages.templating.not_found, template);
         // get the template to use from the user
         template = await getTemplateFromUser(templateChoises);
     }
 
-    return template;
+    return String(template);
 }
 
 async function getTemplateFromUser(templateChoises: string[]): Promise<string> {

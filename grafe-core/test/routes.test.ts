@@ -699,6 +699,12 @@ describe('routes.ts file', () => {
 
     let createRouteTree: (config: Config) => Config;
 
+    const joinStub = Sinon.stub();
+
+    const pathStub = {
+      join: joinStub,
+    };
+
     const _createRouteTreeStub = Sinon.stub();
 
     beforeEach(() => {
@@ -708,19 +714,24 @@ describe('routes.ts file', () => {
 
       routes.__set__({
         _createRouteTree: _createRouteTreeStub,
+        path: pathStub,
       });
 
       _createRouteTreeStub.resetBehavior();
       _createRouteTreeStub.resetHistory();
+      joinStub.reset();
     });
 
     it('should try and create the route Tree and append it to the config', () => {
+      joinStub.returns('wrong path');
+      joinStub.withArgs(config.baseDir, config.routePath).returns('right path');
+
       createRouteTree(config);
 
       chai.expect(_createRouteTreeStub.callCount).to.deep.eq(1);
       chai
         .expect(_createRouteTreeStub.firstCall.args[0])
-        .to.deep.eq(config.routePath);
+        .to.deep.eq('right path');
       chai.expect(_createRouteTreeStub.firstCall.args[1]).to.deep.eq({});
       chai.expect(_createRouteTreeStub.firstCall.args[2]).to.deep.eq([]);
       chai.expect(_createRouteTreeStub.firstCall.args[3]).to.deep.eq([]);
@@ -757,18 +768,28 @@ describe('routes.ts file', () => {
     let createRouteTree: (config: Config) => Config;
 
     const readAllFilesStatsStub = Sinon.stub();
+    const joinStub = Sinon.stub();
+
+    const pathStub = {
+      join: joinStub,
+    };
 
     beforeEach(() => {
       createRouteTree = routes.__get__('createRouteTree');
 
       // need to do this this way because typescirpt changes the name
       // there is probably a better way for this
-      routes.__set__('file_1', { readAllFilesStats: readAllFilesStatsStub });
+      routes.__set__('file_1', {
+        readAllFilesStats: readAllFilesStatsStub,
+        path: pathStub,
+      });
 
       config = JSON.parse(JSON.stringify(configCache));
 
       readAllFilesStatsStub.resetHistory();
       readAllFilesStatsStub.resetBehavior();
+
+      joinStub.reset();
     });
 
     it('should create a route tree', () => {
@@ -802,14 +823,18 @@ describe('routes.ts file', () => {
       createRouteTree(config);
 
       chai.expect(config.routeTree).to.have.all.keys('test', 'dir1');
-      chai
-        .expect(config.routeTree.test)
-        .to.deep.eq({ endpoint: 'test', method: 'post', middlewares: [] });
+      chai.expect(config.routeTree.test).to.deep.eq({
+        endpoint: 'test',
+        method: 'post',
+        link: '/opt/project/routes/test.post.js',
+        middlewares: [],
+      });
       chai.expect(config.routeTree.dir1).to.have.all.keys('test2');
 
       chai.expect(config.routeTree.dir1.test2).to.deep.eq({
         endpoint: 'test2',
         method: 'get',
+        link: '/opt/project/routes/dir1/test2.get.js',
         middlewares: [config.middlewares[1]],
       });
     });

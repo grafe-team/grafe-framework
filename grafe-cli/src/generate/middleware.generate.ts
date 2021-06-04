@@ -66,7 +66,12 @@ export async function generateMiddleWareHandler(
     answers.description = answers.description || argv.description;
 
     // generate the new middleware
-    await generateMiddleWare(answers.name, answers.short, answers.description);
+    await generateMiddleWare(
+        answers.name,
+        answers.short,
+        answers.description,
+        Boolean(argv.yes)
+    );
 }
 
 /**
@@ -80,7 +85,8 @@ export async function generateMiddleWareHandler(
 export async function generateMiddleWare(
     name: string,
     short: string,
-    description: string
+    description: string,
+    confirmation: boolean
 ): Promise<void> {
     // get root directory (where package.json is in)
     const rootDir = await pkgDir.default(process.cwd());
@@ -95,14 +101,22 @@ export async function generateMiddleWare(
 
     const data: GrafeConfig = JSON.parse(raw);
 
-    const confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm',
-    });
+    // chech if grafe.json has this key
+    if (data.middlewares == undefined) {
+        return console.error(messages.wrong_config);
+    }
 
-    if (!confirm.confirm) {
-        return;
+    // check if user already confirms via args
+    if (!confirmation) {
+        const confirm = await inquirer.prompt({
+            message: messages.confirm,
+            type: 'confirm',
+            name: 'confirm',
+        });
+
+        if (!confirm.confirm) {
+            return;
+        }
     }
 
     // Check if the name of the new middleware already exists

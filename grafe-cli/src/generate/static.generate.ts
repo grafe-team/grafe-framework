@@ -100,6 +100,7 @@ export async function generateStatic(
 
     const data: GrafeConfig = JSON.parse(raw.toString());
 
+    // chech if grafe.json has this key
     if (data.statics == undefined) {
         return console.error(messages.wrong_config);
     }

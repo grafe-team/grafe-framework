@@ -34,7 +34,8 @@ describe('middleware.generate.ts file', () => {
         let generateMiddleWare: (
             name: string,
             short: string,
-            description: string
+            description: string,
+            confirmation: boolean
         ) => Promise<void> = middleware.__get__('generateMiddleWare');
 
         const fsMock = {
@@ -88,7 +89,7 @@ describe('middleware.generate.ts file', () => {
             readFileSyncStub.throws({ code: 'ENOENT' });
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
-            await generateMiddleWare('TEST', 'T', 'Empty description');
+            await generateMiddleWare('TEST', 'T', 'Empty description', false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -107,7 +108,7 @@ describe('middleware.generate.ts file', () => {
             promptStub.resolves({ confirm: false });
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
-            await generateMiddleWare('TEST', 'T', 'Empty description');
+            await generateMiddleWare('TEST', 'T', 'Empty description', false);
 
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 0,
@@ -121,10 +122,14 @@ describe('middleware.generate.ts file', () => {
 
         it('should log an error when the middleware name is in use', async () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
-            promptStub.resolves({ confirm: true });
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
-            await generateMiddleWare('protected', 'T', 'Empty description');
+            await generateMiddleWare(
+                'protected',
+                'T',
+                'Empty description',
+                true
+            );
 
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 0,
@@ -133,6 +138,10 @@ describe('middleware.generate.ts file', () => {
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
                 'console.error should be called once'
+            );
+            chai.expect(promptStub.callCount).to.deep.eq(
+                0,
+                'user should not be prompted once'
             );
             chai.expect(
                 consoleErrorStub.calledOnceWith(
@@ -144,12 +153,43 @@ describe('middleware.generate.ts file', () => {
             );
         });
 
+        it('should log an error when grafe.json is incorrect', async () => {
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
+            readFileSyncStub.returns(JSON.stringify({ tests: true }));
+
+            await generateMiddleWare(
+                'protected',
+                'T',
+                'Empty description',
+                true
+            );
+
+            chai.expect(promptStub.callCount).to.deep.eq(
+                0,
+                'prompt should be called once'
+            );
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
+            );
+            chai.expect(consoleLogStub.callCount).to.deep.eq(
+                0,
+                'console.log should not be called once'
+            );
+            chai.expect(
+                consoleErrorStub.calledOnceWith(messages.wrong_config)
+            ).to.be.eq(
+                true,
+                'console.error should be called with wrong_config message'
+            );
+        });
+
         it('should log an error when the middleware shortcut is in use', async () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
 
-            await generateMiddleWare('Test', 'pt', 'Empty description');
+            await generateMiddleWare('Test', 'pt', 'Empty description', false);
 
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 0,
@@ -189,7 +229,7 @@ describe('middleware.generate.ts file', () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
 
-            await generateMiddleWare('Test', 't', 'Empty description');
+            await generateMiddleWare('Test', 't', 'Empty description', false);
 
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 1,

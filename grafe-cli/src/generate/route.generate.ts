@@ -29,6 +29,11 @@ export async function generateRouteHandler(
 
     const data: GrafeConfig = JSON.parse(raw.toString());
 
+    // chech if grafe.json has this key
+    if (data.middlewares == undefined) {
+        return console.error(messages.wrong_config);
+    }
+
     const questions = [];
 
     // If the routePath is not given via args add routePath question
@@ -86,7 +91,12 @@ export async function generateRouteHandler(
     answers.middlewares = answers.middlewares || argv.middlewares;
 
     // generate the new route
-    await generateRoute(answers.path, answers.method, answers.middlewares);
+    await generateRoute(
+        answers.path,
+        answers.method,
+        answers.middlewares,
+        Boolean(argv.yes)
+    );
 }
 
 /**
@@ -100,7 +110,8 @@ export async function generateRouteHandler(
 export async function generateRoute(
     routePath: string,
     method: string,
-    mw: string[]
+    mw: string[],
+    confirmation: boolean
 ): Promise<void> {
     // get root directory (where package.json is in)
     const rootDir = await pkgDir.default(process.cwd());
@@ -115,14 +126,17 @@ export async function generateRoute(
 
     const data: GrafeConfig = JSON.parse(raw);
 
-    const confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm',
-    });
+    // check if user already confirms via args
+    if (!confirmation) {
+        const confirm = await inquirer.prompt({
+            message: messages.confirm,
+            type: 'confirm',
+            name: 'confirm',
+        });
 
-    if (!confirm.confirm) {
-        return;
+        if (!confirm.confirm) {
+            return;
+        }
     }
 
     // remove first slash if it has one

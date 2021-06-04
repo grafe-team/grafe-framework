@@ -2,39 +2,43 @@ import yargs from 'yargs';
 import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as shell from 'shelljs'
-import { createDirectoryContents } from '../utils/templating'
+import * as shell from 'shelljs';
+import { createDirectoryContents } from '../utils/templating';
 
 export interface StarterTemplateOptions {
     templatePath: string; // Path to the template
     templateName: string; // Name of the template
-    projectPath: string;  // Path to the project of the user
-    projectName: string;  // Name of the project from the user
+    projectPath: string; // Path to the project of the user
+    projectName: string; // Name of the project from the user
 }
 
 /**
- * Describes the syntax of the start command 
- * 
- * @param yargs Yargs object to add information to 
+ * Describes the syntax of the start command
+ *
+ * @param yargs Yargs object to add information to
  * @returns The same Yargs object
  */
-export function startCommand(yargs: yargs.Argv<{}>): yargs.Argv<{}> {
+export function startCommand(
+    yargs: yargs.Argv<Record<string, unknown>>
+): yargs.Argv<Record<string, unknown>> {
     return yargs.option('template', {
         alias: 't',
         type: 'string',
-        description: 'What template should be used'
+        description: 'What template should be used',
     });
 }
 
 /**
  * Hanles the start command. Gets the projectName from the user and lets him select what project he wants to use.
- * 
- * @param argv Arguments from Yargs 
+ *
+ * @param argv Arguments from Yargs
  * @returns Promise<undefined>
  */
-export async function startHandler(argv: any): Promise<void> {
+export async function startHandler(
+    argv: Record<string, unknown>
+): Promise<void> {
     // get project name from the arguments
-    let projectName: string = argv.projectName;
+    let projectName = String(argv.projectName);
 
     // if the project name was not provided get it from the user
     if (projectName.length === 0) {
@@ -42,15 +46,21 @@ export async function startHandler(argv: any): Promise<void> {
             {
                 type: 'input',
                 message: 'Whats the name of your project?',
-                name: 'projectName'
-            }
+                name: 'projectName',
+            },
         ]);
 
         projectName = answers.projectName;
     }
-    
+
     // create the path to the template starter dir
-    const templateStartersPath = path.join(__dirname, '..', '..', 'templates', 'starters');
+    const templateStartersPath = path.join(
+        __dirname,
+        '..',
+        '..',
+        'templates',
+        'starters'
+    );
 
     // get the template the user specified
     const templateType = await getTemplate(templateStartersPath, argv);
@@ -59,22 +69,26 @@ export async function startHandler(argv: any): Promise<void> {
         projectName: projectName,
         projectPath: path.join(process.cwd(), projectName),
         templateName: templateType,
-        templatePath: path.join(templateStartersPath, templateType)
+        templatePath: path.join(templateStartersPath, templateType),
     };
 
-    // create project folder 
+    // create project folder
     if (!createProjectFolder(projectOptions)) {
         return;
     }
 
     // copy template into projet folder
-    createDirectoryContents(projectOptions.templatePath, projectOptions.projectName, projectOptions);
+    createDirectoryContents(
+        projectOptions.templatePath,
+        projectOptions.projectName,
+        projectOptions
+    );
 
     // install packages
     console.log('Installing packages ...');
 
     // install the node packages
-    const packagesInstalled = installPackages(projectOptions.projectPath)
+    const packagesInstalled = installPackages(projectOptions.projectPath);
 
     // check if there was an error when installing the packages
     if (packagesInstalled.length !== 0) {
@@ -82,7 +96,7 @@ export async function startHandler(argv: any): Promise<void> {
         return;
     }
 
-    console.log("Project created!");
+    console.log('Project created!');
 }
 
 /**
@@ -91,9 +105,12 @@ export async function startHandler(argv: any): Promise<void> {
  * @param argv the arguements you got from yargs
  * @returns Promise<string> of the name form the template
  */
-async function getTemplate(templateDirPath: string, argv: any): Promise<string> {
+async function getTemplate(
+    templateDirPath: string,
+    argv: Record<string, unknown>
+): Promise<string> {
     // get the template from command line agruments
-    let template = argv.template;
+    let template = String(argv.template);
 
     // read all templates and put them into an array
     const templateChoises = fs.readdirSync(templateDirPath);
@@ -120,8 +137,8 @@ async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
             type: 'list',
             name: 'templateType',
             message: 'What project template would you like to use?',
-            choices: templateChoises
-        }
+            choices: templateChoises,
+        },
     ]);
 
     return answers.templateType;
@@ -129,15 +146,17 @@ async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
 
 /**
  * Creates the folder where the project that the user whants to create residse in
- * 
+ *
  * Throws an error if the folder could not be created
- * 
- * @param options Options from the User regarding the project 
+ *
+ * @param options Options from the User regarding the project
  * @returns true if folder was created. False if it already exists
  */
 function createProjectFolder(options: StarterTemplateOptions): boolean {
     if (fs.existsSync(options.projectPath)) {
-        console.error(`Folder ${options.projectPath} already exists. Delete it or use another name!`);
+        console.error(
+            `Folder ${options.projectPath} already exists. Delete it or use another name!`
+        );
         return false;
     }
 
@@ -157,9 +176,9 @@ function installPackages(projectFolder: string): string {
     if (hasPackages) {
         shell.cd(projectFolder);
         const result = shell.exec('npm install', {
-            silent: true
+            silent: true,
         });
-    
+
         if (result.code !== 0) {
             return 'Something whent wrong';
         }

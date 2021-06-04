@@ -1,0 +1,24 @@
+diff --git a/node_modules/rewire/lib/getImportGlobalsSrc.js b/node_modules/rewire/lib/getImportGlobalsSrc.js
+index 3c29c56..ba1e4b7 100644
+--- a/node_modules/rewire/lib/getImportGlobalsSrc.js
++++ b/node_modules/rewire/lib/getImportGlobalsSrc.js
+@@ -20,8 +20,18 @@ function getImportGlobalsSrc(ignore) {
+     // shadow the module-internal variables
+     // @see https://github.com/jhnns/rewire-webpack/pull/6
+     ignore.push("module", "exports", "require");
++    // strict mode doesn't allow to (re)define 'undefined', 'eval' & 'arguments'
++    ignore.push("undefined", "eval", "arguments");
++    // 'GLOBAL' and 'root' are deprecated in Node
++    // (assigning them causes a DeprecationWarning)
++    ignore.push("GLOBAL", "root");
++    // 'NaN' and 'Infinity' are immutable
++    // (doesn't throw an error if you set 'var NaN = ...', but doesn't work either)
++    ignore.push("NaN", "Infinity");
+ 
+-    for (key in globalObj) { /* jshint forin: false */
++    const globals = Object.getOwnPropertyNames(globalObj);
++
++    for (key of globals) { /* jshint forin: false */
+         if (ignore.indexOf(key) !== -1) {
+             continue;
+         }

@@ -1,34 +1,35 @@
-import inquirer from 'inquirer';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
-import pkgDir from 'pkg-dir';
+import * as inquirer from 'inquirer';
+import * as fs from 'fs';
+import * as mkdirp from 'mkdirp';
+import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
 import messages from './generate.messages';
 
 /**
  * Generates the CLI for creating a new static folder
- * 
+ *
  * @param argv Arguments of the CLI
  * @returns Promise<undefined>
  */
- export async function generateStaticHandler(argv: any): Promise<void> {
+export async function generateStaticHandler(
+    argv: Record<string, unknown>
+): Promise<void> {
     // get root directory (where package.json is in)
-    const rootDir = await pkgDir(process.cwd());
+    const rootDir = await pkgDir.default(process.cwd());
 
-    // check if the project is a grafe project
-    try {
-        fs.readFileSync(path.join(rootDir, '/grafe.json'));
-    } catch (err) {
-        return console.log(messages.not_grafe);
+    // check if in grafe project
+    if (!fs.existsSync(path.join(rootDir, 'grafe.json'))) {
+        return console.error(messages.not_grafe);
     }
 
-    let questions = [];
+    const questions = [];
 
+    // if name is not given then
     if (argv.name == undefined) {
         questions.push({
             type: 'input',
             name: 'name',
-            message: messages.questions.staticHandler.name
+            message: messages.questions.staticHandler.name,
         });
     }
 
@@ -46,30 +47,59 @@ import messages from './generate.messages';
 
 /**
  * Generate a new static folder
- * 
+ *
  * @param name name of the new static folder
  * @returns Promise<undefined>
  */
 export async function generateStatic(name: string): Promise<void> {
-
-    let confirm = await inquirer.prompt({
+    // prompt confirmation to user
+    const confirm = await inquirer.prompt({
         message: messages.confirm,
         type: 'confirm',
-        name: 'confirm'
+        name: 'confirm',
     });
 
-    if(!confirm.confirm) {
+    // if not confirming abort
+    if (!confirm.confirm) {
         return;
     }
 
     // get root directory (where package.json is in)
-    const rootDir = await pkgDir(process.cwd());
+    const rootDir = await pkgDir.default(process.cwd());
 
-    const _path = path.join(rootDir, 'src', 'static', name);
+    // check if the project is a grafe project
+    let raw;
+    try {
+        raw = fs.readFileSync(path.join(rootDir, 'grafe.json'));
+    } catch (err) {
+        return console.error(messages.not_grafe);
+    }
+
+    const data = JSON.parse(raw.toString());
+
+    // check if length is greater then 0
+    if (name.length == 0) {
+        return console.error(messages.generateStatic.to_small);
+    }
+
+    // check if name has a ':' in it
+    if (name.indexOf(':') != -1) {
+        return console.error(messages.generateStatic.no_colon);
+    }
+
+    const _path = path.join(rootDir, 'src', name);
+
+    // check if directory already exists
+    if (fs.existsSync(_path)) {
+        return console.error(messages.generateStatic.exists);
+    }
+
+    data.statics.push(name);
+
+    fs.writeFileSync(path.join(rootDir, 'grafe.json'), data);
 
     // create all non-existing directorys
-    await mkdirp(_path);
+    await mkdirp.default(_path);
 
     console.log(messages.generateStatic.success, _path);
 }
-

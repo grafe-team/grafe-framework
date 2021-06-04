@@ -73,11 +73,18 @@ export function generateCommand(
             'static',
             'generates a new static folder',
             (y) => {
-                return y.option('name', {
-                    alias: 'n',
-                    type: 'string',
-                    description: messages.commands.static.name.descirption,
-                });
+                return y
+                    .option('name', {
+                        alias: 'n',
+                        type: 'string',
+                        description: messages.commands.static.name.descirption,
+                    })
+                    .option('prefix', {
+                        alias: 'p',
+                        type: 'string',
+                        description:
+                            messages.commands.static.prefix.descirption,
+                    });
             },
             generateStaticHandler
         );

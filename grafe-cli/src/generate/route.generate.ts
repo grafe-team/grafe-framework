@@ -4,8 +4,8 @@ import * as mkdirp from 'mkdirp';
 import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
 import * as ejs from 'ejs';
+import { MiddlewareComponent, GrafeConfig } from '../grafe.config';
 import messages from './generate.messages';
-import { Middleware } from './middleware.generate';
 
 /**
  * Generates the CLI for creating a new route
@@ -27,7 +27,7 @@ export async function generateRouteHandler(
         return console.error(messages.not_grafe);
     }
 
-    const data = JSON.parse(raw.toString());
+    const data: GrafeConfig = JSON.parse(raw.toString());
 
     const questions = [];
 
@@ -113,7 +113,7 @@ export async function generateRoute(
         return console.error(messages.not_grafe);
     }
 
-    const data = JSON.parse(raw);
+    const data: GrafeConfig = JSON.parse(raw);
 
     const confirm = await inquirer.prompt({
         message: messages.confirm,
@@ -161,7 +161,9 @@ export async function generateRoute(
         for (const mid of middlewares) {
             // check if the middleware exists or not
             if (
-                !data.middlewares.some((item: Middleware) => item.value === mid)
+                !data.middlewares.some(
+                    (item: MiddlewareComponent) => item.value === mid
+                )
             ) {
                 return console.error(
                     messages.generateRoute.invalid_shortcut,

@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
+import { StaticComponent, GrafeConfig } from '../grafe.config';
 import messages from './generate.messages';
 
 /**
@@ -40,18 +41,36 @@ export async function generateStaticHandler(
         answers = await inquirer.prompt(questions);
     }
 
-    answers.name = answers.name || argv.name;
+    if (argv.prefix == undefined) {
+        const result = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'prefix',
+                default: answers.name || argv.name,
+                messages: messages.questions.staticHandler.prefix,
+            },
+        ]);
 
-    generateStatic(answers.name);
+        answers.prefix = result.prefix;
+    }
+
+    answers.name = answers.name || argv.name;
+    answers.prefix = answers.prefix || argv.prefix;
+
+    generateStatic(answers.name, answers.prefix);
 }
 
 /**
  * Generate a new static folder
  *
  * @param name name of the new static folder
+ * @param prefix prefix of the static folder
  * @returns Promise<undefined>
  */
-export async function generateStatic(name: string): Promise<void> {
+export async function generateStatic(
+    name: string,
+    prefix: string
+): Promise<void> {
     // prompt confirmation to user
     const confirm = await inquirer.prompt({
         message: messages.confirm,
@@ -75,7 +94,14 @@ export async function generateStatic(name: string): Promise<void> {
         return console.error(messages.not_grafe);
     }
 
-    const data = JSON.parse(raw.toString());
+    let data: GrafeConfig;
+    try {
+        data = JSON.parse(raw.toString());
+    } catch (err) {
+        return console.log(
+            'Grafde.json is not correct please use grafe upgrade'
+        );
+    }
 
     // check if length is greater then 0
     if (name.length == 0) {
@@ -94,9 +120,17 @@ export async function generateStatic(name: string): Promise<void> {
         return console.error(messages.generateStatic.exists);
     }
 
-    data.statics.push(name);
+    const folder: StaticComponent = {
+        folder: name,
+        prefix: prefix,
+    };
 
-    fs.writeFileSync(path.join(rootDir, 'grafe.json'), data);
+    data.statics.push(folder);
+
+    fs.writeFileSync(
+        path.join(rootDir, 'grafe.json'),
+        JSON.stringify(data, null, 4)
+    );
 
     // create all non-existing directorys
     await mkdirp.default(_path);

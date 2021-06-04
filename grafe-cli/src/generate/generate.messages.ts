@@ -28,6 +28,9 @@ export = {
             name: {
                 descirption: 'Name of the static folder',
             },
+            prefix: {
+                descirption: 'Prefix of the static folder',
+            },
         },
     },
     questions: {
@@ -46,6 +49,7 @@ export = {
         },
         staticHandler: {
             name: 'How is the new static folder called',
+            prefix: 'What is the prefix of the static-folder',
         },
         utilsHandler: {
             type: 'What do you want to generate',

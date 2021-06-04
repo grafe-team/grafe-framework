@@ -56,14 +56,25 @@ export function initCore(configPath: string, express: Express): boolean {
     return true;
 }
 
-function integrateStaticFolders(config: Config, express: Express) {
+/**
+ * Looks at the "statics" field of the config and adds the static folders to express
+ * @param config The grafe config
+ * @param express 
+ * @return void
+ */
+function integrateStaticFolders(config: Config, express: Express): void {
     config.statics.forEach((folder) => {
-        if (folder.prefix) {
+        if (!folder.prefix) {
             // register route without prefix
             express.use(
                 expressFunc.static(path.join(config.baseDir, folder.folder))
             );
         } else {
+            // the prefix has to start with a "/" so if it does not exist add it
+            if (!folder.prefix.startsWith('/')) {
+                folder.prefix = '/' + folder.prefix;
+            }
+
             express.use(
                 folder.prefix,
                 expressFunc.static(path.join(config.baseDir, folder.folder))

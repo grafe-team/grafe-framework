@@ -94,13 +94,10 @@ export async function generateStatic(
         return console.error(messages.not_grafe);
     }
 
-    let data: GrafeConfig;
-    try {
-        data = JSON.parse(raw.toString());
-    } catch (err) {
-        return console.log(
-            'Grafde.json is not correct please use grafe upgrade'
-        );
+    const data: GrafeConfig = JSON.parse(raw.toString());
+
+    if (data.statics == undefined) {
+        return console.log(messages.wrong_config);
     }
 
     // check if length is greater then 0

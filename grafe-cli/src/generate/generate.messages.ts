@@ -76,4 +76,5 @@ export = {
     },
     confirm: 'Is everything correct',
     not_grafe: 'The grafe command must be used within a grafe project.',
+    wrong_config: 'Grafe.json is not correct, please use grafe upgrade',
 };

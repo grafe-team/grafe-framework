@@ -102,7 +102,7 @@ export async function generateMiddleWare(
     const data: GrafeConfig = JSON.parse(raw);
 
     // chech if grafe.json has this key
-    if (data.middlewares == undefined) {
+    if (data.middlewares == undefined || !Array.isArray(data.middlewares)) {
         return console.error(messages.wrong_config);
     }
 

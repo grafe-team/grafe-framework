@@ -30,7 +30,7 @@ export async function generateRouteHandler(
     const data: GrafeConfig = JSON.parse(raw.toString());
 
     // chech if grafe.json has this key
-    if (data.middlewares == undefined) {
+    if (data.middlewares == undefined || !Array.isArray(data.middlewares)) {
         return console.error(messages.wrong_config);
     }
 

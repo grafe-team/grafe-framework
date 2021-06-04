@@ -57,7 +57,7 @@ export async function generateStaticHandler(
     answers.name = answers.name || argv.name;
     answers.prefix = answers.prefix || argv.prefix;
 
-    generateStatic(answers.name, answers.prefix);
+    generateStatic(answers.name, answers.prefix, Boolean(argv.yes));
 }
 
 /**
@@ -69,18 +69,22 @@ export async function generateStaticHandler(
  */
 export async function generateStatic(
     name: string,
-    prefix: string
+    prefix: string,
+    confirmation: boolean
 ): Promise<void> {
-    // prompt confirmation to user
-    const confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm',
-    });
+    // check if user already confirms via args
+    if (!confirmation) {
+        // prompt confirmation to user
+        const confirm = await inquirer.prompt({
+            message: messages.confirm,
+            type: 'confirm',
+            name: 'confirm',
+        });
 
-    // if not confirming abort
-    if (!confirm.confirm) {
-        return;
+        // if not confirming abort
+        if (!confirm.confirm) {
+            return;
+        }
     }
 
     // get root directory (where package.json is in)
@@ -97,7 +101,7 @@ export async function generateStatic(
     const data: GrafeConfig = JSON.parse(raw.toString());
 
     if (data.statics == undefined) {
-        return console.log(messages.wrong_config);
+        return console.error(messages.wrong_config);
     }
 
     // check if length is greater then 0

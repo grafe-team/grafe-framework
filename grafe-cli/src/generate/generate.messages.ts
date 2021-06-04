@@ -32,6 +32,9 @@ export = {
                 descirption: 'Prefix of the static folder',
             },
         },
+        confirm: {
+            description: 'To automaticly confirm the new component',
+        },
     },
     questions: {
         mainHandler: {

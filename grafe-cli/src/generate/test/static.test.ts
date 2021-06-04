@@ -8,7 +8,12 @@ import * as chai from 'chai';
 describe('static.generate.ts file', () => {
     let staticGenerate = rewire('../static.generate');
     const grafeConfig = {
-        statics: ['name'],
+        statics: [
+            {
+                folder: 'test',
+                prefix: 't',
+            },
+        ],
     };
 
     beforeEach(() => {
@@ -25,8 +30,11 @@ describe('static.generate.ts file', () => {
         const readFileSyncStub = Sinon.stub();
         const writeFileSyncStub = Sinon.stub();
 
-        let generateStatic: (name: string) => Promise<void> =
-            staticGenerate.__get__('generateStatic');
+        let generateStatic: (
+            name: string,
+            prefix: string,
+            confirmation: boolean
+        ) => Promise<void> = staticGenerate.__get__('generateStatic');
 
         const fsMock = {
             existsSync: existsSyncStub,
@@ -79,7 +87,7 @@ describe('static.generate.ts file', () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
-            await generateStatic('test');
+            await generateStatic('test', 't', false);
 
             chai.expect(promptStub.callCount).to.deep.eq(
                 1,
@@ -100,7 +108,7 @@ describe('static.generate.ts file', () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
-            await generateStatic('');
+            await generateStatic('', '', false);
 
             chai.expect(promptStub.callCount).to.deep.eq(
                 1,
@@ -129,7 +137,7 @@ describe('static.generate.ts file', () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
-            await generateStatic('test:');
+            await generateStatic('test:', 't', false);
 
             chai.expect(promptStub.callCount).to.deep.eq(
                 1,
@@ -153,13 +161,40 @@ describe('static.generate.ts file', () => {
             );
         });
 
+        it('should log an error when grafe.json is incorrect', async () => {
+            promptStub.resolves({ confirm: true });
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
+            readFileSyncStub.returns(JSON.stringify({ tests: true }));
+
+            await generateStatic('test', 't', false);
+
+            chai.expect(promptStub.callCount).to.deep.eq(
+                1,
+                'prompt should be called once'
+            );
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
+            );
+            chai.expect(consoleLogStub.callCount).to.deep.eq(
+                0,
+                'console.log should not be called once'
+            );
+            chai.expect(
+                consoleErrorStub.calledOnceWith(messages.wrong_config)
+            ).to.be.eq(
+                true,
+                'console.error should be called with wrong_config message'
+            );
+        });
+
         it('should log an error when file already exists', async () => {
             promptStub.resolves({ confirm: true });
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(true);
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
-            await generateStatic('test');
+            await generateStatic('test', 't', false);
 
             chai.expect(promptStub.callCount).to.deep.eq(
                 1,
@@ -182,16 +217,15 @@ describe('static.generate.ts file', () => {
         });
 
         it('should log an error when file already exists', async () => {
-            promptStub.resolves({ confirm: true });
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(false);
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
 
-            await generateStatic('test');
+            await generateStatic('test', 't', true);
 
             chai.expect(promptStub.callCount).to.deep.eq(
-                1,
-                'prompt should be called once'
+                0,
+                'prompt should not be called'
             );
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 0,
@@ -212,7 +246,7 @@ describe('static.generate.ts file', () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.throws({ code: 'ENOENT' });
 
-            await generateStatic('test');
+            await generateStatic('test', 't', false);
 
             chai.expect(promptStub.callCount).to.deep.eq(
                 1,
@@ -309,9 +343,59 @@ describe('static.generate.ts file', () => {
         it('should prompt the user when name not given', async () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             existsSyncStub.returns(true);
-            promptStub.resolves({ name: 'Test' });
+            promptStub.onFirstCall().resolves({ name: 'Test' });
+            promptStub.onSecondCall().resolves({ prefix: 't' });
 
             await generateStaticHandler({});
+
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                0,
+                'console.error should not be called once'
+            );
+            chai.expect(promptStub.callCount).to.deep.eq(
+                2,
+                'user should be prompted twice'
+            );
+            chai.expect(generateStaticStub.lastCall.args[0]).to.deep.eq(
+                'Test',
+                'should be the string of the prompt'
+            );
+            chai.expect(generateStaticStub.lastCall.args[1]).to.deep.eq(
+                't',
+                'should be the string of the prompt'
+            );
+        });
+
+        it('should not prompt the user when name given', async () => {
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
+            existsSyncStub.returns(true);
+
+            await generateStaticHandler({ name: 'Test', prefix: 't' });
+
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                0,
+                'console.error should not be called once'
+            );
+            chai.expect(promptStub.callCount).to.deep.eq(
+                0,
+                'user should not be prompted'
+            );
+            chai.expect(generateStaticStub.lastCall.args[0]).to.deep.eq(
+                'Test',
+                'should be the string of the prompt'
+            );
+            chai.expect(generateStaticStub.lastCall.args[1]).to.deep.eq(
+                't',
+                'should be the string of the prompt'
+            );
+        });
+
+        it('should not prompt the prefix question', async () => {
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
+            existsSyncStub.returns(true);
+            promptStub.onFirstCall().resolves({ prefix: 't' });
+
+            await generateStaticHandler({ name: 'Test' });
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 0,
@@ -325,24 +409,8 @@ describe('static.generate.ts file', () => {
                 'Test',
                 'should be the string of the prompt'
             );
-        });
-
-        it('should not prompt the user when name given', async () => {
-            pkgDirStub.resolves(path.join('grafe', 'project_1'));
-            existsSyncStub.returns(true);
-
-            await generateStaticHandler({ name: 'Test' });
-
-            chai.expect(consoleErrorStub.callCount).to.deep.eq(
-                0,
-                'console.error should not be called once'
-            );
-            chai.expect(promptStub.callCount).to.deep.eq(
-                0,
-                'user should not be prompted'
-            );
-            chai.expect(generateStaticStub.lastCall.args[0]).to.deep.eq(
-                'Test',
+            chai.expect(generateStaticStub.lastCall.args[1]).to.deep.eq(
+                't',
                 'should be the string of the prompt'
             );
         });

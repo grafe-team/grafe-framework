@@ -38,6 +38,10 @@ export function generateCommand(
                         type: 'array',
                         description:
                             messages.commands.route.middlewares.description,
+                    })
+                    .option('yes', {
+                        type: 'boolean',
+                        description: messages.commands.confirm.description,
                     });
             },
             generateRouteHandler
@@ -65,6 +69,10 @@ export function generateCommand(
                         description:
                             messages.commands.middleware.description
                                 .description,
+                    })
+                    .option('yes', {
+                        type: 'boolean',
+                        description: messages.commands.confirm.description,
                     });
             },
             generateMiddleWareHandler
@@ -84,6 +92,10 @@ export function generateCommand(
                         type: 'string',
                         description:
                             messages.commands.static.prefix.descirption,
+                    })
+                    .option('yes', {
+                        type: 'boolean',
+                        description: messages.commands.confirm.description,
                     });
             },
             generateStaticHandler

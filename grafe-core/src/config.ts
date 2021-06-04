@@ -14,6 +14,11 @@ export interface Config {
     middlewares: Middleware[];
 
     /**
+     * Holds the information of all the static folders that should be used
+     */
+    statics: StaticFolderInfo[];
+
+    /**
      * The path to the directory where the routes are stored
      */
     routePath: string;
@@ -32,6 +37,31 @@ export interface Config {
      * The route tree representing all the routes that need to be created
      */
     routeTree: RoutePart;
+}
+
+/**
+ * A static folder is a folder where every file init can be downloaded using the get http method.
+ * This structure holds all the info needed to create such a static folder.
+ */
+export interface StaticFolderInfo {
+    /**
+     * Holds the information of where the static folder is located. The path provided is relative to
+     * root directory of the project
+     */
+    folder: string;
+
+    /**
+     * Is an optional field that speciefies the prefix to be used for the static folder.
+     * If this field is empty the prefix will not exist and the files can be downloaded on the root path.
+     * If this field is set the text will be placed befor the files.
+     *
+     * Exapmle:
+     * prefix: undefined
+     *  => www.example.com/logo.png
+     * prefix: 'static'
+     *  => www.exapmle.com/static/logo.png
+     */
+    prefix?: string;
 }
 
 /**

@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { Config, StaticFolderInfo } from './config';
+import { Config } from './config';
 import * as path from 'path';
 import { initMiddlewares } from './initMiddlewares';
 import { createRouteTree } from './routes';

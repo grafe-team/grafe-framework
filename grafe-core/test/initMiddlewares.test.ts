@@ -8,6 +8,7 @@ describe('initMiddlewares.ts file', () => {
     const configCache: Config = {
         middlewares: [],
         baseDir: '',
+        statics: [],
         middlewarePath: '',
         projectType: '',
         routePath: '',

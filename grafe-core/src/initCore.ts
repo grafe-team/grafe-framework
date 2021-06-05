@@ -59,7 +59,7 @@ export function initCore(configPath: string, express: Express): boolean {
 /**
  * Looks at the "statics" field of the config and adds the static folders to express
  * @param config The grafe config
- * @param express 
+ * @param express
  * @return void
  */
 function integrateStaticFolders(config: Config, express: Express): void {

@@ -707,6 +707,7 @@ describe('routes.ts file', () => {
     describe('createRouteTree function', () => {
         const configCache: Config = {
             baseDir: '/opt/project',
+            statics: [],
             middlewarePath: '/opt/project/middlewares',
             middlewares: [],
             routePath: '/opt/project/routes',
@@ -765,6 +766,7 @@ describe('routes.ts file', () => {
         const configCache: Config = {
             baseDir: '/opt/project',
             middlewarePath: '/opt/project/middlewares',
+            statics: [],
             middlewares: [
                 {
                     description: '',

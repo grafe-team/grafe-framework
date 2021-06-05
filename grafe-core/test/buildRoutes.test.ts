@@ -5,6 +5,8 @@ import * as chai from 'chai';
 import { Express } from 'express';
 import { Config, Route, RoutePart } from '../src/config';
 
+/* eslint @typescript-eslint/no-empty-function: "off" */
+
 describe('buildRoutes file', () => {
     let buildRoutes = rewire('../src/buildRoutes');
 
@@ -39,8 +41,7 @@ describe('buildRoutes file', () => {
         });
 
         it('should register the route without middlewares. It should also stich togethter the route and the route.endpoint', () => {
-            // eslint-disable-next-line
-      const funct = () => {};
+            const funct = () => {};
 
             requireStub.returns(funct);
 
@@ -71,8 +72,7 @@ describe('buildRoutes file', () => {
         });
 
         it('should register the route without middlewares. It should also not stich togethter the route and the route.endpoint', () => {
-            // eslint-disable-next-line
-      const funct = () => {};
+            const funct = () => {};
 
             requireStub.returns(funct);
 
@@ -103,8 +103,7 @@ describe('buildRoutes file', () => {
         });
 
         it('should register the route with middlewares.', () => {
-            // eslint-disable-next-line
-      const funct = () => {};
+            const funct = () => {};
 
             requireStub.returns(funct);
 
@@ -269,6 +268,7 @@ describe('buildRoutes file', () => {
                 middlewares: [],
                 projectType: '',
                 routePath: '',
+                statics: [],
                 routeTree: undefined,
             };
 

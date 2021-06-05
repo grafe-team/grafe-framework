@@ -12,6 +12,7 @@ describe('buildRoutes file', () => {
 
     beforeEach(() => {
         buildRoutes = rewire('../src/buildRoutes');
+
     });
 
     describe('registerRoute function', () => {
@@ -21,7 +22,16 @@ describe('buildRoutes file', () => {
             get: expressGetStub,
         };
 
+
+
+        const consoleErrorStub = Sinon.stub();
+        const consoleLogStub = Sinon.stub();
         const requireStub = Sinon.stub();
+
+        const consoleStub = {
+            error: consoleErrorStub,
+            log: consoleLogStub,
+        };
 
         let registerRoute: (
             route: Route,
@@ -34,10 +44,13 @@ describe('buildRoutes file', () => {
 
             buildRoutes.__set__({
                 require: requireStub,
+                console: consoleStub,
             });
 
             expressGetStub.reset();
             requireStub.reset();
+            consoleErrorStub.reset();
+            consoleLogStub.reset();
         });
 
         it('should register the route without middlewares. It should also stich togethter the route and the route.endpoint', () => {
@@ -69,6 +82,28 @@ describe('buildRoutes file', () => {
                 funct,
                 'Expect the route uses the right function'
             );
+        });
+
+        it('should not register the route because the file does not export a function. It should also display an error message via the console', () => {
+            requireStub.returns("not a function");
+
+            const route: Route = {
+                endpoint: 'test',
+                method: 'get',
+                middlewares: [],
+            };
+
+            registerRoute(route, '/', expressStub);
+
+            chai.expect(expressGetStub.callCount).to.deep.eq(
+                0,
+                'Expexct express.get to be called once'
+            );
+            chai.expect(requireStub.callCount).to.deep.eq(
+                1,
+                'Expect require to be called once'
+            );
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'Expect console.error to be called once');
         });
 
         it('should register the route without middlewares. It should also not stich togethter the route and the route.endpoint', () => {

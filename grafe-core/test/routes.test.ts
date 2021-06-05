@@ -600,6 +600,55 @@ describe('routes.ts file', () => {
             );
         });
 
+        it('should not add new node to the route tree becuase the directory only adds middlewares', () => {
+            const fileInfo: FileInfo[] = [
+                {
+                    isDirectory: true,
+                    isFile: false,
+                    name: 'dirName',
+                    path: '/root/dirName',
+                },
+            ];
+
+            const parseInfo = {
+                ignored: false,
+                middlewares: ["test"],
+                route: ''
+            };
+
+            readAllFilesStatsStub.onFirstCall().returns(fileInfo);
+            readAllFilesStatsStub.onSecondCall().returns(fileInfo);
+            readAllFilesStatsStub.onThirdCall().returns([]);
+            parseDirectoryNameStub.returns(parseInfo);
+
+            _createRouteTree('test', routePart, [], []);
+
+            chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(3);
+            chai.expect(parseFileNameStub.callCount).to.deep.eq(0);
+            chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(2);
+            chai.expect(routePart).to.not.have.key('dirName');
+
+            chai.expect(parseDirectoryNameStub.firstCall.args[0]).to.deep.eq(
+                fileInfo[0].name
+            );
+            chai.expect(parseDirectoryNameStub.firstCall.args[1]).to.deep.eq([]);
+            chai.expect(parseDirectoryNameStub.firstCall.args[2]).to.deep.eq([]);
+
+            chai.expect(parseDirectoryNameStub.lastCall.args[0]).to.deep.eq(
+                fileInfo[0].name
+            );
+            chai.expect(parseDirectoryNameStub.lastCall.args[1]).to.deep.eq(["test"]);
+            chai.expect(parseDirectoryNameStub.lastCall.args[2]).to.deep.eq([]);
+
+            chai.expect(readAllFilesStatsStub.lastCall.args[0]).to.deep.eq(
+                '/root/dirName'
+            );
+            
+            chai.expect(readAllFilesStatsStub.secondCall.args[0]).to.deep.eq(
+                '/root/dirName'
+            );
+        });
+
         it('should ignore the directory and not add it to the route tree', () => {
             const fileInfo: FileInfo[] = [
                 {

@@ -12,7 +12,6 @@ describe('buildRoutes file', () => {
 
     beforeEach(() => {
         buildRoutes = rewire('../src/buildRoutes');
-
     });
 
     describe('registerRoute function', () => {
@@ -21,8 +20,6 @@ describe('buildRoutes file', () => {
         const expressStub = {
             get: expressGetStub,
         };
-
-
 
         const consoleErrorStub = Sinon.stub();
         const consoleLogStub = Sinon.stub();
@@ -85,7 +82,7 @@ describe('buildRoutes file', () => {
         });
 
         it('should not register the route because the file does not export a function. It should also display an error message via the console', () => {
-            requireStub.returns("not a function");
+            requireStub.returns('not a function');
 
             const route: Route = {
                 endpoint: 'test',
@@ -103,7 +100,10 @@ describe('buildRoutes file', () => {
                 1,
                 'Expect require to be called once'
             );
-            chai.expect(consoleErrorStub.callCount).to.deep.eq(1, 'Expect console.error to be called once');
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                1,
+                'Expect console.error to be called once'
+            );
         });
 
         it('should register the route without middlewares. It should also not stich togethter the route and the route.endpoint', () => {

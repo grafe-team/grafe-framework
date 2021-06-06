@@ -19,7 +19,8 @@ export function initCore(configPath: string, express: Express): boolean {
     try {
         if (!fs.existsSync(configPath)) {
             console.error(
-                'Unable to initialize grafe-core. Config file not found please check the path you provided! Provided path: ' + configPath
+                'Unable to initialize grafe-core. Config file not found please check the path you provided! Provided path: ' +
+                    configPath
             );
             return false;
         }
@@ -58,10 +59,10 @@ export function initCore(configPath: string, express: Express): boolean {
 
 /**
  * Looks at the "statics" field of the config and adds the static folders to express
- * 
+ *
  * if the prefix of a static folder is ether undefined or '' then the field will be ignored and no
  * prefix will be added
- * 
+ *
  * @param config The grafe config
  * @param express
  * @return void

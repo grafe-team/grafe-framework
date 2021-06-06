@@ -6,7 +6,6 @@ import { Express } from 'express';
 import { Config, Route, RoutePart } from '../src/config';
 
 describe('initCore.ts file', () => {
-
     let initCoreModule = rewire('../src/initCore');
 
     beforeEach(() => {
@@ -14,7 +13,6 @@ describe('initCore.ts file', () => {
     });
 
     describe('integrateStaticFolders function', () => {
-
         let integrateStaticFolders: (config: Config, express: any) => void;
 
         const expressUseStub = Sinon.stub();
@@ -28,7 +26,7 @@ describe('initCore.ts file', () => {
             projectType: '',
             routePath: '/root',
             routeTree: {},
-            statics: []
+            statics: [],
         };
 
         let config: Config;
@@ -46,10 +44,11 @@ describe('initCore.ts file', () => {
         };
 
         beforeEach(() => {
-
             config = JSON.parse(JSON.stringify(configCache));
 
-            integrateStaticFolders = initCoreModule.__get__('integrateStaticFolders');
+            integrateStaticFolders = initCoreModule.__get__(
+                'integrateStaticFolders'
+            );
 
             initCoreModule.__set__({
                 path: pathStub,
@@ -61,23 +60,33 @@ describe('initCore.ts file', () => {
             expressFuncStaticStub.reset();
         });
 
-        it ('should register the static folder without a prefix', () => {
+        it('should register the static folder without a prefix', () => {
             const rightFolderPath = 'right folder path';
 
             config.statics.push({
-                folder: 'test'
+                folder: 'test',
             });
 
-            expressFuncStaticStub.withArgs(rightFolderPath).returns('express static');
-            pathJoinStub.withArgs(config.baseDir, 'test').returns(rightFolderPath);
+            expressFuncStaticStub
+                .withArgs(rightFolderPath)
+                .returns('express static');
+            pathJoinStub
+                .withArgs(config.baseDir, 'test')
+                .returns(rightFolderPath);
 
             integrateStaticFolders(config, expressStub);
 
-            chai.expect(expressUseStub.callCount).to.deep.eq(1, 'express use should only be called once');
-            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq('express static', 'The right arguments should be given to the functions and no prefix should be added');
+            chai.expect(expressUseStub.callCount).to.deep.eq(
+                1,
+                'express use should only be called once'
+            );
+            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq(
+                'express static',
+                'The right arguments should be given to the functions and no prefix should be added'
+            );
         });
 
-        it ('should register the static folder without a prefix when prefix is empty', () => {
+        it('should register the static folder without a prefix when prefix is empty', () => {
             const rightFolderPath = 'right folder path';
 
             config.statics.push({
@@ -85,16 +94,26 @@ describe('initCore.ts file', () => {
                 prefix: '',
             });
 
-            expressFuncStaticStub.withArgs(rightFolderPath).returns('express static');
-            pathJoinStub.withArgs(config.baseDir, 'test').returns(rightFolderPath);
+            expressFuncStaticStub
+                .withArgs(rightFolderPath)
+                .returns('express static');
+            pathJoinStub
+                .withArgs(config.baseDir, 'test')
+                .returns(rightFolderPath);
 
             integrateStaticFolders(config, expressStub);
 
-            chai.expect(expressUseStub.callCount).to.deep.eq(1, 'express use should only be called once');
-            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq('express static', 'The right arguments should be given to the functions and no prefix should be added');
+            chai.expect(expressUseStub.callCount).to.deep.eq(
+                1,
+                'express use should only be called once'
+            );
+            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq(
+                'express static',
+                'The right arguments should be given to the functions and no prefix should be added'
+            );
         });
 
-        it ('should register the static folder with a prefix', () => {
+        it('should register the static folder with a prefix', () => {
             const rightFolderPath = 'right folder path';
 
             config.statics.push({
@@ -102,17 +121,30 @@ describe('initCore.ts file', () => {
                 prefix: '/static',
             });
 
-            expressFuncStaticStub.withArgs(rightFolderPath).returns('express static');
-            pathJoinStub.withArgs(config.baseDir, 'test').returns(rightFolderPath);
+            expressFuncStaticStub
+                .withArgs(rightFolderPath)
+                .returns('express static');
+            pathJoinStub
+                .withArgs(config.baseDir, 'test')
+                .returns(rightFolderPath);
 
             integrateStaticFolders(config, expressStub);
 
-            chai.expect(expressUseStub.callCount).to.deep.eq(1, 'express use should only be called once');
-            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq('/static', 'the prefix should be added');
-            chai.expect(expressUseStub.lastCall.args[1]).to.deep.eq('express static', 'The right arguments should be given to the functions and no prefix should be added');
+            chai.expect(expressUseStub.callCount).to.deep.eq(
+                1,
+                'express use should only be called once'
+            );
+            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq(
+                '/static',
+                'the prefix should be added'
+            );
+            chai.expect(expressUseStub.lastCall.args[1]).to.deep.eq(
+                'express static',
+                'The right arguments should be given to the functions and no prefix should be added'
+            );
         });
 
-        it ('should add the / to the prefix if it does not exist', () => {
+        it('should add the / to the prefix if it does not exist', () => {
             config.statics.push({
                 folder: 'test',
                 prefix: 'static',
@@ -120,13 +152,14 @@ describe('initCore.ts file', () => {
 
             integrateStaticFolders(config, expressStub);
 
-            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq('/static', 'The prefix should have a / at the first index');
+            chai.expect(expressUseStub.lastCall.args[0]).to.deep.eq(
+                '/static',
+                'The prefix should have a / at the first index'
+            );
         });
-
     });
 
     describe('initCore function', () => {
-
         const fsStub = {
             existsSync: Sinon.stub(),
             readFileSync: Sinon.stub(),
@@ -148,7 +181,7 @@ describe('initCore.ts file', () => {
             createRouteTree: Sinon.stub(),
         };
 
-        const buildRoutesStub =  {
+        const buildRoutesStub = {
             buildRoutes: Sinon.stub(),
         };
 
@@ -179,57 +212,131 @@ describe('initCore.ts file', () => {
             integrateStaticFolders.reset();
         });
 
-        it ('should display an error message if the grafe.json was not found', () => {
+        it('should display an error message if the grafe.json was not found', () => {
             fsStub.existsSync.returns(false);
 
-            chai.expect(initCore('test', null), 'init Core should return false').to.be.false;
-            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq('test', 'existsSync should be called with the right argument');
-            chai.expect(consoleStub.error.callCount).to.deep.eq(1, 'console.error should be called once');
+            chai.expect(initCore('test', null), 'init Core should return false')
+                .to.be.false;
+            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq(
+                'test',
+                'existsSync should be called with the right argument'
+            );
+            chai.expect(consoleStub.error.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
+            );
             chai.expect(consoleStub.error.lastCall.args[0]).to.match(/test/);
         });
 
-        it ('should display an error message if there is an error thrown during the exists check', () => {
+        it('should display an error message if there is an error thrown during the exists check', () => {
             fsStub.existsSync.throws('test');
 
-            chai.expect(initCore('test', null), 'init Core should return false').to.be.false;
-            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq('test', 'existsSync should be called with the right argument');
-            chai.expect(consoleStub.error.callCount).to.deep.eq(1, 'console.error should be called once');
+            chai.expect(initCore('test', null), 'init Core should return false')
+                .to.be.false;
+            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq(
+                'test',
+                'existsSync should be called with the right argument'
+            );
+            chai.expect(consoleStub.error.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
+            );
             chai.expect(consoleStub.error.lastCall.args[0]).to.match(/test/);
         });
 
-        it ('should display an error when the config could not be parsed', () => {
+        it('should display an error when the config could not be parsed', () => {
             fsStub.existsSync.returns(true);
             fsStub.readFileSync.returns('config string');
 
-            chai.expect(initCore('test', null), 'init Core should return false').to.be.false;
-            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq('test', 'existsSync should be called with the right argument');
-            chai.expect(consoleStub.error.callCount).to.deep.eq(1, 'console.error should be called once');
-            chai.expect(fsStub.readFileSync.callCount).to.deep.eq(1, 'readFileSync should be called once');
-            chai.expect(fsStub.readFileSync.lastCall.args[0]).to.deep.eq('test', 'readfileSync should have the right parameters');
+            chai.expect(initCore('test', null), 'init Core should return false')
+                .to.be.false;
+            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq(
+                'test',
+                'existsSync should be called with the right argument'
+            );
+            chai.expect(consoleStub.error.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
+            );
+            chai.expect(fsStub.readFileSync.callCount).to.deep.eq(
+                1,
+                'readFileSync should be called once'
+            );
+            chai.expect(fsStub.readFileSync.lastCall.args[0]).to.deep.eq(
+                'test',
+                'readfileSync should have the right parameters'
+            );
         });
 
-        it ('should execute the utility functions in the right order', () => {
+        it('should execute the utility functions in the right order', () => {
             fsStub.existsSync.returns(true);
             fsStub.readFileSync.returns('{}');
-            pathStub.parse.returns({dir: null});
+            pathStub.parse.returns({ dir: null });
 
-            chai.expect(initCore('test', 'express'), 'init Core should return true').to.be.true;
-            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq('test', 'existsSync should be called with the right argument');
-            chai.expect(consoleStub.error.callCount).to.deep.eq(0, 'console.error should never be called');
-            chai.expect(fsStub.readFileSync.callCount).to.deep.eq(1, 'readFileSync should be called once');
-            chai.expect(fsStub.readFileSync.lastCall.args[0]).to.deep.eq('test', 'readfileSync should have the right parameters');
-            chai.expect(pathStub.parse.callCount).to.deep.eq(1, 'path.parse should be called once');
-            chai.expect(pathStub.parse.lastCall.args[0]).to.deep.eq('test', 'path.parse should be called with the configPath');
-            chai.expect(initMiddlewaresStub.initMiddlewares.callCount).to.deep.eq(1, 'initMiddlewares should be called once');
-            chai.expect(routesStub.createRouteTree.callCount).to.deep.eq(1, 'createRouteTree should be called once');
-            chai.expect(buildRoutesStub.buildRoutes.callCount).to.deep.eq(1, 'buildRoutes should be called once');
-            chai.expect(integrateStaticFolders.callCount).to.deep.eq(1, 'integrate static folders should be called once');
+            chai.expect(
+                initCore('test', 'express'),
+                'init Core should return true'
+            ).to.be.true;
+            chai.expect(fsStub.existsSync.lastCall.args[0]).to.deep.eq(
+                'test',
+                'existsSync should be called with the right argument'
+            );
+            chai.expect(consoleStub.error.callCount).to.deep.eq(
+                0,
+                'console.error should never be called'
+            );
+            chai.expect(fsStub.readFileSync.callCount).to.deep.eq(
+                1,
+                'readFileSync should be called once'
+            );
+            chai.expect(fsStub.readFileSync.lastCall.args[0]).to.deep.eq(
+                'test',
+                'readfileSync should have the right parameters'
+            );
+            chai.expect(pathStub.parse.callCount).to.deep.eq(
+                1,
+                'path.parse should be called once'
+            );
+            chai.expect(pathStub.parse.lastCall.args[0]).to.deep.eq(
+                'test',
+                'path.parse should be called with the configPath'
+            );
+            chai.expect(
+                initMiddlewaresStub.initMiddlewares.callCount
+            ).to.deep.eq(1, 'initMiddlewares should be called once');
+            chai.expect(routesStub.createRouteTree.callCount).to.deep.eq(
+                1,
+                'createRouteTree should be called once'
+            );
+            chai.expect(buildRoutesStub.buildRoutes.callCount).to.deep.eq(
+                1,
+                'buildRoutes should be called once'
+            );
+            chai.expect(integrateStaticFolders.callCount).to.deep.eq(
+                1,
+                'integrate static folders should be called once'
+            );
 
-            chai.expect(initMiddlewaresStub.initMiddlewares.calledAfter(pathStub.parse), 'initMiddlewares should be called after path.parse').to.be.true;
-            chai.expect(routesStub.createRouteTree.calledAfter(initMiddlewaresStub.initMiddlewares), 'createRouteTree should be called after initMiddlewares').to.be.true;
-            chai.expect(buildRoutesStub.buildRoutes.calledAfter(routesStub.createRouteTree), 'buildRoutes should be called after createRouteTree').to.be.true;
-            chai.expect(integrateStaticFolders.calledAfter(buildRoutesStub.buildRoutes), 'integarteStaticFolders should be called after buildRoutes').to.be.true; 
-        })
+            chai.expect(
+                initMiddlewaresStub.initMiddlewares.calledAfter(pathStub.parse),
+                'initMiddlewares should be called after path.parse'
+            ).to.be.true;
+            chai.expect(
+                routesStub.createRouteTree.calledAfter(
+                    initMiddlewaresStub.initMiddlewares
+                ),
+                'createRouteTree should be called after initMiddlewares'
+            ).to.be.true;
+            chai.expect(
+                buildRoutesStub.buildRoutes.calledAfter(
+                    routesStub.createRouteTree
+                ),
+                'buildRoutes should be called after createRouteTree'
+            ).to.be.true;
+            chai.expect(
+                integrateStaticFolders.calledAfter(buildRoutesStub.buildRoutes),
+                'integarteStaticFolders should be called after buildRoutes'
+            ).to.be.true;
+        });
     });
-
 });

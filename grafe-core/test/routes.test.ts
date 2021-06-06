@@ -565,7 +565,7 @@ describe('routes.ts file', () => {
             );
         });
 
-        it ('should ignore the file if it is nether a directory or a file', () => {
+        it('should ignore the file if it is nether a directory or a file', () => {
             const fileInfo: FileInfo[] = [
                 {
                     isDirectory: false,
@@ -579,8 +579,14 @@ describe('routes.ts file', () => {
 
             _createRouteTree('test', routePart, [], []);
 
-            chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(0, 'parseDirectory should not be called because it is not a directory');
-            chai.expect(parseFileNameStub.callCount).to.deep.eq(0, 'parseFileName should not be called because it is not a file');
+            chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(
+                0,
+                'parseDirectory should not be called because it is not a directory'
+            );
+            chai.expect(parseFileNameStub.callCount).to.deep.eq(
+                0,
+                'parseFileName should not be called because it is not a file'
+            );
         });
 
         it('should ignore the file and not add it to the route tree', () => {
@@ -630,8 +636,8 @@ describe('routes.ts file', () => {
 
             const parseInfo = {
                 ignored: false,
-                middlewares: ["test"],
-                route: ''
+                middlewares: ['test'],
+                route: '',
             };
 
             readAllFilesStatsStub.onFirstCall().returns(fileInfo);
@@ -649,19 +655,25 @@ describe('routes.ts file', () => {
             chai.expect(parseDirectoryNameStub.firstCall.args[0]).to.deep.eq(
                 fileInfo[0].name
             );
-            chai.expect(parseDirectoryNameStub.firstCall.args[1]).to.deep.eq([]);
-            chai.expect(parseDirectoryNameStub.firstCall.args[2]).to.deep.eq([]);
+            chai.expect(parseDirectoryNameStub.firstCall.args[1]).to.deep.eq(
+                []
+            );
+            chai.expect(parseDirectoryNameStub.firstCall.args[2]).to.deep.eq(
+                []
+            );
 
             chai.expect(parseDirectoryNameStub.lastCall.args[0]).to.deep.eq(
                 fileInfo[0].name
             );
-            chai.expect(parseDirectoryNameStub.lastCall.args[1]).to.deep.eq(["test"]);
+            chai.expect(parseDirectoryNameStub.lastCall.args[1]).to.deep.eq([
+                'test',
+            ]);
             chai.expect(parseDirectoryNameStub.lastCall.args[2]).to.deep.eq([]);
 
             chai.expect(readAllFilesStatsStub.lastCall.args[0]).to.deep.eq(
                 '/root/dirName'
             );
-            
+
             chai.expect(readAllFilesStatsStub.secondCall.args[0]).to.deep.eq(
                 '/root/dirName'
             );

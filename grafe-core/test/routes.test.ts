@@ -565,6 +565,24 @@ describe('routes.ts file', () => {
             );
         });
 
+        it ('should ignore the file if it is nether a directory or a file', () => {
+            const fileInfo: FileInfo[] = [
+                {
+                    isDirectory: false,
+                    isFile: false,
+                    name: 'fileName.post.js',
+                    path: '/var/fileName.post.js',
+                },
+            ];
+
+            readAllFilesStatsStub.returns(fileInfo);
+
+            _createRouteTree('test', routePart, [], []);
+
+            chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(0, 'parseDirectory should not be called because it is not a directory');
+            chai.expect(parseFileNameStub.callCount).to.deep.eq(0, 'parseFileName should not be called because it is not a file');
+        });
+
         it('should ignore the file and not add it to the route tree', () => {
             const fileInfo: FileInfo[] = [
                 {

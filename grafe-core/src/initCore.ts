@@ -19,7 +19,7 @@ export function initCore(configPath: string, express: Express): boolean {
     try {
         if (!fs.existsSync(configPath)) {
             console.error(
-                'Unable to initialize grafe-core. Config file not found please check the path you provided!'
+                'Unable to initialize grafe-core. Config file not found please check the path you provided! Provided path: ' + configPath
             );
             return false;
         }
@@ -34,7 +34,7 @@ export function initCore(configPath: string, express: Express): boolean {
     try {
         config = JSON.parse(fs.readFileSync(configPath).toString());
     } catch (error) {
-        console.error('Unable to read/pares grafe config file: ' + error);
+        console.error('Unable to read/parse grafe config file: ' + error);
         return false;
     }
 
@@ -58,13 +58,17 @@ export function initCore(configPath: string, express: Express): boolean {
 
 /**
  * Looks at the "statics" field of the config and adds the static folders to express
+ * 
+ * if the prefix of a static folder is ether undefined or '' then the field will be ignored and no
+ * prefix will be added
+ * 
  * @param config The grafe config
  * @param express
  * @return void
  */
 function integrateStaticFolders(config: Config, express: Express): void {
     config.statics.forEach((folder) => {
-        if (!folder.prefix) {
+        if (!folder.prefix || folder.prefix === '') {
             // register route without prefix
             express.use(
                 expressFunc.static(path.join(config.baseDir, folder.folder))

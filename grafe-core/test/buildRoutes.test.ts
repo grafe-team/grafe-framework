@@ -5,261 +5,312 @@ import * as chai from 'chai';
 import { Express } from 'express';
 import { Config, Route, RoutePart } from '../src/config';
 
+/* eslint @typescript-eslint/no-empty-function: "off" */
+
 describe('buildRoutes file', () => {
-  let buildRoutes = rewire('../src/buildRoutes');
-
-  beforeEach(() => {
-    buildRoutes = rewire('../src/buildRoutes');
-  });
-
-  describe('registerRoute function', () => {
-    const expressGetStub = Sinon.stub();
-
-    const expressStub = {
-      get: expressGetStub,
-    };
-
-    const requireStub = Sinon.stub();
-
-    let registerRoute: (
-      route: Route,
-      prevRoutePath: string,
-      express: any
-    ) => void;
+    let buildRoutes = rewire('../src/buildRoutes');
 
     beforeEach(() => {
-      registerRoute = buildRoutes.__get__('registerRoute');
-
-      buildRoutes.__set__({
-        require: requireStub,
-      });
-
-      expressGetStub.reset();
-      requireStub.reset();
+        buildRoutes = rewire('../src/buildRoutes');
     });
 
-    it('should register the route without middlewares. It should also stich togethter the route and the route.endpoint', () => {
-      // eslint-disable-next-line
-      const funct = () => {};
+    describe('registerRoute function', () => {
+        const expressGetStub = Sinon.stub();
 
-      requireStub.returns(funct);
+        const expressStub = {
+            get: expressGetStub,
+        };
 
-      const route: Route = {
-        endpoint: 'test',
-        method: 'get',
-        middlewares: [],
-      };
+        const consoleErrorStub = Sinon.stub();
+        const consoleLogStub = Sinon.stub();
+        const requireStub = Sinon.stub();
 
-      registerRoute(route, '/', expressStub);
+        const consoleStub = {
+            error: consoleErrorStub,
+            log: consoleLogStub,
+        };
 
-      chai
-        .expect(expressGetStub.callCount)
-        .to.deep.eq(1, 'Expexct express.get to be called once');
-      chai
-        .expect(requireStub.callCount)
-        .to.deep.eq(1, 'Expect require to be called once');
-      chai
-        .expect(expressGetStub.lastCall.args[0])
-        .to.deep.eq('/test', 'Expect the route to equal /test');
-      chai
-        .expect(expressGetStub.lastCall.args[1])
-        .to.deep.eq(funct, 'Expect the route uses the right function');
-    });
+        let registerRoute: (
+            route: Route,
+            prevRoutePath: string,
+            express: any
+        ) => void;
 
-    it('should register the route without middlewares. It should also not stich togethter the route and the route.endpoint', () => {
-      // eslint-disable-next-line
-      const funct = () => {};
+        beforeEach(() => {
+            registerRoute = buildRoutes.__get__('registerRoute');
 
-      requireStub.returns(funct);
+            buildRoutes.__set__({
+                require: requireStub,
+                console: consoleStub,
+            });
 
-      const route: Route = {
-        endpoint: 'test',
-        method: 'get',
-        middlewares: [],
-      };
+            expressGetStub.reset();
+            requireStub.reset();
+            consoleErrorStub.reset();
+            consoleLogStub.reset();
+        });
 
-      registerRoute(route, '/test', expressStub);
+        it('should register the route without middlewares. It should also stich togethter the route and the route.endpoint', () => {
+            const funct = () => {};
 
-      chai
-        .expect(expressGetStub.callCount)
-        .to.deep.eq(1, 'Expexct express.get to be called once');
-      chai
-        .expect(requireStub.callCount)
-        .to.deep.eq(1, 'Expect require to be called once');
-      chai
-        .expect(expressGetStub.lastCall.args[0])
-        .to.deep.eq('/test', 'Expect the route to equal /test');
-      chai
-        .expect(expressGetStub.lastCall.args[1])
-        .to.deep.eq(funct, 'Expect the route uses the right function');
-    });
+            requireStub.returns(funct);
 
-    it('should register the route with middlewares.', () => {
-      // eslint-disable-next-line
-      const funct = () => {};
+            const route: Route = {
+                endpoint: 'test',
+                method: 'get',
+                middlewares: [],
+            };
 
-      requireStub.returns(funct);
+            registerRoute(route, '/', expressStub);
 
-      const route: Route = {
-        endpoint: 'test',
-        method: 'get',
-        middlewares: [
-          {
-            description: '',
-            link: '',
-            name: '',
-            value: '',
+            chai.expect(expressGetStub.callCount).to.deep.eq(
+                1,
+                'Expexct express.get to be called once'
+            );
+            chai.expect(requireStub.callCount).to.deep.eq(
+                1,
+                'Expect require to be called once'
+            );
+            chai.expect(expressGetStub.lastCall.args[0]).to.deep.eq(
+                '/test',
+                'Expect the route to equal /test'
+            );
+            chai.expect(expressGetStub.lastCall.args[1]).to.deep.eq(
+                funct,
+                'Expect the route uses the right function'
+            );
+        });
 
-            /* eslint-disable */
+        it('should not register the route because the file does not export a function. It should also display an error message via the console', () => {
+            requireStub.returns('not a function');
+
+            const route: Route = {
+                endpoint: 'test',
+                method: 'get',
+                middlewares: [],
+            };
+
+            registerRoute(route, '/', expressStub);
+
+            chai.expect(expressGetStub.callCount).to.deep.eq(
+                0,
+                'Expexct express.get to be called once'
+            );
+            chai.expect(requireStub.callCount).to.deep.eq(
+                1,
+                'Expect require to be called once'
+            );
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                1,
+                'Expect console.error to be called once'
+            );
+        });
+
+        it('should register the route without middlewares. It should also not stich togethter the route and the route.endpoint', () => {
+            const funct = () => {};
+
+            requireStub.returns(funct);
+
+            const route: Route = {
+                endpoint: 'test',
+                method: 'get',
+                middlewares: [],
+            };
+
+            registerRoute(route, '/test', expressStub);
+
+            chai.expect(expressGetStub.callCount).to.deep.eq(
+                1,
+                'Expexct express.get to be called once'
+            );
+            chai.expect(requireStub.callCount).to.deep.eq(
+                1,
+                'Expect require to be called once'
+            );
+            chai.expect(expressGetStub.lastCall.args[0]).to.deep.eq(
+                '/test',
+                'Expect the route to equal /test'
+            );
+            chai.expect(expressGetStub.lastCall.args[1]).to.deep.eq(
+                funct,
+                'Expect the route uses the right function'
+            );
+        });
+
+        it('should register the route with middlewares.', () => {
+            const funct = () => {};
+
+            requireStub.returns(funct);
+
+            const route: Route = {
+                endpoint: 'test',
+                method: 'get',
+                middlewares: [
+                    {
+                        description: '',
+                        link: '',
+                        name: '',
+                        value: '',
+
+                        /* eslint-disable */
             // @ts-ignore
             func: 'function1',
             /* eslint-enable */
-          },
-          {
-            description: '',
-            link: '',
-            name: '',
-            value: '',
-            /* eslint-disable */
+                    },
+                    {
+                        description: '',
+                        link: '',
+                        name: '',
+                        value: '',
+                        /* eslint-disable */
             // @ts-ignore
             func: 'function2',
             /* eslint-enable */
-          },
-        ],
-      };
+                    },
+                ],
+            };
 
-      registerRoute(route, '/test', expressStub);
+            registerRoute(route, '/test', expressStub);
 
-      chai.expect(expressGetStub.callCount).to.deep.eq(1);
-      chai.expect(expressGetStub.lastCall.args[0]).to.deep.eq('/test');
-      chai.expect(expressGetStub.lastCall.args[1]).to.deep.eq('function1');
-      chai.expect(expressGetStub.lastCall.args[2]).to.deep.eq('function2');
-      chai.expect(expressGetStub.lastCall.args[3]).to.deep.eq(funct);
-    });
-  });
-
-  describe('buildRoutePart function', () => {
-    let buildRoutePart: (
-      routePart: RoutePart,
-      route: string,
-      express: Express
-    ) => void;
-
-    const registerRouteStub = Sinon.stub();
-
-    beforeEach(() => {
-      buildRoutePart = buildRoutes.__get__('buildRoutePart');
-
-      buildRoutes.__set__({
-        registerRoute: registerRouteStub,
-      });
-
-      registerRouteStub.reset();
+            chai.expect(expressGetStub.callCount).to.deep.eq(1);
+            chai.expect(expressGetStub.lastCall.args[0]).to.deep.eq('/test');
+            chai.expect(expressGetStub.lastCall.args[1]).to.deep.eq(
+                'function1'
+            );
+            chai.expect(expressGetStub.lastCall.args[2]).to.deep.eq(
+                'function2'
+            );
+            chai.expect(expressGetStub.lastCall.args[3]).to.deep.eq(funct);
+        });
     });
 
-    it('should try and register a route', () => {
-      const routePart: RoutePart = {
-        test: {
-          method: 'get',
-          endpoint: 'test',
-          middlewares: [],
-        },
-      };
+    describe('buildRoutePart function', () => {
+        let buildRoutePart: (
+            routePart: RoutePart,
+            route: string,
+            express: Express
+        ) => void;
 
-      buildRoutePart(routePart, '/', undefined);
+        const registerRouteStub = Sinon.stub();
 
-      chai.expect(registerRouteStub.callCount).to.deep.eq(1);
-      chai
-        .expect(registerRouteStub.lastCall.args[0])
-        .to.deep.eq(routePart.test);
-      chai.expect(registerRouteStub.lastCall.args[1]).to.deep.eq('/');
-      chai.expect(registerRouteStub.lastCall.args[2]).to.be.undefined;
+        beforeEach(() => {
+            buildRoutePart = buildRoutes.__get__('buildRoutePart');
+
+            buildRoutes.__set__({
+                registerRoute: registerRouteStub,
+            });
+
+            registerRouteStub.reset();
+        });
+
+        it('should try and register a route', () => {
+            const routePart: RoutePart = {
+                test: {
+                    method: 'get',
+                    endpoint: 'test',
+                    middlewares: [],
+                },
+            };
+
+            buildRoutePart(routePart, '/', undefined);
+
+            chai.expect(registerRouteStub.callCount).to.deep.eq(1);
+            chai.expect(registerRouteStub.lastCall.args[0]).to.deep.eq(
+                routePart.test
+            );
+            chai.expect(registerRouteStub.lastCall.args[1]).to.deep.eq('/');
+            chai.expect(registerRouteStub.lastCall.args[2]).to.be.undefined;
+        });
+
+        it('should got deeper into the tree and register a route', () => {
+            const routePart: RoutePart = {
+                test: {
+                    test: {
+                        method: 'get',
+                        endpoint: 'test',
+                        middlewares: [],
+                    },
+                },
+            };
+
+            buildRoutePart(routePart, '/', undefined);
+
+            chai.expect(registerRouteStub.callCount).to.deep.eq(1);
+            chai.expect(registerRouteStub.lastCall.args[0]).to.deep.eq(
+                routePart.test.test
+            );
+            chai.expect(registerRouteStub.lastCall.args[1]).to.deep.eq(
+                '/test/'
+            );
+            chai.expect(registerRouteStub.lastCall.args[2]).to.be.undefined;
+        });
+
+        it('should register both routes', () => {
+            const routePart: RoutePart = {
+                test: {
+                    test: {
+                        method: 'get',
+                        endpoint: 'test',
+                        middlewares: [],
+                    },
+                },
+                test2: {
+                    method: 'get',
+                    endpoint: 'test2',
+                    middlewares: [],
+                },
+            };
+
+            buildRoutePart(routePart, '/', undefined);
+
+            chai.expect(registerRouteStub.callCount).to.deep.eq(2);
+
+            chai.expect(registerRouteStub.lastCall.args[0]).to.deep.eq(
+                routePart.test2
+            );
+            chai.expect(registerRouteStub.lastCall.args[1]).to.deep.eq('/');
+            chai.expect(registerRouteStub.lastCall.args[2]).to.be.undefined;
+
+            chai.expect(registerRouteStub.firstCall.args[0]).to.deep.eq(
+                routePart.test.test
+            );
+            chai.expect(registerRouteStub.firstCall.args[1]).to.deep.eq(
+                '/test/'
+            );
+            chai.expect(registerRouteStub.firstCall.args[2]).to.be.undefined;
+        });
     });
 
-    it('should got deeper into the tree and register a route', () => {
-      const routePart: RoutePart = {
-        test: {
-          test: {
-            method: 'get',
-            endpoint: 'test',
-            middlewares: [],
-          },
-        },
-      };
+    describe('buildRoutes function', () => {
+        let buildRoutesFunc: (config: Config, express: Express) => void;
 
-      buildRoutePart(routePart, '/', undefined);
+        const buildRoutePartStub = Sinon.stub();
 
-      chai.expect(registerRouteStub.callCount).to.deep.eq(1);
-      chai
-        .expect(registerRouteStub.lastCall.args[0])
-        .to.deep.eq(routePart.test.test);
-      chai.expect(registerRouteStub.lastCall.args[1]).to.deep.eq('/test/');
-      chai.expect(registerRouteStub.lastCall.args[2]).to.be.undefined;
+        beforeEach(() => {
+            buildRoutesFunc = buildRoutes.__get__('buildRoutes');
+
+            buildRoutes.__set__({
+                buildRoutePart: buildRoutePartStub,
+            });
+
+            buildRoutePartStub.reset();
+        });
+
+        it('should call the buildRoutePart function', () => {
+            const config: Config = {
+                baseDir: '',
+                middlewarePath: '',
+                middlewares: [],
+                projectType: '',
+                routePath: '',
+                statics: [],
+                routeTree: undefined,
+            };
+
+            buildRoutesFunc(config, null);
+
+            chai.expect(buildRoutePartStub.callCount).to.deep.eq(1);
+            chai.expect(buildRoutePartStub.lastCall.args[1]).to.deep.eq('/');
+        });
     });
-
-    it('should register both routes', () => {
-      const routePart: RoutePart = {
-        test: {
-          test: {
-            method: 'get',
-            endpoint: 'test',
-            middlewares: [],
-          },
-        },
-        test2: {
-          method: 'get',
-          endpoint: 'test2',
-          middlewares: [],
-        },
-      };
-
-      buildRoutePart(routePart, '/', undefined);
-
-      chai.expect(registerRouteStub.callCount).to.deep.eq(2);
-
-      chai
-        .expect(registerRouteStub.lastCall.args[0])
-        .to.deep.eq(routePart.test2);
-      chai.expect(registerRouteStub.lastCall.args[1]).to.deep.eq('/');
-      chai.expect(registerRouteStub.lastCall.args[2]).to.be.undefined;
-
-      chai
-        .expect(registerRouteStub.firstCall.args[0])
-        .to.deep.eq(routePart.test.test);
-      chai.expect(registerRouteStub.firstCall.args[1]).to.deep.eq('/test/');
-      chai.expect(registerRouteStub.firstCall.args[2]).to.be.undefined;
-    });
-  });
-
-  describe('buildRoutes function', () => {
-    let buildRoutesFunc: (config: Config, express: Express) => void;
-
-    const buildRoutePartStub = Sinon.stub();
-
-    beforeEach(() => {
-      buildRoutesFunc = buildRoutes.__get__('buildRoutes');
-
-      buildRoutes.__set__({
-        buildRoutePart: buildRoutePartStub,
-      });
-
-      buildRoutePartStub.reset();
-    });
-
-    it('should call the buildRoutePart function', () => {
-      const config: Config = {
-        baseDir: '',
-        middlewarePath: '',
-        middlewares: [],
-        projectType: '',
-        routePath: '',
-        routeTree: undefined,
-      };
-
-      buildRoutesFunc(config, null);
-
-      chai.expect(buildRoutePartStub.callCount).to.deep.eq(1);
-      chai.expect(buildRoutePartStub.lastCall.args[1]).to.deep.eq('/');
-    });
-  });
 });

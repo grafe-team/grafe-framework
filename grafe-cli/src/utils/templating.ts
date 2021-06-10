@@ -39,11 +39,15 @@ export function createDirectoryContents(
             // write file to destination folder
             const writePath = path.join(process.cwd(), currentFolder, file);
             fs.writeFileSync(writePath, contents, 'utf8');
-            console.log('CREATE '.green + path.join(process.cwd(), currentFolder, file));
+            console.log(
+                'CREATE '.green + path.join(process.cwd(), currentFolder, file)
+            );
         } else if (stats.isDirectory()) {
             // create folder in destination folder
             fs.mkdirSync(path.join(process.cwd(), currentFolder, file));
-            console.log('CREATE '.green + path.join(process.cwd(), currentFolder, file));
+            console.log(
+                'CREATE '.green + path.join(process.cwd(), currentFolder, file)
+            );
             // copy files/folder inside current folder recursively
             createDirectoryContents(
                 path.join(templatePath, file),

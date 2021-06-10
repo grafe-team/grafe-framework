@@ -178,9 +178,10 @@ export async function upgradeHandler(
             );
             return console.log(messages.update_grafe, changes);
         }
+        return;
     } else if (warnings != 0) {
         // if there are any warnings tell the user
-        return console.log(messages.warn);
+        return console.warn(messages.warn);
     }
 
     // if there are neither warnongs or changes tell the user it is right

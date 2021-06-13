@@ -28,6 +28,12 @@ export = {
             name: {
                 descirption: 'Name of the static folder',
             },
+            prefix: {
+                descirption: 'Prefix of the static folder',
+            },
+        },
+        confirm: {
+            description: 'To automaticly confirm the new component',
         },
     },
     questions: {
@@ -46,6 +52,7 @@ export = {
         },
         staticHandler: {
             name: 'How is the new static folder called',
+            prefix: 'What is the prefix of the static-folder',
         },
         utilsHandler: {
             type: 'What do you want to generate',
@@ -72,4 +79,5 @@ export = {
     },
     confirm: 'Is everything correct',
     not_grafe: 'The grafe command must be used within a grafe project.',
+    wrong_config: 'Grafe.json is not correct, please use grafe upgrade',
 };

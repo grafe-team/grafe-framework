@@ -1,7 +1,10 @@
 {
     "tests": false,
     "statics": [
-        "static"
+        {
+            "folder": "static",
+            "prefix": "static"
+        }
     ],
     "middlewares": [
         {

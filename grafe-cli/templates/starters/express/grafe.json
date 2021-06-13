@@ -6,6 +6,9 @@
             "prefix": "static"
         }
     ],
+    "projectType": "express",
+    "routePath": "build/routes",
+    "middlewarePath": "build/middlewares",
     "middlewares": [
         {
             "name": "protected",

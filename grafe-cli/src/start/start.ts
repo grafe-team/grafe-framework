@@ -1,9 +1,10 @@
-import yargs from 'yargs';
-import inquirer from 'inquirer';
+import * as yargs from 'yargs';
+import * as inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as shell from 'shelljs';
-import { createDirectoryContents } from '../utils/templating';
+import * as templating from '../utils/templating';
+import messages from './start.messages';
 
 export interface StarterTemplateOptions {
     templatePath: string; // Path to the template
@@ -21,11 +22,16 @@ export interface StarterTemplateOptions {
 export function startCommand(
     yargs: yargs.Argv<Record<string, unknown>>
 ): yargs.Argv<Record<string, unknown>> {
-    return yargs.option('template', {
-        alias: 't',
-        type: 'string',
-        description: 'What template should be used',
-    });
+    return yargs
+        .option('template', {
+            alias: 't',
+            type: 'string',
+            description: messages.commands.start.templating.description,
+        })
+        .option('testing', {
+            type: 'boolean',
+            description: messages.commands.start.testing.description,
+        });
 }
 
 /**
@@ -38,14 +44,14 @@ export async function startHandler(
     argv: Record<string, unknown>
 ): Promise<void> {
     // get project name from the arguments
-    let projectName = String(argv.projectName);
+    let projectName = argv.projectName;
 
     // if the project name was not provided get it from the user
-    if (projectName.length === 0) {
+    if (projectName === undefined || String(projectName).length === 0) {
         const answers = await inquirer.prompt([
             {
                 type: 'input',
-                message: 'Whats the name of your project?',
+                message: messages.questions.startHandler.projectName,
                 name: 'projectName',
             },
         ]);
@@ -65,9 +71,20 @@ export async function startHandler(
     // get the template the user specified
     const templateType = await getTemplate(templateStartersPath, argv);
 
+    const confirm = await inquirer.prompt({
+        message: messages.confirm,
+        type: 'confirm',
+        name: 'confirm',
+    });
+
+    // check if everything is right
+    if (!confirm.confirm) {
+        return;
+    }
+
     const projectOptions: StarterTemplateOptions = {
-        projectName: projectName,
-        projectPath: path.join(process.cwd(), projectName),
+        projectName: String(projectName),
+        projectPath: path.join(process.cwd(), String(projectName)),
         templateName: templateType,
         templatePath: path.join(templateStartersPath, templateType),
     };
@@ -78,14 +95,34 @@ export async function startHandler(
     }
 
     // copy template into projet folder
-    createDirectoryContents(
+    templating.createDirectoryContents(
         projectOptions.templatePath,
         projectOptions.projectName,
         projectOptions
     );
 
+    if (argv.testing) {
+        let raw;
+        try {
+            raw = fs.readFileSync(
+                path.join(projectOptions.projectPath, 'grafe.json')
+            );
+        } catch (err) {
+            console.error(messages.not_grafe);
+            return;
+        }
+
+        const data = JSON.parse(raw.toString());
+
+        data.tests = true;
+        fs.writeFileSync(
+            path.join(projectOptions.projectPath, 'grafe.json'),
+            JSON.stringify(data, null, 4)
+        );
+    }
+
     // install packages
-    console.log('Installing packages ...');
+    console.log(messages.install_packages);
 
     // install the node packages
     const packagesInstalled = installPackages(projectOptions.projectPath);
@@ -96,7 +133,7 @@ export async function startHandler(
         return;
     }
 
-    console.log('Project created!');
+    console.log(messages.project_created);
 }
 
 /**
@@ -110,7 +147,7 @@ async function getTemplate(
     argv: Record<string, unknown>
 ): Promise<string> {
     // get the template from command line agruments
-    let template = String(argv.template);
+    let template = argv.template;
 
     // read all templates and put them into an array
     const templateChoises = fs.readdirSync(templateDirPath);
@@ -122,13 +159,13 @@ async function getTemplate(
     }
 
     // check if the template does not exist
-    if (templateChoises.indexOf(template) === -1) {
-        console.log(`Template "${template}" not found!`);
+    if (templateChoises.indexOf(String(template)) === -1) {
+        console.log(messages.templating.not_found, template);
         // get the template to use from the user
         template = await getTemplateFromUser(templateChoises);
     }
 
-    return template;
+    return String(template);
 }
 
 async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
@@ -136,7 +173,7 @@ async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
         {
             type: 'list',
             name: 'templateType',
-            message: 'What project template would you like to use?',
+            message: messages.questions.startHandler.template,
             choices: templateChoises,
         },
     ]);
@@ -154,9 +191,7 @@ async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
  */
 function createProjectFolder(options: StarterTemplateOptions): boolean {
     if (fs.existsSync(options.projectPath)) {
-        console.error(
-            `Folder ${options.projectPath} already exists. Delete it or use another name!`
-        );
+        console.error(messages.already_exists, options.projectPath);
         return false;
     }
 
@@ -180,9 +215,9 @@ function installPackages(projectFolder: string): string {
         });
 
         if (result.code !== 0) {
-            return 'Something whent wrong';
+            return messages.went_wrong;
         }
         return '';
     }
-    return 'No package.json';
+    return messages.no_package;
 }

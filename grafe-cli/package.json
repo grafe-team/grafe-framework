@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "test": "mocha build/**/test/**/*.js",
+    "test-w": "mocha build/**/test/**/*.js --watch",
     "build": "tsc",
     "build-w": "tsc --watch",
     "build-prod": "tsc --project tsconfig.prod.json",

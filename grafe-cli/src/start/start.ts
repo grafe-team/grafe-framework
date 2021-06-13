@@ -22,14 +22,16 @@ export interface StarterTemplateOptions {
 export function startCommand(
     yargs: yargs.Argv<Record<string, unknown>>
 ): yargs.Argv<Record<string, unknown>> {
-    return yargs.option('template', {
-        alias: 't',
-        type: 'string',
-        description: messages.commands.start.templating.description
-    }).option('testing', {
-        type: 'boolean',
-        description: messages.commands.start.testing.description
-    });
+    return yargs
+        .option('template', {
+            alias: 't',
+            type: 'string',
+            description: messages.commands.start.templating.description,
+        })
+        .option('testing', {
+            type: 'boolean',
+            description: messages.commands.start.testing.description,
+        });
 }
 
 /**
@@ -50,8 +52,8 @@ export async function startHandler(
             {
                 type: 'input',
                 message: messages.questions.startHandler.projectName,
-                name: 'projectName'
-            }
+                name: 'projectName',
+            },
         ]);
 
         projectName = answers.projectName;
@@ -69,10 +71,10 @@ export async function startHandler(
     // get the template the user specified
     const templateType = await getTemplate(templateStartersPath, argv);
 
-    let confirm = await inquirer.prompt({
+    const confirm = await inquirer.prompt({
         message: messages.confirm,
         type: 'confirm',
-        name: 'confirm'
+        name: 'confirm',
     });
 
     // check if everything is right
@@ -102,16 +104,21 @@ export async function startHandler(
     if (argv.testing) {
         let raw;
         try {
-            raw = fs.readFileSync(path.join(projectOptions.projectPath, 'grafe.json'));
+            raw = fs.readFileSync(
+                path.join(projectOptions.projectPath, 'grafe.json')
+            );
         } catch (err) {
             console.log(messages.not_grafe);
             return;
         }
 
-        let data = JSON.parse(raw.toString());
+        const data = JSON.parse(raw.toString());
 
         data.tests = true;
-        fs.writeFileSync(path.join(projectOptions.projectPath, 'grafe.json'), JSON.stringify(data, null, 4));
+        fs.writeFileSync(
+            path.join(projectOptions.projectPath, 'grafe.json'),
+            JSON.stringify(data, null, 4)
+        );
     }
 
     // install packages
@@ -167,8 +174,8 @@ async function getTemplateFromUser(templateChoises: string[]): Promise<string> {
             type: 'list',
             name: 'templateType',
             message: messages.questions.startHandler.template,
-            choices: templateChoises
-        }
+            choices: templateChoises,
+        },
     ]);
 
     return answers.templateType;

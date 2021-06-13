@@ -15,18 +15,18 @@ import * as path from 'path';
  * @return Config with the newly created route tree in it
  */
 export function createRouteTree(config: Config): Config {
-  const routeTree: RoutePart = {};
+    const routeTree: RoutePart = {};
 
-  _createRouteTree(
-    path.join(config.baseDir, config.routePath),
-    routeTree,
-    [],
-    config.middlewares
-  );
+    _createRouteTree(
+        path.join(config.baseDir, config.routePath),
+        routeTree,
+        [],
+        config.middlewares
+    );
 
-  config.routeTree = routeTree;
+    config.routeTree = routeTree;
 
-  return config;
+    return config;
 }
 
 /**
@@ -39,76 +39,76 @@ export function createRouteTree(config: Config): Config {
  * @return void
  */
 function _createRouteTree(
-  parseDir: string,
-  routePart: RoutePart,
-  inheritedMiddlewares: Middleware[],
-  allMiddlewares: Middleware[]
+    parseDir: string,
+    routePart: RoutePart,
+    inheritedMiddlewares: Middleware[],
+    allMiddlewares: Middleware[]
 ): void {
-  const filesStats = readAllFilesStats(parseDir);
+    const filesStats = readAllFilesStats(parseDir);
 
-  filesStats.forEach((file) => {
-    if (file.isDirectory) {
-      // parse directory
-      const dirParseInfo = parseDirectoryName(
-        file.name,
-        inheritedMiddlewares,
-        allMiddlewares
-      );
+    filesStats.forEach((file) => {
+        if (file.isDirectory) {
+            // parse directory
+            const dirParseInfo = parseDirectoryName(
+                file.name,
+                inheritedMiddlewares,
+                allMiddlewares
+            );
 
-      if (dirParseInfo.ignored) {
-        return;
-      }
+            if (dirParseInfo.ignored) {
+                return;
+            }
 
-      if (dirParseInfo.route === '') {
-        // folder that adds middlewares
-        _createRouteTree(
-          file.path,
-          routePart,
-          dirParseInfo.middlewares,
-          allMiddlewares
-        );
-      } else {
-        // normal path folder
-        const newRoutePart: RoutePart = {};
+            if (dirParseInfo.route === '') {
+                // folder that adds middlewares
+                _createRouteTree(
+                    file.path,
+                    routePart,
+                    dirParseInfo.middlewares,
+                    allMiddlewares
+                );
+            } else {
+                // normal path folder
+                const newRoutePart: RoutePart = {};
 
-        routePart[dirParseInfo.route] = newRoutePart;
+                routePart[dirParseInfo.route] = newRoutePart;
 
-        _createRouteTree(
-          file.path,
-          newRoutePart,
-          inheritedMiddlewares,
-          allMiddlewares
-        );
-      }
-    } else if (file.isFile) {
-      // parse the file name
-      let parseInfo: {
-        route: Route;
-        ignored: boolean;
-      };
+                _createRouteTree(
+                    file.path,
+                    newRoutePart,
+                    inheritedMiddlewares,
+                    allMiddlewares
+                );
+            }
+        } else if (file.isFile) {
+            // parse the file name
+            let parseInfo: {
+                route: Route;
+                ignored: boolean;
+            };
 
-      try {
-        parseInfo = parseFileName(
-          file.name,
-          inheritedMiddlewares,
-          allMiddlewares
-        );
-      } catch (error) {
-        console.error(
-          `An error accoured while parsing the file ${file.path}. This file will be skipped! Error: ${error}`
-        );
-        return; // skip this file
-      }
+            try {
+                parseInfo = parseFileName(
+                    file.name,
+                    inheritedMiddlewares,
+                    allMiddlewares
+                );
+            } catch (error) {
+                console.error(
+                    `An error accoured while parsing the file ${file.path}. This file will be skipped! Error: ${error}`
+                );
+                return; // skip this file
+            }
 
-      if (parseInfo.ignored) {
-        return;
-      }
+            if (parseInfo.ignored) {
+                return;
+            }
 
-      parseInfo.route.link = file.path;
+            parseInfo.route.link = file.path;
 
-      routePart[parseInfo.route.endpoint] = parseInfo.route;
-    }
-  });
+            routePart[parseInfo.route.endpoint] = parseInfo.route;
+        }
+    });
 }
 
 /**
@@ -133,42 +133,42 @@ function _createRouteTree(
  * @return Object if the directory should be ignored/what middlewares should be used/or what routpart should be implemented
  */
 function parseDirectoryName(
-  directoryName: string,
-  inheritedMiddlewares: Middleware[],
-  allMiddlewares: Middleware[]
+    directoryName: string,
+    inheritedMiddlewares: Middleware[],
+    allMiddlewares: Middleware[]
 ): { ignored: boolean; middlewares: Middleware[]; route: string } {
-  directoryName = directoryName.trim().replace(/%/g, ':');
+    directoryName = directoryName.trim().replace(/%/g, ':');
 
-  if (directoryName.startsWith('_mw.')) {
-    // add middlewares
-    const directoryParts = directoryName.split('.');
+    if (directoryName.startsWith('_mw.')) {
+        // add middlewares
+        const directoryParts = directoryName.split('.');
 
-    directoryParts.shift();
+        directoryParts.shift();
 
-    let middlewars = populateMiddlewares(directoryParts, allMiddlewares);
+        let middlewars = populateMiddlewares(directoryParts, allMiddlewares);
 
-    middlewars = combineMiddlewareArrays(middlewars, inheritedMiddlewares);
+        middlewars = combineMiddlewareArrays(middlewars, inheritedMiddlewares);
+
+        return {
+            ignored: false,
+            middlewares: middlewars,
+            route: '',
+        };
+    }
+
+    if (directoryName.startsWith('_')) {
+        return {
+            ignored: true,
+            middlewares: [],
+            route: '',
+        };
+    }
 
     return {
-      ignored: false,
-      middlewares: middlewars,
-      route: '',
+        ignored: false,
+        middlewares: [],
+        route: directoryName,
     };
-  }
-
-  if (directoryName.startsWith('_')) {
-    return {
-      ignored: true,
-      middlewares: [],
-      route: '',
-    };
-  }
-
-  return {
-    ignored: false,
-    middlewares: [],
-    route: directoryName,
-  };
 }
 
 /**
@@ -193,62 +193,62 @@ function parseDirectoryName(
  * @return void Information about the parse
  */
 function parseFileName(
-  fileName: string,
-  inheritedMws: Middleware[],
-  allMiddlewares: Middleware[]
+    fileName: string,
+    inheritedMws: Middleware[],
+    allMiddlewares: Middleware[]
 ): { route: Route; ignored: boolean } {
-  // replace alle % with : so express will understand it
-  fileName = fileName.trim().replace(/%/g, ':');
+    // replace alle % with : so express will understand it
+    fileName = fileName.trim().replace(/%/g, ':');
 
-  // check if the file needs to be ignores
-  if (fileName[0] === '_') {
+    // check if the file needs to be ignores
+    if (fileName[0] === '_') {
+        return {
+            route: null,
+            ignored: true,
+        };
+    }
+
+    const routeParts = fileName.split('.');
+
+    if (routeParts.length < 3) {
+        throw new Error(
+            'The route needs to provide at least the endpoint and the method. Example: test.post.js'
+        );
+    }
+
+    // remove the file extension
+    routeParts.pop();
+
+    const mws: string[] = [];
+
+    // add all middlewares to an array
+    for (let i = 0; i < routeParts.length - 2; i++) {
+        mws.push(routeParts[i]);
+    }
+
+    // populate the middlewares
+    let middlewares = populateMiddlewares(mws, allMiddlewares);
+
+    // add inherited middlewares
+    middlewares = combineMiddlewareArrays(middlewares, inheritedMws);
+
+    const method = parseRestMethodFromString(routeParts[routeParts.length - 1]);
+
+    // if the file wants to use a unsupported rest mothod
+    if (method === 'none') {
+        throw new Error(
+            `Rest Method ${routeParts[routeParts.length - 1]} does not exist.`
+        );
+    }
+
     return {
-      route: null,
-      ignored: true,
+        ignored: false,
+        route: {
+            endpoint: routeParts[routeParts.length - 2],
+            method,
+            middlewares,
+        },
     };
-  }
-
-  const routeParts = fileName.split('.');
-
-  if (routeParts.length < 3) {
-    throw new Error(
-      'The route needs to provide at least the endpoint and the method. Example: test.post.js'
-    );
-  }
-
-  // remove the file extension
-  routeParts.pop();
-
-  const mws: string[] = [];
-
-  // add all middlewares to an array
-  for (let i = 0; i < routeParts.length - 2; i++) {
-    mws.push(routeParts[i]);
-  }
-
-  // populate the middlewares
-  let middlewares = populateMiddlewares(mws, allMiddlewares);
-
-  // add inherited middlewares
-  middlewares = combineMiddlewareArrays(middlewares, inheritedMws);
-
-  const method = parseRestMethodFromString(routeParts[routeParts.length - 1]);
-
-  // if the file wants to use a unsupported rest mothod
-  if (method === 'none') {
-    throw new Error(
-      `Rest Method ${routeParts[routeParts.length - 1]} does not exist.`
-    );
-  }
-
-  return {
-    ignored: false,
-    route: {
-      endpoint: routeParts[routeParts.length - 2],
-      method,
-      middlewares,
-    },
-  };
 }
 
 /**
@@ -259,30 +259,30 @@ function parseFileName(
  * @return The middlewares coresponding to the middleware shorts given
  */
 function populateMiddlewares(
-  mws: string[],
-  allMiddlewares: Middleware[]
+    mws: string[],
+    allMiddlewares: Middleware[]
 ): Middleware[] {
-  const middlewares: Middleware[] = [];
+    const middlewares: Middleware[] = [];
 
-  mws.forEach((mw) => {
-    const middleware = allMiddlewares.filter((existingMw) => {
-      return existingMw.value === mw;
+    mws.forEach((mw) => {
+        const middleware = allMiddlewares.filter((existingMw) => {
+            return existingMw.value === mw;
+        });
+
+        if (middleware.length === 0) {
+            console.warn(`Middleware short ${mw} not found skipping it`);
+            return;
+        }
+
+        if (middleware.length > 1) {
+            console.warn(`Middleware short ${mw} is ambiguous skipping it`);
+            return;
+        }
+
+        middlewares.push(middleware[0]);
     });
 
-    if (middleware.length === 0) {
-      console.warn(`Middleware short ${mw} not found skipping it`);
-      return;
-    }
-
-    if (middleware.length > 1) {
-      console.warn(`Middleware short ${mw} is ambiguous skipping it`);
-      return;
-    }
-
-    middlewares.push(middleware[0]);
-  });
-
-  return middlewares;
+    return middlewares;
 }
 
 /**
@@ -293,23 +293,23 @@ function populateMiddlewares(
  * @return the coresponding rest mothod
  */
 function parseRestMethodFromString(
-  stringMethod: string
+    stringMethod: string
 ): 'post' | 'get' | 'put' | 'delete' | 'none' {
-  stringMethod.trim();
+    stringMethod.trim();
 
-  switch (stringMethod) {
-    case 'post':
-      return 'post';
-    case 'get':
-      return 'get';
-    case 'put':
-      return 'put';
-    case 'delete':
-      return 'delete';
+    switch (stringMethod) {
+        case 'post':
+            return 'post';
+        case 'get':
+            return 'get';
+        case 'put':
+            return 'put';
+        case 'delete':
+            return 'delete';
 
-    default:
-      return 'none';
-  }
+        default:
+            return 'none';
+    }
 }
 
 /**
@@ -319,20 +319,20 @@ function parseRestMethodFromString(
  * @return
  */
 function combineMiddlewareArrays(
-  array1: Middleware[],
-  array2: Middleware[]
+    array1: Middleware[],
+    array2: Middleware[]
 ): Middleware[] {
-  const result: Middleware[] = [];
+    const result: Middleware[] = [];
 
-  array1.forEach((mw) => {
-    result.push(mw);
-  });
+    array1.forEach((mw) => {
+        result.push(mw);
+    });
 
-  array2.forEach((mw) => {
-    if (!result.includes(mw)) {
-      result.push(mw);
-    }
-  });
+    array2.forEach((mw) => {
+        if (!result.includes(mw)) {
+            result.push(mw);
+        }
+    });
 
-  return result;
+    return result;
 }

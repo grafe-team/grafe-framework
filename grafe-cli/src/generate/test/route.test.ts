@@ -37,7 +37,8 @@ describe('route.generate.ts file', () => {
         let generateRoute: (
             routePath: string,
             method: string,
-            mw: string[]
+            mw: string[],
+            confirmation: boolean
         ) => Promise<void> = route.__get__('generateRoute');
 
         const fsMock = {
@@ -99,7 +100,7 @@ describe('route.generate.ts file', () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.throws({ code: 'ENOENT' });
 
-            await generateRoute('', '', []);
+            await generateRoute('', '', [], false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -119,7 +120,7 @@ describe('route.generate.ts file', () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: false });
 
-            await generateRoute('', '', []);
+            await generateRoute('', '', [], false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 0,
@@ -140,7 +141,7 @@ describe('route.generate.ts file', () => {
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
             promptStub.resolves({ confirm: true });
 
-            await generateRoute('/test/route/', 'test', ['pt']);
+            await generateRoute('/test/route/', 'test', ['pt'], false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -167,9 +168,8 @@ describe('route.generate.ts file', () => {
         it('should abort when middleware shortcut is not in grafe.json', async () => {
             pkgDirStub.resolves(path.join('grafe', 'project_1'));
             readFileSyncStub.returns(JSON.stringify(grafeConfig));
-            promptStub.resolves({ confirm: true });
 
-            await generateRoute('test', 'post', ['t']);
+            await generateRoute('test', 'post', ['t'], true);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -180,8 +180,8 @@ describe('route.generate.ts file', () => {
                 'console.log should not be called once'
             );
             chai.expect(promptStub.callCount).to.deep.eq(
-                1,
-                'prompt should be called once'
+                0,
+                'prompt should not be called once'
             );
         });
 
@@ -191,7 +191,7 @@ describe('route.generate.ts file', () => {
             promptStub.resolves({ confirm: true });
             existsSyncStub.returns(true);
 
-            await generateRoute('test', 'get', undefined);
+            await generateRoute('test', 'get', undefined, false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -227,7 +227,7 @@ describe('route.generate.ts file', () => {
             promptStub.resolves({ confirm: true });
             existsSyncStub.onFirstCall().returns(true);
 
-            await generateRoute('/helloworld:id/', 'put', ['pt', 'adm']);
+            await generateRoute('/helloworld:id/', 'put', ['pt', 'adm'], false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -252,7 +252,7 @@ describe('route.generate.ts file', () => {
             promptStub.resolves({ confirm: true });
             existsSyncStub.returns(false);
 
-            await generateRoute('test', 'get', ['pt']);
+            await generateRoute('test', 'get', ['pt'], false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 0,
@@ -298,7 +298,7 @@ describe('route.generate.ts file', () => {
             existsSyncStub.onFirstCall().returns(false);
             existsSyncStub.onSecondCall().returns(false);
 
-            await generateRoute('/helloworld:id/', 'put', ['pt', 'adm']);
+            await generateRoute('/helloworld:id/', 'put', ['pt', 'adm'], false);
 
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 0,
@@ -499,6 +499,33 @@ describe('route.generate.ts file', () => {
             chai.expect(generateRouteStub.lastCall.args[2]).to.deep.eq(
                 [],
                 'should be the given middlewares'
+            );
+        });
+
+        it('should log an error when grafe.json is incorrect', async () => {
+            promptStub.resolves({
+                path: '/test',
+                method: 'get',
+                middlewares: [],
+            });
+            pkgDirStub.resolves(path.join('grafe', 'project_1'));
+            readFileSyncStub.returns(JSON.stringify({ tests: true }));
+
+            await generateRouteHandler({});
+
+            chai.expect(promptStub.callCount).to.deep.eq(
+                0,
+                'prompt should not be called once'
+            );
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
+            );
+            chai.expect(
+                consoleErrorStub.calledOnceWith(messages.wrong_config)
+            ).to.be.eq(
+                true,
+                'console.error should be called with wrong_config message'
             );
         });
     });

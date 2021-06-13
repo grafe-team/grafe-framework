@@ -3,13 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as pkgDir from 'pkg-dir';
+import { MiddlewareComponent, GrafeConfig } from '../grafe.config';
 import messages from './generate.messages';
-
-export interface Middleware {
-    name: string;
-    value: string;
-    description: string;
-}
 
 /**
  * Generates the CLI for creating a new middleware
@@ -71,7 +66,12 @@ export async function generateMiddleWareHandler(
     answers.description = answers.description || argv.description;
 
     // generate the new middleware
-    await generateMiddleWare(answers.name, answers.short, answers.description);
+    await generateMiddleWare(
+        answers.name,
+        answers.short,
+        answers.description,
+        Boolean(argv.yes)
+    );
 }
 
 /**
@@ -85,7 +85,8 @@ export async function generateMiddleWareHandler(
 export async function generateMiddleWare(
     name: string,
     short: string,
-    description: string
+    description: string,
+    confirmation: boolean
 ): Promise<void> {
     // get root directory (where package.json is in)
     const rootDir = await pkgDir.default(process.cwd());
@@ -98,30 +99,44 @@ export async function generateMiddleWare(
         return console.error(messages.not_grafe);
     }
 
-    const data = JSON.parse(raw);
+    const data: GrafeConfig = JSON.parse(raw);
 
-    const confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm',
-    });
+    // chech if grafe.json has this key
+    if (data.middlewares == undefined || !Array.isArray(data.middlewares)) {
+        return console.error(messages.wrong_config);
+    }
 
-    if (!confirm.confirm) {
-        return;
+    // check if user already confirms via args
+    if (!confirmation) {
+        const confirm = await inquirer.prompt({
+            message: messages.confirm,
+            type: 'confirm',
+            name: 'confirm',
+        });
+
+        if (!confirm.confirm) {
+            return;
+        }
     }
 
     // Check if the name of the new middleware already exists
-    if (data.middlewares.some((item: Middleware) => item.name === name)) {
+    if (
+        data.middlewares.some((item: MiddlewareComponent) => item.name === name)
+    ) {
         return console.error(messages.generateMiddleware.middleware_in_use);
     }
 
     // Check if the shortcut of the new middleware already exists
-    if (data.middlewares.some((item: Middleware) => item.value === short)) {
+    if (
+        data.middlewares.some(
+            (item: MiddlewareComponent) => item.value === short
+        )
+    ) {
         return console.error(messages.generateMiddleware.shortcut_in_use);
     }
 
     // create new middleware object
-    const toPush: Middleware = {
+    const toPush: MiddlewareComponent = {
         name: name,
         value: short,
         description: description,

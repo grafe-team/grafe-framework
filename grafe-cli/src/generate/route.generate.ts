@@ -4,8 +4,8 @@ import * as mkdirp from 'mkdirp';
 import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
 import * as ejs from 'ejs';
+import { MiddlewareComponent, GrafeConfig } from '../grafe.config';
 import messages from './generate.messages';
-import { Middleware } from './middleware.generate';
 
 /**
  * Generates the CLI for creating a new route
@@ -27,7 +27,12 @@ export async function generateRouteHandler(
         return console.error(messages.not_grafe);
     }
 
-    const data = JSON.parse(raw.toString());
+    const data: GrafeConfig = JSON.parse(raw.toString());
+
+    // chech if grafe.json has this key
+    if (data.middlewares == undefined || !Array.isArray(data.middlewares)) {
+        return console.error(messages.wrong_config);
+    }
 
     const questions = [];
 
@@ -86,7 +91,12 @@ export async function generateRouteHandler(
     answers.middlewares = answers.middlewares || argv.middlewares;
 
     // generate the new route
-    await generateRoute(answers.path, answers.method, answers.middlewares);
+    await generateRoute(
+        answers.path,
+        answers.method,
+        answers.middlewares,
+        Boolean(argv.yes)
+    );
 }
 
 /**
@@ -100,7 +110,8 @@ export async function generateRouteHandler(
 export async function generateRoute(
     routePath: string,
     method: string,
-    mw: string[]
+    mw: string[],
+    confirmation: boolean
 ): Promise<void> {
     // get root directory (where package.json is in)
     const rootDir = await pkgDir.default(process.cwd());
@@ -113,16 +124,19 @@ export async function generateRoute(
         return console.error(messages.not_grafe);
     }
 
-    const data = JSON.parse(raw);
+    const data: GrafeConfig = JSON.parse(raw);
 
-    const confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm',
-    });
+    // check if user already confirms via args
+    if (!confirmation) {
+        const confirm = await inquirer.prompt({
+            message: messages.confirm,
+            type: 'confirm',
+            name: 'confirm',
+        });
 
-    if (!confirm.confirm) {
-        return;
+        if (!confirm.confirm) {
+            return;
+        }
     }
 
     // remove first slash if it has one
@@ -161,7 +175,9 @@ export async function generateRoute(
         for (const mid of middlewares) {
             // check if the middleware exists or not
             if (
-                !data.middlewares.some((item: Middleware) => item.value === mid)
+                !data.middlewares.some(
+                    (item: MiddlewareComponent) => item.value === mid
+                )
             ) {
                 return console.error(
                     messages.generateRoute.invalid_shortcut,

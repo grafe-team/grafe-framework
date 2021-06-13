@@ -4,21 +4,21 @@ export = {
     commands: {
         start: {
             templating: {
-                description: 'What template should be used'
+                description: 'What template should be used',
             },
             testing: {
-                description: 'Enable testing for the project'
-            }
-        }
+                description: 'Enable testing for the project',
+            },
+        },
     },
     questions: {
         startHandler: {
             projectName: 'Whats the name of your project',
-            template: 'What project template would you like to use'
-        }
+            template: 'What project template would you like to use',
+        },
     },
     templating: {
-        not_found: 'Template "%s" not found!'
+        not_found: 'Template "%s" not found!',
     },
     not_grafe: 'The grafe command must be used within a grafe project.',
     install_packages: 'Installing packages ...',
@@ -27,4 +27,4 @@ export = {
     no_package: 'No package.json',
     went_wrong: 'Something whent wrong',
     confirm: 'Is everything correct',
-}
+};

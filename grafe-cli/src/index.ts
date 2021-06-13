@@ -3,6 +3,7 @@ import yargs = require('yargs/yargs');
 
 import { startCommand, startHandler } from './start/start';
 import { generateHandler, generateCommand } from './generate/generate';
+import { upgradeHandler, upgradeCommand } from './upgrade/upgrade';
 
 yargs(process.argv.slice(2))
     .command(
@@ -16,6 +17,12 @@ yargs(process.argv.slice(2))
         'Generate a new grafe component',
         generateCommand,
         generateHandler
+    )
+    .command(
+        'upgrade',
+        'Upgrade the Grafe-Config',
+        upgradeCommand,
+        upgradeHandler
     )
     .scriptName('grafe')
     .parse();

@@ -18,6 +18,8 @@ export function serveCommand(yargs: yargs.Argv<Record<string, unknown>>) {}
 export async function serveHandler(argv: Record<string, unknown>) {
     const rootDir = await pkgDir.default(process.cwd());
 
+    createBuildDirIfNeeded(rootDir);
+
     const watchDir = path.join(rootDir, 'src');
 
     chokidar
@@ -38,7 +40,7 @@ export async function serveHandler(argv: Record<string, unknown>) {
  * This code needs improvemnt and a lot of it...like really a lot
  * @param rootDir The root directory of the project
  */
-export async function compile(rootDir: string) {
+async function compile(rootDir: string) {
     if (currentlyCompiling) { // if there is another compiling process running currently
         stopOperation = true;
     } else {
@@ -101,7 +103,7 @@ export async function compile(rootDir: string) {
     stopOperation = false;
 }
 
-export function removeEverythingFromDir(dir: string) {
+function removeEverythingFromDir(dir: string) {
     const files = fs.readdirSync(dir);
 
     files.forEach((file) => {
@@ -130,7 +132,7 @@ export function removeEverythingFromDir(dir: string) {
  * @param childPid The pid where all childs should be killed
  * @return void
  */
-export function killTask(child: ChildProcess): void {
+function killTask(child: ChildProcess): void {
     // is windows
     if (process.platform === 'win32') {
         // When using CoffeeScript under Windows, child's process is not node.exe
@@ -197,4 +199,30 @@ async function compileCodeUsingNodeModules(rootDir: string): Promise<number> {
 
         res(child.code);
     });
+}
+
+/**
+ * Looks in the root dir and checks if there is a "build" folder. If there is non it will create one
+ */
+function createBuildDirIfNeeded(rootDir: string) {
+    const buildDirName = "build";
+    const files = fs.readdirSync(rootDir);
+
+    let found = false; // if there is a build directory
+
+    files.forEach(file => {
+        if (file === buildDirName) {
+            const dirSat = fs.statSync(path.join(rootDir, file));
+
+            if (dirSat.isDirectory()) {
+                found = true;
+            } {
+                throw new Error('Unable to compile. Build file found but it is not a directory!');
+            }
+        }
+    });
+
+    if (!found) {
+        fs.mkdirSync(path.join(rootDir, buildDirName));
+    }
 }

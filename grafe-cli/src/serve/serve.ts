@@ -9,9 +9,8 @@ import 'colors';
 import { executionAsyncResource } from 'async_hooks';
 
 let activeProcess: ChildProcess;
+let timeout: NodeJS.Timeout;
 
-let stopOperation: boolean;
-let currentlyCompiling: boolean;
 
 export function serveCommand(yargs: yargs.Argv<Record<string, unknown>>) {}
 
@@ -27,7 +26,14 @@ export async function serveHandler(argv: Record<string, unknown>) {
         .on('all', (event, path) => {
             console.log('\n-- Change detected restarting --\n'.green);
 
-            compile(rootDir);
+            clearTimeout(timeout);
+
+            // maybe it would be better to just fork here but I am not sure
+            // this way if the changes happen within 150ms they will be ignored but there has to be a better way
+            timeout = setTimeout(() => {
+                compile(rootDir);
+            }, 150);
+
         });
 
     compile(rootDir);
@@ -41,14 +47,6 @@ export async function serveHandler(argv: Record<string, unknown>) {
  * @param rootDir The root directory of the project
  */
 async function compile(rootDir: string) {
-    if (currentlyCompiling) { // if there is another compiling process running currently
-        stopOperation = true;
-    } else {
-        stopOperation = false;
-    }
-
-    currentlyCompiling = true;
-
     if (activeProcess && !activeProcess.killed) {
         killTask(activeProcess);
     }
@@ -61,10 +59,6 @@ async function compile(rootDir: string) {
         console.error(
             `\nThere was an error in the cleaning stage: ${error}\n`.red
         );
-        return;
-    }
-
-    if (stopOperation) {
         return;
     }
 
@@ -84,10 +78,6 @@ async function compile(rootDir: string) {
         return;
     }
 
-    if (stopOperation) {
-        return;
-    }
-
     try {
         console.log(`\n-- Starting project --\n`.green);
         activeProcess = exec('node build/index.js', {
@@ -98,9 +88,6 @@ async function compile(rootDir: string) {
         console.error(`\nThere was an error in the running stage: ${error}\n`.red);
         return;
     }
-
-    currentlyCompiling = false;
-    stopOperation = false;
 }
 
 function removeEverythingFromDir(dir: string) {
@@ -216,7 +203,7 @@ function createBuildDirIfNeeded(rootDir: string) {
 
             if (dirSat.isDirectory()) {
                 found = true;
-            } {
+            } else {
                 throw new Error('Unable to compile. Build file found but it is not a directory!');
             }
         }

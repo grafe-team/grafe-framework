@@ -11,15 +11,63 @@
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-## Installation
+
+##### Table of Contents  
+- [Installation](#installation)  
+- [Getting started](#getting-started)
+- [Commands](#Commands)  
+	- [grafe](#grafe)	 
+		- [Syntax](#syntax)
+		- [Details](#details)
+		- [Examples](#examples)
+	- [grafe start](#grafe-start)
+		- [Syntax](#syntax-1)
+		- [Details](#details-1)
+		- [Examples](#examples-1)
+	- [grafe generate](#grafe-generate)
+		- [Syntax](#syntax-2)
+		- [Details](#details-2)
+		- [Examples](#examples-2)
+	- [grafe generate route](#grafe-generate-route)
+		- [Syntax](#syntax-3)
+		- [Details](#details-3)
+		- [Examples](#examples-3)
+- [Packages](#packages)
+- [License](#license)
+
+## Installation 
 Either through cloning with git or by using [npm](http://npmjs.org) (recommended way):
 ```bash
 npm install -g @grafe/grafe-cli
 ```
+## Getting started
+>This is a simple tutorial of how to use grafe. It will teach you how to start a new Project, how you can add new components and many other things.
+
+Welcome to grafe!
+
+  
+To begin, we create a new project using the grafe start command. To not confuse you with the prompts we use the built-in options right away.
+
+```bash
+grafe start HelloWorld -t express
+```
+
+As template we use the currently only supported framework, express. 
+
+To start our project and also to check if everything worked. We use the grafe serve command.
+
+```bash
+grafe serve
+```
+
+This also detects if a file has changed, then re-compiles the project and restarts it afterwards.
+
+... to be continued
+
 ## Commands
 ### grafe
 Root command for other grafe commands.
-#### Syntax
+#### Syntax 
 ```bash
 grafe
 ```
@@ -64,7 +112,7 @@ grafe generate
 | Option| Alias| Description|
 | :--- | :--- | :--- |
 | --help | - / - | Shows list of available options |
-| route | - / - | Will generate a new route |
+| [route](#grafe-generate-route) | - / - | Will generate a new route |
 | middleware | - / - | Will generate a new middleware |
 | static | - / - | Will generate a new static-directory |
 #### Examples

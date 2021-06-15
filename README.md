@@ -64,7 +64,7 @@ grafe generate
 | Option| Alias| Description|
 | :--- | :--- | :--- |
 | --help | - / - | Shows list of available options |
-| [route](###grafe generate route) | - / - | Will generate a new route |
+| [route](#grafe generate route) | - / - | Will generate a new route |
 | middleware | - / - | Will generate a new middleware |
 | static | - / - | Will generate a new static-directory |
 #### Examples

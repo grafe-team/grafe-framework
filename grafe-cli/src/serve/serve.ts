@@ -10,6 +10,9 @@ import { executionAsyncResource } from 'async_hooks';
 
 let activeProcess: ChildProcess;
 
+let stopOperation: boolean;
+let currentlyCompiling: boolean;
+
 export function serveCommand(yargs: yargs.Argv<Record<string, unknown>>) {}
 
 export async function serveHandler(argv: Record<string, unknown>) {
@@ -32,10 +35,18 @@ export async function serveHandler(argv: Record<string, unknown>) {
  * Starts the compiling process. It first deletes everything from the build folder. After that it 
  * starts the Typescript compiler and compiles. After the compiler finished it starts the backend.
  * 
- * This code needs improvemnt and a lot of it...
+ * This code needs improvemnt and a lot of it...like really a lot
  * @param rootDir The root directory of the project
  */
 export async function compile(rootDir: string) {
+    if (currentlyCompiling) { // if there is another compiling process running currently
+        stopOperation = true;
+    } else {
+        stopOperation = false;
+    }
+
+    currentlyCompiling = true;
+
     if (activeProcess && !activeProcess.killed) {
         killTask(activeProcess);
     }
@@ -48,6 +59,10 @@ export async function compile(rootDir: string) {
         console.error(
             `\nThere was an error in the cleaning stage: ${error}\n`.red
         );
+        return;
+    }
+
+    if (stopOperation) {
         return;
     }
 
@@ -67,6 +82,10 @@ export async function compile(rootDir: string) {
         return;
     }
 
+    if (stopOperation) {
+        return;
+    }
+
     try {
         console.log(`\n-- Starting project --\n`.green);
         activeProcess = exec('node build/index.js', {
@@ -77,6 +96,9 @@ export async function compile(rootDir: string) {
         console.error(`\nThere was an error in the running stage: ${error}\n`.red);
         return;
     }
+
+    currentlyCompiling = false;
+    stopOperation = false;
 }
 
 export function removeEverythingFromDir(dir: string) {

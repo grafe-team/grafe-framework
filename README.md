@@ -9,8 +9,9 @@
   <b>The easiest way to create a backend</b>
 </p>
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=grafe-team_grafe-framework&metric=alert_status)](https://sonarcloud.io/dashboard?id=grafe-team_grafe-framework)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=grafe-team_grafe-framework&metric=bugs)](https://sonarcloud.io/dashboard?id=grafe-team_grafe-framework)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=grafe-team_grafe-framework&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=grafe-team_grafe-framework)
 
 ##### Table of Contents  
 - [Installation](#installation)  

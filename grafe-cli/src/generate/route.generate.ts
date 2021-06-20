@@ -104,13 +104,13 @@ export async function generateRouteHandler(
  *
  * @param path The path of the route
  * @param method The HTTP-Method
- * @param mw List of preceding middlewares
+ * @param middlewares List of preceding middlewares
  * @returns Promise<undefined>
  */
 export async function generateRoute(
     routePath: string,
     method: string,
-    mw: string[],
+    middlewares: string[],
     confirmation: boolean
 ): Promise<void> {
     // get root directory (where package.json is in)
@@ -167,86 +167,24 @@ export async function generateRoute(
         return console.error(messages.generateRoute.invalid_method);
     }
 
-    const middlewares = mw;
-
     // check if the user wants a middleware
     if (middlewares != undefined && middlewares.length != 0) {
-        // loop through all middlewares in grafe.json
-        for (const mid of middlewares) {
-            // check if the middleware exists or not
-            if (
-                !data.middlewares.some(
-                    (item: MiddlewareComponent) => item.value === mid
-                )
-            ) {
-                return console.error(
-                    messages.generateRoute.invalid_shortcut,
-                    mid
-                );
-            }
+        if (!(await middlewaresExists(middlewares, data))) {
+            return;
         }
 
-        // check if the user wants more then one middleware
-        if (middlewares.length > 1) {
-            let middlewareName = '';
-
-            // loop through the wanted middlewares and link them together
-            for (let i = 0; i < middlewares.length - 1; i++) {
-                middlewareName += middlewares[i] + '.';
-            }
-            middlewareName += middlewares[middlewares.length - 1];
-
-            _path = path.join(_path, '_mw.' + middlewareName);
-        } else {
-            // if the user only wants one then just use it as directory name
-            _path = path.join(_path, '_mw.' + middlewares[0]);
-        }
+        _path = await getMiddleWarePath(_path, middlewares);
     }
 
     // create all non-existing directorys
     await mkdirp.default(path.join(rootDir, _path));
 
-    let _testPath;
-
     // check if tests are enabled
     if (data.tests) {
-        _testPath = path.join(rootDir, _path, '_tests');
-        await mkdirp.default(_testPath);
-
-        _testPath = path.join(
-            _testPath,
-            paths[paths.length - 1] + '.' + method.toLowerCase() + '.ts'
-        );
-
-        // check if this file already exitsts or not
-        if (fs.existsSync(_testPath)) {
-            return console.error(messages.generateRoute.exists);
+        const _testPath = path.join(rootDir, _path, '_tests');
+        if (!(await generateTestFile(_testPath, method, paths))) {
+            return;
         }
-
-        // get the path of the template file for tests
-        const templateTestPath = path.join(
-            __dirname,
-            '..',
-            '..',
-            'templates',
-            'tests',
-            'mocha',
-            'template.test.ts'
-        );
-
-        // read file content and transform it using template engine
-        let contents = fs.readFileSync(templateTestPath, 'utf8');
-
-        // insert dynamic content
-        contents = ejs.render(contents, {
-            fileName:
-                paths[paths.length - 1] + '.' + method.toLowerCase() + '.ts',
-        });
-
-        // write with changed content
-        fs.writeFileSync(_testPath, contents, 'utf8');
-
-        console.log(messages.generateRoute.tests, _testPath);
     }
 
     // add filename to create file with fs
@@ -275,4 +213,109 @@ export async function generateRoute(
     // copy the template file to the destination
     fs.copyFileSync(templateRoutePath, _path);
     console.log(messages.generateRoute.success, _path);
+}
+
+/**
+ * Generates a new test file for the new route
+ *
+ * @param _testPath The path of the route
+ * @param method The HTTP-Method
+ * @param paths splitted route
+ * @returns Promise<boolean>
+ */
+async function generateTestFile(
+    _testPath: string,
+    method: string,
+    paths: string[]
+): Promise<boolean> {
+    await mkdirp.default(_testPath);
+
+    _testPath = path.join(
+        _testPath,
+        paths[paths.length - 1] + '.' + method.toLowerCase() + '.ts'
+    );
+
+    // check if this file already exitsts or not
+    if (fs.existsSync(_testPath)) {
+        console.error(messages.generateRoute.exists);
+        return false;
+    }
+
+    // get the path of the template file for tests
+    const templateTestPath = path.join(
+        __dirname,
+        '..',
+        '..',
+        'templates',
+        'tests',
+        'mocha',
+        'template.test.ts'
+    );
+
+    // read file content and transform it using template engine
+    let contents = fs.readFileSync(templateTestPath, 'utf8');
+
+    // insert dynamic content
+    contents = ejs.render(contents, {
+        fileName: paths[paths.length - 1] + '.' + method.toLowerCase() + '.ts',
+    });
+
+    // write with changed content
+    fs.writeFileSync(_testPath, contents, 'utf8');
+
+    console.log(messages.generateRoute.tests, _testPath);
+    return true;
+}
+
+/**
+ * Return the middleware path seperated by dots
+ *
+ * @param _path path of the folder structure
+ * @param middlewares middlewares that should be included
+ * @returns Promise<string>
+ */
+export async function getMiddleWarePath(
+    _path: string,
+    middlewares: string[]
+): Promise<string> {
+    // check if the user wants more then one middleware
+    if (middlewares.length > 1) {
+        let middlewareName = '';
+
+        // loop through the wanted middlewares and link them together
+        for (let i = 0; i < middlewares.length - 1; i++) {
+            middlewareName += middlewares[i] + '.';
+        }
+        middlewareName += middlewares[middlewares.length - 1];
+
+        return path.join(_path, '_mw.' + middlewareName);
+    }
+    // if the user only wants one then just use it as directory name
+    return path.join(_path, '_mw.' + middlewares[0]);
+}
+
+/**
+ * Checks if every middleware, the user wants, exists
+ *
+ * @param middlewares middlewares that should be included
+ * @param data grafe.json content
+ * @returns Promise<string>
+ */
+export async function middlewaresExists(
+    middlewares: string[],
+    data: GrafeConfig
+): Promise<boolean> {
+    // loop through all middlewares in grafe.json
+    for (const mid of middlewares) {
+        // check if the middleware exists or not
+        if (
+            !data.middlewares.some(
+                (item: MiddlewareComponent) => item.value === mid
+            )
+        ) {
+            console.error(messages.generateRoute.invalid_shortcut, mid);
+            return false;
+        }
+    }
+    return true;
 }

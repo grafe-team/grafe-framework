@@ -1,15 +1,17 @@
-import yargs, { exit } from 'yargs';
 import * as chokidar from 'chokidar';
 import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
-import { cat, exec } from 'shelljs';
-import { ChildProcess, ChildProcessByStdio, ChildProcessWithoutNullStreams, execFile, execSync, fork, spawn } from 'child_process';
+import { exec } from 'shelljs';
+import { ChildProcess, execFile } from 'child_process';
 import * as fs from 'fs';
 import 'colors';
+import yargs from 'yargs';
 
-export function serveCommand(yargs: yargs.Argv<Record<string, unknown>>) {}
+/* eslint-disable */
+export function serveCommand(yargs: yargs.Argv<Record<string, unknown>>): void {}
+/* eslint-enable */
 
-export async function serveHandler(argv: Record<string, unknown>) {
+export async function serveHandler(): Promise<void> {
     const rootDir = await pkgDir.default(process.cwd());
 
     let compilerProzess: ChildProcess;
@@ -19,21 +21,27 @@ export async function serveHandler(argv: Record<string, unknown>) {
     createBuildDirIfNeeded(rootDir);
 
     const watchDir = path.join(rootDir, 'src');
+    const grafeConfig = path.join(rootDir, 'grafe.json');
+    const nodeModules = path.join(rootDir, 'node_modules');
+    const packageJson = path.join(rootDir, 'package.json');
 
     chokidar
-        .watch(watchDir, { ignoreInitial: true })
-        .on('all', (event, path) => {
+        .watch([watchDir, grafeConfig, nodeModules, packageJson], {
+            ignoreInitial: true,
+        })
+        .on('all', () => {
             console.log('\n-- Change detected restarting --\n'.green);
 
             killTask(compilerProzess);
 
-            compilerProzess = execFile(process.argv[0], [compilerPath, rootDir]);
+            compilerProzess = execFile(process.argv[0], [
+                compilerPath,
+                rootDir,
+            ]);
 
             compilerProzess.stdout.pipe(process.stdout);
             compilerProzess.stderr.pipe(process.stderr);
         });
-
-
 
     compilerProzess = execFile(process.argv[0], [compilerPath, rootDir]);
     compilerProzess.stdout.pipe(process.stdout);
@@ -58,7 +66,7 @@ function killTask(child: ChildProcess): void {
         // Therefore we use the Windows taskkill utility to kill the process and all
         // its children (/T for tree).
         // Force kill (/F) the whole child tree (/T) by PID (/PID 123)
-        exec('taskkill /pid ' + child.pid + ' /T /F', {silent: true});
+        exec('taskkill /pid ' + child.pid + ' /T /F', { silent: true });
     } else if (process.platform === 'darwin') {
         // Mac OS
         child.kill('SIGSTOP');
@@ -72,19 +80,21 @@ function killTask(child: ChildProcess): void {
  * Looks in the root dir and checks if there is a "build" folder. If there is non it will create one
  */
 function createBuildDirIfNeeded(rootDir: string) {
-    const buildDirName = "build";
+    const buildDirName = 'build';
     const files = fs.readdirSync(rootDir);
 
     let found = false; // if there is a build directory
 
-    files.forEach(file => {
+    files.forEach((file) => {
         if (file === buildDirName) {
             const dirSat = fs.statSync(path.join(rootDir, file));
 
             if (dirSat.isDirectory()) {
                 found = true;
             } else {
-                throw new Error('Unable to compile. Build file found but it is not a directory!');
+                throw new Error(
+                    'Unable to compile. Build file found but it is not a directory!'
+                );
             }
         }
     });

@@ -55,7 +55,7 @@ function _createRouteTree(
             const dirParseInfo = parseDirectoryName(
                 file.name,
                 inheritedMiddlewares,
-                allMiddlewares,
+                allMiddlewares
             );
 
             if (dirParseInfo.ignored) {
@@ -304,9 +304,9 @@ function populateMiddlewares(
 function parseRestMethodFromString(
     stringMethod: string
 ): 'post' | 'get' | 'put' | 'delete' | 'none' {
-    stringMethod.trim();
+    const stringMethodTrimmed = stringMethod.trim();
 
-    switch (stringMethod) {
+    switch (stringMethodTrimmed) {
         case 'post':
             return 'post';
         case 'get':

@@ -1,6 +1,6 @@
 {
   "name": "@grafe/grafe-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This is the core module of grafe. With the help of the core, all routes are created according to the corresponding folder structure.",
   "main": "built/index.js",
   "scripts": {

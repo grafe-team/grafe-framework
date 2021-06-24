@@ -17,22 +17,18 @@
 - [Installation](#installation)  
 - [Getting started](#getting-started)
 - [Commands](#Commands)  
-	- [grafe](#grafe)	 
+	- [grafe start](#grafe-start)
 		- [Syntax](#syntax)
 		- [Details](#details)
 		- [Examples](#examples)
-	- [grafe start](#grafe-start)
+	- [grafe generate](#grafe-generate)
 		- [Syntax](#syntax-1)
 		- [Details](#details-1)
 		- [Examples](#examples-1)
-	- [grafe generate](#grafe-generate)
+	- [grafe generate route](#grafe-generate-route)
 		- [Syntax](#syntax-2)
 		- [Details](#details-2)
 		- [Examples](#examples-2)
-	- [grafe generate route](#grafe-generate-route)
-		- [Syntax](#syntax-3)
-		- [Details](#details-3)
-		- [Examples](#examples-3)
 - [Packages](#packages)
 - [License](#license)
 
@@ -66,22 +62,6 @@ This also detects if a file has changed, then re-compiles the project and restar
 ... to be continued
 
 ## Commands
-### grafe
-Root command for other grafe commands.
-#### Syntax 
-```bash
-grafe
-```
-#### Details
-`grafe`will do nothing. It is the root command of the CLI. To see further details of commands use `grafe --help`.
-| Option| Alias| Description|
-| :--- | :--- | :--- |
-| --help | - / - | Shows all available commands |
-| --version | - / - | Shows the current version of grafe |
-#### Examples
-```bash
-grafe --help
-```
 ### grafe start
 Creates a new grafe project.
 #### Syntax
@@ -114,8 +94,8 @@ grafe generate
 | :--- | :--- | :--- |
 | --help | - / - | Shows list of available options |
 | [route](#grafe-generate-route) | - / - | Will generate a new route |
-| middleware | - / - | Will generate a new middleware |
-| static | - / - | Will generate a new static-directory |
+| [middleware](#grafe-generate-middleware) | - / - | Will generate a new middleware |
+| [static](#grafe-generate-static) | - / - | Will generate a new static-directory |
 #### Examples
 ```bash
 grafe generate
@@ -143,6 +123,49 @@ grafe generate route
 grafe generate route --help
 grafe generate route -r /auth/login -m post 
 grafe generate route -r /auth/is-authenticated -m get -w pt --yes
+```
+### grafe generate middleware
+Automatically creates a new grafe-middleware-component
+#### Syntaxt
+```bash
+grafe generate middleware
+```
+#### Details
+`grafe generate middleware` will start the prompts of the middleware properties and automatically generate a new middleware component. 
+| Option| Alias| Description|
+| :--- | :--- | :--- |
+| --help | - / - | Shows list of available options |
+| --name | -n | Sets the name of the middleware |
+| --short | -s | Sets the short-cut of the middleware |
+| --description |-d | Sets the description of the middleware |
+| --yes | - / - | confirms the generation of the new component
+#### Examples
+```bash
+grafe generate middleware
+grafe generate middleware --help
+grafe generate middleware -n protected -s pt 
+grafe generate middleware -n admin-only -s adm -d "Only for Admins" --yes
+```
+### grafe generate static
+Creates a new folder which can be used for static files. 
+#### Syntaxt
+```bash
+grafe generate static
+```
+#### Details
+`grafe generate static` will start the prompts of the static properties and automatically create a new static directory. 
+| Option| Alias| Description|
+| :--- | :--- | :--- |
+| --help | - / - | Shows list of available options |
+| --name | -n | Sets the name of new folder |
+| --prefix | -p | Sets the prefix with which you access the folder |
+| --yes | - / - | confirms the generation of the new component
+#### Examples
+```bash
+grafe generate static
+grafe generate static --help
+grafe generate static -n images 
+grafe generate static -n pictures -p public/pictures --yes
 ```
 ## Packages
 

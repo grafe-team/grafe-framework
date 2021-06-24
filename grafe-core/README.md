@@ -1,4 +1,4 @@
-# Welcome to grafe-core 👋
+# Welcome to grafe-core
 
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://grafe-framework.com/documentation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/grafe-team/grafe-framework/blob/main/LICENSE)

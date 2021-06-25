@@ -31,7 +31,8 @@ export function startCommand(
         .option('testing', {
             type: 'boolean',
             description: messages.commands.start.testing.description,
-        }).option('yes', {
+        })
+        .option('yes', {
             type: 'boolean',
             description: messages.commands.confirm.description,
         });
@@ -74,13 +75,13 @@ export async function startHandler(
     // get the template the user specified
     const templateType = await getTemplate(templateStartersPath, argv);
 
-    if(!argv.yes) {
+    if (!argv.yes) {
         const confirm = await inquirer.prompt({
             message: messages.confirm,
             type: 'confirm',
             name: 'confirm',
         });
-    
+
         // check if everything is right
         if (!confirm.confirm) {
             return;

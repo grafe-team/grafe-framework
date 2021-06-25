@@ -490,7 +490,11 @@ describe('start.ts file', () => {
             getTemplateStub.resolves('express');
             installPackagesStub.returns('');
 
-            await startHandler({ projectName: 'garfe_project', testing: true , yes: true});
+            await startHandler({
+                projectName: 'garfe_project',
+                testing: true,
+                yes: true,
+            });
 
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 2,

@@ -25,12 +25,15 @@ process.on('SIGSTOP', () => {
 });
 
 // check if the root dir was provided and if the root dir is a path
-if (!rootDir && rootDir === path.basename(rootDir)) {
+if (!rootDir || rootDir === path.basename(rootDir)) {
     console.error('Rootdir was not provided or is not a path!');
     process.exit(1);
 }
 
-compile(rootDir);
+// if the file is not beeing tested
+if (!process.argv[1].endsWith('mocha')) {
+    compile(rootDir);
+}
 
 /**
  * Starts the compiling process. It first deletes everything from the build folder. After that it

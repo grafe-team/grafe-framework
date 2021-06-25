@@ -2,7 +2,8 @@
   "name": "@grafe/grafe-core",
   "version": "1.0.1",
   "description": "This is the core module of grafe. With the help of the core, all routes are created according to the corresponding folder structure.",
-  "main": "built/index.js",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test": "mocha build/test/**/*.js",
     "test-w": "mocha build/test/**/*.js --watch --recursive",

@@ -1,11 +1,12 @@
 import * as chokidar from 'chokidar';
 import * as pkgDir from 'pkg-dir';
 import * as path from 'path';
-import { exec } from 'shelljs';
-import { ChildProcess, execFile } from 'child_process';
+import { ChildProcess, execFile, exec } from 'child_process';
 import * as fs from 'fs';
 import 'colors';
 import yargs from 'yargs';
+
+let delayTimeout: NodeJS.Timeout;
 
 /* eslint-disable */
 export function serveCommand(yargs: yargs.Argv<Record<string, unknown>>): void {}
@@ -30,17 +31,21 @@ export async function serveHandler(): Promise<void> {
             ignoreInitial: true,
         })
         .on('all', () => {
-            console.log('\n-- Change detected restarting --\n'.green);
+            clearTimeout(delayTimeout);
 
-            killTask(compilerProzess);
+            delayTimeout = setTimeout(() => {
+                console.log('\n-- Change detected restarting --\n'.green);
 
-            compilerProzess = execFile(process.argv[0], [
-                compilerPath,
-                rootDir,
-            ]);
+                killTask(compilerProzess);
 
-            compilerProzess.stdout.pipe(process.stdout);
-            compilerProzess.stderr.pipe(process.stderr);
+                compilerProzess = execFile(process.argv[0], [
+                    compilerPath,
+                    rootDir,
+                ]);
+
+                compilerProzess.stdout.pipe(process.stdout);
+                compilerProzess.stderr.pipe(process.stderr);
+            }, 50);
         });
 
     compilerProzess = execFile(process.argv[0], [compilerPath, rootDir]);
@@ -66,13 +71,13 @@ function killTask(child: ChildProcess): void {
         // Therefore we use the Windows taskkill utility to kill the process and all
         // its children (/T for tree).
         // Force kill (/F) the whole child tree (/T) by PID (/PID 123)
-        exec('taskkill /pid ' + child.pid + ' /T /F', { silent: true });
+        exec('taskkill /pid ' + child.pid + ' /T /F');
     } else if (process.platform === 'darwin') {
         // Mac OS
-        child.kill('SIGSTOP');
+        child.kill('SIGKILL');
     } else {
         // Linux
-        child.kill('SIGSTOP');
+        child.kill('SIGKILL');
     }
 }
 

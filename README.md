@@ -231,13 +231,13 @@ grafe generate static -n pictures -p public/pictures --yes
 ```
 ------
 ### grafe serve
-- insert -
+Starts the project and watches for file changes.
 #### Syntax
 ```bash
-grafe start [projectName]
+grafe serve
 ```
 #### Details
-`grafe serve` - insert -
+`grafe serve` will start the project, watches for file changes, re-compiles and restarts it.
 | Option| Alias| Description|
 | :--- | :--- | :--- |
 | --help | - / - | Shows a list of all available options |

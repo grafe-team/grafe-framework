@@ -37,6 +37,10 @@
 		- [Syntax](#syntax-3)
 		- [Details](#details-3)
 		- [Examples](#examples-3)
+	- [grafe serve](#grafe-serve)
+		- [Syntax](#syntax-4)
+		- [Details](#details-4)
+		- [Examples](#examples-4)
 - [Packages](#packages)
 - [License](#license)
 
@@ -175,11 +179,26 @@ grafe generate static --help
 grafe generate static -n images 
 grafe generate static -n pictures -p public/pictures --yes
 ```
+### grafe serve
+- insert -
+#### Syntax
+```bash
+grafe start [projectName]
+```
+#### Details
+`grafe serve` - insert -
+| Option| Alias| Description|
+| :--- | :--- | :--- |
+| --help | - / - | Shows list of available options |
+#### Examples
+```bash
+grafe serve
+```
 ## Packages
 
 | Project| Package | Version |
 | --- | --- | --- |
-| Garfe CLI | [@garfe/grafe-cli](http://npmjs.org) | 0.1.0 |
+| Garfe CLI | [@garfe/grafe-cli](https://www.npmjs.com/package/@grafe/grafe-cli) | [![npm version](https://badge.fury.io/js/%40grafe%2Fgrafe-cli.svg)](https://badge.fury.io/js/%40grafe%2Fgrafe-cli) |
 | Grade Core | [@garfe/grafe-core](https://www.npmjs.com/package/@grafe/grafe-core) | [![npm version](https://badge.fury.io/js/%40grafe%2Fgrafe-core.svg)](https://badge.fury.io/js/%40grafe%2Fgrafe-core) |
 
 ## License

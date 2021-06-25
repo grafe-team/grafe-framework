@@ -16,13 +16,13 @@ export interface StarterTemplateOptions {
 /**
  * Describes the syntax of the start command
  *
- * @param yargs Yargs object to add information to
+ * @param yarg Yargs object to add information to
  * @returns The same Yargs object
  */
 export function startCommand(
-    yargs: yargs.Argv<Record<string, unknown>>
+    yarg: yargs.Argv<Record<string, unknown>>
 ): yargs.Argv<Record<string, unknown>> {
-    return yargs
+    return yarg
         .option('template', {
             alias: 't',
             type: 'string',
@@ -31,6 +31,10 @@ export function startCommand(
         .option('testing', {
             type: 'boolean',
             description: messages.commands.start.testing.description,
+        })
+        .option('yes', {
+            type: 'boolean',
+            description: messages.commands.confirm.description,
         });
 }
 
@@ -71,15 +75,17 @@ export async function startHandler(
     // get the template the user specified
     const templateType = await getTemplate(templateStartersPath, argv);
 
-    const confirm = await inquirer.prompt({
-        message: messages.confirm,
-        type: 'confirm',
-        name: 'confirm',
-    });
+    if (!argv.yes) {
+        const confirm = await inquirer.prompt({
+            message: messages.confirm,
+            type: 'confirm',
+            name: 'confirm',
+        });
 
-    // check if everything is right
-    if (!confirm.confirm) {
-        return;
+        // check if everything is right
+        if (!confirm.confirm) {
+            return;
+        }
     }
 
     const projectOptions: StarterTemplateOptions = {

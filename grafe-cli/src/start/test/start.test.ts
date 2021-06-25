@@ -480,7 +480,6 @@ describe('start.ts file', () => {
         });
 
         it('should finish if everything is correct', async () => {
-            promptStub.onFirstCall().resolves({ confirm: true });
             readFileSyncStub.returns(
                 JSON.stringify({
                     tests: false,
@@ -491,7 +490,7 @@ describe('start.ts file', () => {
             getTemplateStub.resolves('express');
             installPackagesStub.returns('');
 
-            await startHandler({ projectName: 'garfe_project', testing: true });
+            await startHandler({ projectName: 'garfe_project', testing: true , yes: true});
 
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 2,
@@ -506,8 +505,8 @@ describe('start.ts file', () => {
                 'console.log should log project_created message'
             );
             chai.expect(promptStub.callCount).to.deep.eq(
-                1,
-                'user should be prompted once'
+                0,
+                'user should not be prompted once'
             );
             chai.expect(
                 JSON.parse(writeFileSyncStub.lastCall.args[1]).tests

@@ -94,6 +94,7 @@ grafe start project_1
 grafe start project_2 -t express
 grafe start project_3 --testing
 ```
+------
 ### grafe generate
 Creates a new grafe component.
 #### Syntax
@@ -114,6 +115,7 @@ grafe generate
 grafe generate --help
 grafe generate route
 ```
+------
 ### grafe generate route
 Automatically creates a new grafe-route-component,
 #### Syntaxt
@@ -136,6 +138,7 @@ grafe generate route --help
 grafe generate route -r /auth/login -m post 
 grafe generate route -r /auth/is-authenticated -m get -w pt --yes
 ```
+------
 ### grafe generate middleware
 Automatically creates a new grafe-middleware-component
 #### Syntaxt
@@ -158,6 +161,7 @@ grafe generate middleware --help
 grafe generate middleware -n protected -s pt 
 grafe generate middleware -n admin-only -s adm -d "Only for Admins" --yes
 ```
+------
 ### grafe generate static
 Creates a new folder which can be used for static files. 
 #### Syntaxt

@@ -1,3 +1,4 @@
+
 <p align="center">
   <img width="460" src="https://i.ibb.co/mT0TMQG/garfe-logo.png">
 </p>
@@ -16,6 +17,8 @@
 ##### Table of Contents  
 - [Installation](#installation)  
 - [Getting started](#getting-started)
+	- [start a new project](#start-your-project)
+	- [generate your first route](#generate-your-first-route)
 - [Commands](#Commands)  
 	- [grafe start](#grafe-start)
 		- [Syntax](#syntax)
@@ -52,27 +55,44 @@ npm install -g @grafe/grafe-cli
 ## Getting started
 >This is a simple tutorial of how to use grafe. It will teach you how to start a new Project, how you can add new components and many other things.
 
+### Start your Project 
 Welcome to grafe!
-
   
-To begin, we create a new project using the grafe start command. To not confuse you with the prompts we use the built-in options right away.
+If you have already installed the package `@grafe/grafe-cli`, we will start by creating a new Grafe project. For this we use the `grafe start` command with the integrated options, which you can have a look at in the documentation under [syntax](#syntax).
 
 ```bash
-grafe start HelloWorld -t express
+grafe start HelloWorld -t express --yes
 ```
 
-As template we use the currently only supported framework, express. 
-
-To start our project and also to check if everything worked. We use the grafe serve command.
+As template we use express and as project name we take 'HelloWorld'.
+<br/>
+To check if everything worked correctly, we run the project with the `grafe serve` command. By the way, this command detects if you have made a change, then re-compiles the project and restarts it.
 
 ```bash
 grafe serve
 ```
+If you have not changed the port, your back-end is now running on port 3000 with a default route 
+`GET localhost:300/index/` which does nothing.
+<br/>
+### Generate your first route
+Let us now create our first route, which should greet us with a `Hello World`.
+For this we use the `grafe generate route` command with its integrated options, which you can read again in the documentation under [syntax](#syntax-2).
+```bash
+grafe generate route -r /helloworld/greet -m get -w --yes
+```
+Now we have a new file under `src/routes/helloworld/`. The contents of this file look like this:
+```javascript
+import { Request, Response } from  'express';
 
-This also detects if a file has changed, then re-compiles the project and restarts it afterwards.
+export  =  async (req:  Request, res:  Response) => {
 
-... to be continued
-
+};
+```
+To see a result we now write a response into the function:
+```javascript
+res.send({ message: 'hello world'});
+```
+We can test it with our browser, since it is a `GET` method, or with [Postman](https://www.postman.com/).  If you want to test the route with your browser, go to the url `http://localhost:3000/helloworld/greet/`.
 ## Commands
 ### grafe start
 Creates a new grafe project.
@@ -88,6 +108,7 @@ grafe start [projectName]
 | --template | -t | Sets the template of the project |
 | --testing | - / - | Enables testing for the grafe project|
 | [projectName] | - / - | Sets the project name |
+| --yes | - / - | confirms the creation of the new project
 #### Examples
 ```bash
 grafe start project_1

@@ -96,7 +96,7 @@ res.send({ message: 'hello world'});
 We can test it with our browser, since it is a `GET` method, or with [Postman](https://www.postman.com/).  If you want to test the route with your browser, go to the url `http://localhost:3000/helloworld/greet/`.
 <br/>
 ### Generate your first middleware
-The next step is to take a closer look at middleware. This allows another function to be called before the route function is called. We create one with the `grafe generate middleware` command and the built-in functions, which can be found in the documentation at [syntax](#syntax-3).
+The next step is to take a closer look at middleware. This allows another function to be called before the route function is called. We create one with the `grafe generate middleware` command with its integrated options, which can be found in the documentation under [syntax](#syntax-3).
 ```bash
 grafe generate middleware -n grafe-greets -s grf -d "This middleware will greet grafe" --yes
 ```
@@ -109,7 +109,7 @@ export  = (req:  Request, res:  Response, next:  NextFunction) => {
 	next();
 }
 ```
-To see that this middleware is called we first write a simple `console.log` which should output a message to our console:
+To see that this middleware is called we first write a simple `console.log` which should output a message to the console:
 ```javascript
 console.log('Grafe greets!');
 ```
@@ -117,7 +117,7 @@ We write this above the `next()` method. Now we generate a new route with our ne
 ```bash
 grafe generate route -r /helloworld/grafe -m get -w grf --yes
 ```
-In this route we write the same answer as in [generate your first route](#generate-your-first-route). If we now call this route via our browser (`http://localhost:3000/helloword/grafe/`), we see our 'hello world' in the browser and a 'Grafe greets!' in our console.
+In this route we write the same response as in [generate your first route](#generate-your-first-route). If we now call this route via our browser (`http://localhost:3000/helloword/grafe/`), we see our 'hello world' in the browser and a 'Grafe greets!' in our console.
 ## Commands
 ### grafe start
 Creates a new grafe project.
@@ -129,7 +129,7 @@ grafe start [projectName]
 `grafe start` will start the prompts to create a new grafe project. 
 | Option| Alias| Description|
 | :--- | :--- | :--- |
-| --help | - / - | Shows list of available options |
+| --help | - / - | Shows a list of all available options |
 | --template | -t | Sets the template of the project |
 | --testing | - / - | Enables testing for the grafe project|
 | [projectName] | - / - | Sets the project name |
@@ -151,7 +151,7 @@ grafe generate
 `grafe generate` will start the prompts of which component should be generated. 
 | Option| Alias| Description|
 | :--- | :--- | :--- |
-| --help | - / - | Shows list of available options |
+| --help | - / - | Shows a list of all available options |
 | [route](#grafe-generate-route) | - / - | Will generate a new route |
 | [middleware](#grafe-generate-middleware) | - / - | Will generate a new middleware |
 | [static](#grafe-generate-static) | - / - | Will generate a new static-directory |
@@ -172,7 +172,7 @@ grafe generate route
 `grafe generate route` will start the prompts of the route properties and automatically generate a new route component. 
 | Option| Alias| Description|
 | :--- | :--- | :--- |
-| --help | - / - | Shows list of available options |
+| --help | - / - | Shows a list of all available options |
 | --routePath | -r | Sets the path of the new route |
 | --method | -m | Sets the method of the new route. `get | post | put | delete` |
 | --middlewares |-w | Sets the preceding middlewares of the route |
@@ -195,9 +195,9 @@ grafe generate middleware
 `grafe generate middleware` will start the prompts of the middleware properties and automatically generate a new middleware component. 
 | Option| Alias| Description|
 | :--- | :--- | :--- |
-| --help | - / - | Shows list of available options |
+| --help | - / - | Shows a list of all available options |
 | --name | -n | Sets the name of the middleware |
-| --short | -s | Sets the short-cut of the middleware |
+| --short | -s | Sets the shortcut of the middleware |
 | --description |-d | Sets the description of the middleware |
 | --yes | - / - | confirms the generation of the new component
 #### Examples
@@ -218,7 +218,7 @@ grafe generate static
 `grafe generate static` will start the prompts of the static properties and automatically create a new static directory. 
 | Option| Alias| Description|
 | :--- | :--- | :--- |
-| --help | - / - | Shows list of available options |
+| --help | - / - | Shows a list of all available options |
 | --name | -n | Sets the name of new folder |
 | --prefix | -p | Sets the prefix with which you access the folder |
 | --yes | - / - | confirms the generation of the new component
@@ -240,7 +240,7 @@ grafe start [projectName]
 `grafe serve` - insert -
 | Option| Alias| Description|
 | :--- | :--- | :--- |
-| --help | - / - | Shows list of available options |
+| --help | - / - | Shows a list of all available options |
 #### Examples
 ```bash
 grafe serve

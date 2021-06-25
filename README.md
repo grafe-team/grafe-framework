@@ -179,6 +179,7 @@ grafe generate static --help
 grafe generate static -n images 
 grafe generate static -n pictures -p public/pictures --yes
 ```
+------
 ### grafe serve
 - insert -
 #### Syntax

@@ -19,6 +19,7 @@
 - [Getting started](#getting-started)
 	- [start a new project](#start-your-project)
 	- [generate your first route](#generate-your-first-route)
+	- [generate your first middleware](#generate-your-first-middleware)
 - [Commands](#Commands)  
 	- [grafe start](#grafe-start)
 		- [Syntax](#syntax)
@@ -93,6 +94,30 @@ To see a result we now write a response into the function:
 res.send({ message: 'hello world'});
 ```
 We can test it with our browser, since it is a `GET` method, or with [Postman](https://www.postman.com/).  If you want to test the route with your browser, go to the url `http://localhost:3000/helloworld/greet/`.
+<br/>
+### Generate your first middleware
+The next step is to take a closer look at middleware. This allows another function to be called before the route function is called. We create one with the `grafe generate middleware` command and the built-in functions, which can be found in the documentation at [syntax](#syntax-3).
+```bash
+grafe generate middleware -n grafe-greets -s grf -d "This middleware will greet grafe" --yes
+```
+This creates a new file for us under `src/middlewares/grf/grafe-greets.ts` with the following content:
+```javascript
+import { NextFunction, Request, Response } from  'express';
+
+export  = (req:  Request, res:  Response, next:  NextFunction) => {
+
+	next();
+}
+```
+To see that this middleware is called we first write a simple `console.log` which should output a message to our console:
+```javascript
+console.log('Grafe greets!');
+```
+We write this above the `next()` method. Now we generate a new route with our new middleware preceding:
+```bash
+grafe generate route -r /helloworld/grafe -m get -w grf --yes
+```
+In this route we write the same answer as in [generate your first route](#generate-your-first-route). If we now call this route via our browser (`http://localhost:3000/helloword/grafe/`), we see our 'hello world' in the browser and a 'Grafe greets!' in our console.
 ## Commands
 ### grafe start
 Creates a new grafe project.

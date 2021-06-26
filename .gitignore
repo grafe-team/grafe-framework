@@ -106,3 +106,4 @@ dist
 
 # Build folders
 **/build/**
+**/lib/**

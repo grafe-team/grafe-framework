@@ -2,8 +2,8 @@
   "name": "@grafe/grafe-core",
   "version": "1.0.1",
   "description": "This is the core module of grafe. With the help of the core, all routes are created according to the corresponding folder structure.",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "mocha build/test/**/*.js",
     "test-w": "mocha build/test/**/*.js --watch --recursive",
@@ -35,7 +35,7 @@
     "build/**/*",
     "README.md"
   ],
-  "homepage": "https://github.com/grafe-team/grafe-framework",
+  "homepage": "https://grafe-framework.com/",
   "devDependencies": {
     "@types/chai": "^4.2.18",
     "@types/express": "^4.17.12",

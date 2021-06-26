@@ -7,7 +7,7 @@
         "noImplicitAny": true,
         "moduleResolution": "node",
         "sourceMap": false,
-        "outDir": "build",
+        "outDir": "lib",
         "baseUrl": ".",
         "declaration": true,
         "paths": {

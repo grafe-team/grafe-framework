@@ -4,7 +4,6 @@ import messages from './generate.messages';
 import { generateRouteHandler } from './route.generate';
 import { generateMiddleWareHandler } from './middleware.generate';
 import { generateStaticHandler } from './static.generate';
-// import { generateUtilsHandler } from './utils.generate';
 
 /**
  * Describes the syntax of the generate command
@@ -13,10 +12,10 @@ import { generateStaticHandler } from './static.generate';
  * @returns The same Yargs object
  */
 export function generateCommand(
-    yargs: yargs.Argv<Record<string, unknown>>
+    yarg: yargs.Argv<Record<string, unknown>>
 ): yargs.Argv<Record<string, unknown>> {
     // returns two subcommands with the arguments
-    return yargs
+    return yarg
         .command(
             'route',
             'generates a new route',
@@ -100,14 +99,6 @@ export function generateCommand(
             },
             generateStaticHandler
         );
-    // .command(
-    //   'util',
-    //   'insert desc',
-    //   (y) => {
-    //     return y;
-    //   },
-    //   generateUtilsHandler
-    // );
 }
 
 /**
@@ -143,8 +134,5 @@ export async function generateHandler(
     } else if (answers.type === 'static folder') {
         // if choice is satic folder generate static
         generateStaticHandler(argv);
-    } // else if (answers.type === 'util component') {
-    // if choice is util component generate util
-    //   generateUtilsHandler(argv);
-    // }
+    }
 }

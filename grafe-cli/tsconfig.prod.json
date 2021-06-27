@@ -9,7 +9,7 @@
         "sourceMap": false,
         "outDir": "build",  
         "baseUrl": ".",
-        "declaration": true,
+        "declaration": false,
         "paths": {
             "*": [
                 "node_modules/*",
@@ -21,6 +21,7 @@
         "src/**/*",
     ],
     "exclude": [
+        "src/**/*.test.ts",
         "src/templates/**/*",
         "coverage"
     ]

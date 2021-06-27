@@ -1,5 +1,5 @@
 import express = require('express');
-import { initCore } from '@grafe/grafe-core/build';
+import { initCore } from '@grafe/grafe-core';
 import * as path from 'path';
 
 const app = express();

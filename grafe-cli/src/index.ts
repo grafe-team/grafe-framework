@@ -24,7 +24,8 @@ yargs(process.argv.slice(2))
         'Upgrade the Grafe-Config',
         upgradeCommand,
         upgradeHandler
-    ).command(
+    )
+    .command(
         'serve',
         'Builds and runs your code automatically',
         serveCommand,

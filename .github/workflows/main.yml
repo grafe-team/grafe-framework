@@ -34,6 +34,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install npm packages for grafe-core
       run: npm ci
+    - name: Patch packagees for grafe-core
+      run: npm run fix-package
     - name: Lint the grafe-core
       run: npm run lint
     - name: Build the grafe-core

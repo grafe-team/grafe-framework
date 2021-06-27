@@ -12,7 +12,7 @@
     "start": "node build/index.js",
     "coverage": "nyc npm run test",
     "coverage-check": "nyc check-coverage",
-    "postinstall": "patch-package",
+    "fix-package": "patch-package",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
   },

@@ -379,6 +379,18 @@ describe('routes.ts file', () => {
             );
         });
 
+        it('should trim the incomming string so it is more error resistant', () => {
+            const stringCache = '   post    ';
+            const string = JSON.parse(JSON.stringify(stringCache));
+
+            const res = parseRestMethodFromString(string);
+
+            chai.expect(res).to.deep.eq(
+                'post',
+                'It should still equal "post" because there are is only whitespace around it'
+            );
+        });
+
         it('should return the right rest method', () => {
             chai.expect(parseRestMethodFromString('post')).to.deep.eq('post');
             chai.expect(parseRestMethodFromString('get')).to.deep.eq('get');
@@ -478,7 +490,8 @@ describe('routes.ts file', () => {
             parseDir: string,
             routePart: RoutePart,
             inheritedMiddlewares: Middleware[],
-            allMiddlewares: Middleware[]
+            allMiddlewares: Middleware[],
+            routPartAbove: RoutePart
         ) => void;
 
         const parseDirectoryNameStub = Sinon.stub();
@@ -543,16 +556,63 @@ describe('routes.ts file', () => {
                 ignored: false,
             };
 
+            const routePart: any = {};
+
             readAllFilesStatsStub.returns(fileInfo);
             parseFileNameStub.returns(parseInfo);
 
-            _createRouteTree('test', routePart, [], []);
+            _createRouteTree('test', routePart, [], [], {});
 
             chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(1);
             chai.expect(parseFileNameStub.callCount).to.deep.eq(1);
             chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(0);
             chai.expect(routePart).to.have.key('fileName');
             chai.expect(routePart.fileName).to.deep.eq(route);
+
+            chai.expect(parseFileNameStub.lastCall.args[0]).to.deep.eq(
+                fileInfo[0].name
+            );
+            chai.expect(parseFileNameStub.lastCall.args[1]).to.deep.eq([]);
+            chai.expect(parseFileNameStub.lastCall.args[2]).to.deep.eq([]);
+
+            chai.expect(readAllFilesStatsStub.lastCall.args[0]).to.deep.eq(
+                'test'
+            );
+        });
+
+        it('should try and parse the file name and add the route to the routeTree but add it as a "." because the above attrubte has the same name', () => {
+            const fileInfo: FileInfo[] = [
+                {
+                    isDirectory: false,
+                    isFile: true,
+                    name: 'fileName.post.js',
+                    path: '/var/fileName.post.js',
+                },
+            ];
+
+            const route: Route = {
+                endpoint: 'fileName',
+                method: 'post',
+                middlewares: [],
+            };
+
+            const parseInfo = {
+                route: route,
+                ignored: false,
+            };
+
+            const routePart: any = {};
+
+            readAllFilesStatsStub.returns(fileInfo);
+            parseFileNameStub.returns(parseInfo);
+
+            _createRouteTree('test', routePart, [], [], { fileName: {} });
+
+            chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(1);
+            chai.expect(parseFileNameStub.callCount).to.deep.eq(1);
+            chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(0);
+            chai.expect(routePart).to.have.key('.');
+            chai.expect(routePart['.']).to.deep.eq(route);
 
             chai.expect(parseFileNameStub.lastCall.args[0]).to.deep.eq(
                 fileInfo[0].name
@@ -577,7 +637,7 @@ describe('routes.ts file', () => {
 
             readAllFilesStatsStub.returns(fileInfo);
 
-            _createRouteTree('test', routePart, [], []);
+            _createRouteTree('test', routePart, [], [], {});
 
             chai.expect(parseDirectoryNameStub.callCount).to.deep.eq(
                 0,
@@ -606,7 +666,7 @@ describe('routes.ts file', () => {
             readAllFilesStatsStub.returns(fileInfo);
             parseFileNameStub.returns(parseInfo);
 
-            _createRouteTree('test', routePart, [], []);
+            _createRouteTree('test', routePart, [], [], {});
 
             chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(1);
             chai.expect(parseFileNameStub.callCount).to.deep.eq(1);
@@ -645,7 +705,7 @@ describe('routes.ts file', () => {
             readAllFilesStatsStub.onThirdCall().returns([]);
             parseDirectoryNameStub.returns(parseInfo);
 
-            _createRouteTree('test', routePart, [], []);
+            _createRouteTree('test', routePart, [], [], {});
 
             chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(3);
             chai.expect(parseFileNameStub.callCount).to.deep.eq(0);
@@ -696,7 +756,7 @@ describe('routes.ts file', () => {
             readAllFilesStatsStub.returns(fileInfo);
             parseDirectoryNameStub.returns(parseInfo);
 
-            _createRouteTree('test', routePart, [], []);
+            _createRouteTree('test', routePart, [], [], {});
 
             chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(1);
             chai.expect(parseFileNameStub.callCount).to.deep.eq(0);
@@ -734,7 +794,7 @@ describe('routes.ts file', () => {
             readAllFilesStatsStub.onSecondCall().returns([]);
             parseDirectoryNameStub.returns(parseInfo);
 
-            _createRouteTree('test', routePart, [], []);
+            _createRouteTree('test', routePart, [], [], {});
 
             chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(2);
             chai.expect(parseFileNameStub.callCount).to.deep.eq(0);
@@ -770,7 +830,7 @@ describe('routes.ts file', () => {
             parseFileNameStub.throws('error');
 
             chai.expect(() => {
-                _createRouteTree('test', routePart, [], []);
+                _createRouteTree('test', routePart, [], [], {});
             }).to.not.throw();
 
             chai.expect(readAllFilesStatsStub.callCount).to.deep.eq(1);

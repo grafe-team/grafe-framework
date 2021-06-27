@@ -21,7 +21,8 @@ export function createRouteTree(config: Config): Config {
         path.join(config.baseDir, config.routePath),
         routeTree,
         [],
-        config.middlewares
+        config.middlewares,
+        routeTree
     );
 
     config.routeTree = routeTree;
@@ -36,13 +37,15 @@ export function createRouteTree(config: Config): Config {
  * @param routePart The routePart where all new Parts/Routes should be attached to
  * @param inheritedMiddlewares All the middlewares that should be inherited from the part above
  * @param allMiddlewares All middlewares available
+ * @param routPartAbove the root Object of the routeTree
  * @return void
  */
 function _createRouteTree(
     parseDir: string,
     routePart: RoutePart,
     inheritedMiddlewares: Middleware[],
-    allMiddlewares: Middleware[]
+    allMiddlewares: Middleware[],
+    routPartAbove: RoutePart
 ): void {
     const filesStats = readAllFilesStats(parseDir);
 
@@ -65,7 +68,8 @@ function _createRouteTree(
                     file.path,
                     routePart,
                     dirParseInfo.middlewares,
-                    allMiddlewares
+                    allMiddlewares,
+                    routePart
                 );
             } else {
                 // normal path folder
@@ -77,7 +81,8 @@ function _createRouteTree(
                     file.path,
                     newRoutePart,
                     inheritedMiddlewares,
-                    allMiddlewares
+                    allMiddlewares,
+                    routePart
                 );
             }
         } else if (file.isFile) {
@@ -106,7 +111,11 @@ function _createRouteTree(
 
             parseInfo.route.link = file.path;
 
-            routePart[parseInfo.route.endpoint] = parseInfo.route;
+            if (!routPartAbove[parseInfo.route.endpoint]) {
+                routePart[parseInfo.route.endpoint] = parseInfo.route;
+            } else {
+                routePart['.'] = parseInfo.route;
+            }
         }
     });
 }
@@ -295,9 +304,9 @@ function populateMiddlewares(
 function parseRestMethodFromString(
     stringMethod: string
 ): 'post' | 'get' | 'put' | 'delete' | 'none' {
-    stringMethod.trim();
+    const stringMethodTrimmed = stringMethod.trim();
 
-    switch (stringMethod) {
+    switch (stringMethodTrimmed) {
         case 'post':
             return 'post';
         case 'get':

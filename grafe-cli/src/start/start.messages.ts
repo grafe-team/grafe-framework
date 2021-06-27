@@ -10,6 +10,9 @@ export = {
                 description: 'Enable testing for the project',
             },
         },
+        confirm: {
+            description: 'To automaticly confirm the new component',
+        },
     },
     questions: {
         startHandler: {

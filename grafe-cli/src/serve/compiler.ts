@@ -19,11 +19,6 @@ interface ErrnoException extends Error {
     stack?: string;
 }
 
-process.on('SIGSTOP', () => {
-    killTask(compiler);
-    process.exit(0);
-});
-
 // check if the root dir was provided and if the root dir is a path
 if (!rootDir || rootDir === path.basename(rootDir)) {
     console.error('Rootdir was not provided or is not a path!');
@@ -32,6 +27,11 @@ if (!rootDir || rootDir === path.basename(rootDir)) {
 
 // if the file is not beeing tested
 if (!process.argv[1].endsWith('mocha')) {
+    process.on('SIGSTOP', () => {
+        killTask(compiler);
+        process.exit(0);
+    });
+ 
     compile(rootDir);
 }
 

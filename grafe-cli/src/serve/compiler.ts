@@ -31,7 +31,7 @@ if (!process.argv[1].endsWith('mocha')) {
         killTask(compiler);
         process.exit(0);
     });
- 
+
     compile(rootDir);
 }
 

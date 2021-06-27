@@ -30,6 +30,11 @@
   "bin": {
     "grafe": "./build/index.js"
   },
+  "files": [
+    "templates/**/*",
+    "build/**/*",
+    "README.md"
+  ],
   "author": "Stefan Streimel, Marvin Koch",
   "license": "MIT",
   "bugs": {

@@ -1,6 +1,6 @@
 {
   "name": "@grafe/grafe-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "This is the core module of grafe. With the help of the core, all routes are created according to the corresponding folder structure.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -32,7 +32,7 @@
     "url": "https://github.com/grafe-team/grafe-framework/issues"
   },
   "files": [
-    "build/**/*",
+    "lib/**/*",
     "README.md"
   ],
   "homepage": "https://grafe-framework.com/",

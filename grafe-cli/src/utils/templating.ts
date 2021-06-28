@@ -30,6 +30,10 @@ export function createDirectoryContents(
         if (SKIP_FILES.indexOf(file) > -1) return;
 
         if (stats.isFile()) {
+            if (file === 'gitignore') {
+                file = '.gitignore';
+            }
+
             // read file content and transform it using template engine
             let contents = fs.readFileSync(origFilePath, 'utf8');
 

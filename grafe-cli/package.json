@@ -1,7 +1,7 @@
 {
   "name": "@grafe/grafe-cli",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.2",
+  "description": "This is the CLI of grafe.With this you can easily create a new project, generate new components and start your back-end.",
   "main": "build/index.js",
   "scripts": {
     "test": "mocha build/**/test/**/*.js",

@@ -4,7 +4,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as shell from 'shelljs';
 import * as templating from '../utils/templating';
+import * as spin from 'cli-spinner';
+import { spawn } from 'child_process';
+import events from 'events';
 import messages from './start.messages';
+
+const emitter = new events.EventEmitter();
 
 export interface StarterTemplateOptions {
     templatePath: string; // Path to the template
@@ -127,19 +132,21 @@ export async function startHandler(
         );
     }
 
-    // install packages
-    console.log(messages.install_packages);
-
     // install the node packages
-    const packagesInstalled = installPackages(projectOptions.projectPath);
+    installPackages(projectOptions.projectPath);
 
-    // check if there was an error when installing the packages
-    if (packagesInstalled.length !== 0) {
-        console.error(packagesInstalled);
-        return;
-    }
+    emitter.on('packages-installed', (code) => {
 
-    console.log(messages.project_created);
+        if (code !== 0) {
+            return console.error(messages.went_wrong);
+        }
+        
+        // @ts-ignore
+        console.log('\n√'.brightGreen + ' dependencies installed');
+
+        // @ts-ignore
+        console.log('√ '.brightGreen + messages.project_created);
+    });
 }
 
 /**
@@ -211,19 +218,27 @@ function createProjectFolder(options: StarterTemplateOptions): boolean {
  * @param projectFolder The folder where to install the pacakges
  * @returns string is empty when everything whent fine
  */
-function installPackages(projectFolder: string): string {
+function installPackages(projectFolder: string): void {
     const hasPackages = fs.existsSync(path.join(projectFolder, 'package.json'));
 
     if (hasPackages) {
         shell.cd(projectFolder);
-        const result = shell.exec('npm install', {
-            silent: true,
+
+        // @ts-ignore
+        let spinner = new spin.Spinner('%s'.brightMagenta + ' installing dependencies');
+        const child = spawn('npm install', {
+            shell: true,
         });
 
-        if (result.code !== 0) {
-            return messages.went_wrong;
-        }
-        return '';
+        spinner.setSpinnerString('|/-\\');
+
+        spinner.start();
+        
+        child.on('exit', (code) => {
+            spinner.stop();
+            emitter.emit('packages-installed', code);
+        });
+    } else {
+        return console.error(messages.no_package);
     }
-    return messages.no_package;
 }

@@ -266,62 +266,90 @@ describe('start.ts file', () => {
     describe('installPackages function', () => {
         const existsSyncStub = Sinon.stub();
         const cdStub = Sinon.stub();
-        const execStub = Sinon.stub();
+        const consoleErrorStub = Sinon.stub();
+        const consoleLogStub = Sinon.stub();
 
-        let installPackages: (projectFolder: string) => string =
+        let installPackages: (projectFolder: string) => void =
             start.__get__('installPackages');
 
         const fsMock = {
             existsSync: existsSyncStub,
         };
 
+        const cliSpinnerMock = {
+            Spinner: Sinon.stub()
+        };
+
+        const childProcessMock = {
+            spawn: Sinon.stub(),
+        };
+
         const shellMock = {
             cd: cdStub,
-            exec: execStub,
         };
 
         beforeEach(() => {
+
+            start.__set__({
+                console: {
+                    error: consoleErrorStub,
+                    log: consoleLogStub,
+                }
+            });
+
             start.__set__({
                 fs: fsMock,
                 shell: shellMock,
+                child_process_1: childProcessMock,
+                spin: cliSpinnerMock
             });
 
             installPackages = start.__get__('installPackages');
 
             cdStub.reset();
             existsSyncStub.reset();
-            execStub.reset();
+            childProcessMock.spawn.reset();
+            consoleErrorStub.reset();
+            consoleLogStub.reset();
+
+            cliSpinnerMock.Spinner.returns({
+                setSpinnerString: Sinon.stub(),
+                start: Sinon.stub(),
+                stop: Sinon.stub(),
+            });
         });
 
         it('should return no_package message if project has no packages', async () => {
             existsSyncStub.returns(false);
-            const result = installPackages('');
+            installPackages('');
 
-            chai.expect(result).to.deep.eq(
-                messages.no_package,
-                'return value should be no_package message'
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                1,
+                'console.error should be called once'
             );
         });
 
-        it('should return went_wrong message if installation went wrong', async () => {
+        it('should emit \'package-installed\' event when everything worked', async () => {
             existsSyncStub.returns(true);
-            execStub.returns({ code: 1 });
-            const result = installPackages('');
 
-            chai.expect(result).to.deep.eq(
-                messages.went_wrong,
-                'return value should be went_wrong message'
+            const child = {
+                on: Sinon.stub(),
+            };
+
+            childProcessMock.spawn.returns(child);
+
+            installPackages('');
+
+            child.on.lastCall.args[1](0);
+
+            chai.expect(consoleLogStub.callCount).to.deep.eq(
+                0,
+                'console.log should not be called once'
             );
-        });
-
-        it('should return empty string message if everything worked', async () => {
-            existsSyncStub.returns(true);
-            execStub.returns({ code: 0 });
-            const result = installPackages('');
-
-            chai.expect(result).to.deep.eq(
-                '',
-                'return value should be empty string'
+            
+            chai.expect(consoleErrorStub.callCount).to.deep.eq(
+                0,
+                'console.error should not be called once'
             );
         });
     });
@@ -353,6 +381,12 @@ describe('start.ts file', () => {
             createDirectoryContents: createDirectoryContentsStub,
         };
 
+        const eventsMock = {
+            default: {
+                EventEmitter: Sinon.stub()
+            }
+        }
+
         beforeEach(() => {
             start.__set__({
                 console: {
@@ -365,6 +399,7 @@ describe('start.ts file', () => {
                 fs: fsMock,
                 inquirer: inquirerMock,
                 templating: templatingMock,
+                events_1: eventsMock
             });
 
             start.__set__({
@@ -384,6 +419,7 @@ describe('start.ts file', () => {
             createProjectFolderStub.reset();
             createDirectoryContentsStub.reset();
             installPackagesStub.reset();
+            eventsMock.default.EventEmitter.reset();
         });
 
         it('should abort when not confirming', async () => {
@@ -433,13 +469,21 @@ describe('start.ts file', () => {
             promptStub.onFirstCall().resolves({ confirm: true });
             createProjectFolderStub.returns(true);
             getTemplateStub.resolves('express');
-            installPackagesStub.returns(messages.went_wrong);
 
+            const fakeEmitter = {
+                on: Sinon.stub()
+            };
+
+            eventsMock.default.EventEmitter.returns(fakeEmitter);
             await startHandler({ projectName: 'garfe_project' });
 
+           fakeEmitter.on.lastCall.args[1](1);
+
+            chai.expect(eventsMock.default.EventEmitter.callCount).to.deep.eq(1, '');
+
             chai.expect(consoleLogStub.callCount).to.deep.eq(
-                1,
-                'console.log should be called once'
+                0,
+                'console.log should not be called once'
             );
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 1,
@@ -486,6 +530,11 @@ describe('start.ts file', () => {
                 })
             );
 
+            const fakeEmitter = {
+                on: Sinon.stub()
+            };
+
+            eventsMock.default.EventEmitter.returns(fakeEmitter);
             createProjectFolderStub.returns(true);
             getTemplateStub.resolves('express');
             installPackagesStub.returns('');
@@ -496,9 +545,12 @@ describe('start.ts file', () => {
                 yes: true,
             });
 
+            
+            fakeEmitter.on.lastCall.args[1](0);
+
             chai.expect(consoleLogStub.callCount).to.deep.eq(
                 2,
-                'console.log should not be called twice'
+                'console.log should be called twice'
             );
             chai.expect(consoleErrorStub.callCount).to.deep.eq(
                 0,

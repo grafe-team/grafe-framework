@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ejs from 'ejs';
 import { StarterTemplateOptions } from '../start/start';
-
 /**
  * Recursivly copies a template into a target folder. It also populates the template with the options provided if needed
  *
@@ -44,13 +43,15 @@ export function createDirectoryContents(
             const writePath = path.join(process.cwd(), currentFolder, file);
             fs.writeFileSync(writePath, contents, 'utf8');
             console.log(
-                'CREATE '.green + path.join(process.cwd(), currentFolder, file)
+                // @ts-ignore
+                'generate '.brightMagenta + path.join(currentFolder, file) + ` (${stats.size} bytes)`.brightYellow.italic 
             );
         } else if (stats.isDirectory()) {
             // create folder in destination folder
             fs.mkdirSync(path.join(process.cwd(), currentFolder, file));
             console.log(
-                'CREATE '.green + path.join(process.cwd(), currentFolder, file)
+                //@ts-ignore
+                'generate '.brightMagenta + path.join(currentFolder, file)
             );
             // copy files/folder inside current folder recursively
             createDirectoryContents(

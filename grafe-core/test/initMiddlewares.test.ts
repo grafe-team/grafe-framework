@@ -2,7 +2,7 @@ import 'mocha';
 import rewire = require('rewire');
 import Sinon = require('sinon');
 import * as chai from 'chai';
-import { Config, Middleware } from '../src/config';
+import { Config, Middleware } from '../src/config/config';
 
 describe('initMiddlewares.ts file', () => {
     const configCache: Config = {

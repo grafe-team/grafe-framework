@@ -3,7 +3,7 @@ import rewire = require('rewire');
 import Sinon = require('sinon');
 import * as chai from 'chai';
 import { Express } from 'express';
-import { Config, Route, RoutePart } from '../src/config';
+import { Config, Route, RoutePart } from '../src/config/config';
 
 describe('initCore.ts file', () => {
     let initCoreModule = rewire('../src/initCore');

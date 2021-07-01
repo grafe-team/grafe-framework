@@ -3,7 +3,7 @@ import rewire = require('rewire');
 import Sinon = require('sinon');
 import * as chai from 'chai';
 import { Express } from 'express';
-import { Config, Route, RoutePart } from '../src/config';
+import { Config, Route, RoutePart } from '../src/config/config';
 
 /* eslint @typescript-eslint/no-empty-function: "off" */
 

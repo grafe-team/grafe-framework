@@ -1,5 +1,5 @@
 import 'mocha';
-import { Config, Middleware, Route, RoutePart } from '../src/config';
+import { Config, Middleware, Route, RoutePart } from '../src/config/config';
 import { FileInfo } from '../src/file';
 import rewire = require('rewire');
 import Sinon = require('sinon');

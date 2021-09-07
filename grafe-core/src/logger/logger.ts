@@ -1,23 +1,21 @@
-
 export enum LogLevel {
-    trace    = 0,
-    debug    = 1,
-    info     = 2,
-    warn     = 3,
-    error    = 4,
-    critical = 5
+    trace = 0,
+    debug = 1,
+    info = 2,
+    warn = 3,
+    error = 4,
+    critical = 5,
 }
 
 export interface GrafeLogger {
+    log(level: LogLevel, data: string, ...parameters: any): void;
 
-    log(level: LogLevel, data: string): void;
-
-    trace(data: string): void;
-    debug(data: string): void;
-    info(data: string): void;
-    warn(data: string): void;
-    error(data: string): void;
-    critical(data: string): void;
+    trace(data: string, ...parameters: any): void;
+    debug(data: string, ...parameters: any): void;
+    info(data: string, ...parameters: any): void;
+    warn(data: string, ...parameters: any): void;
+    error(data: string, ...parameters: any): void;
+    critical(data: string, ...parameters: any): void;
 
     logLevel: LogLevel;
 }
@@ -25,45 +23,52 @@ export interface GrafeLogger {
 export class BasicLogger implements GrafeLogger {
     logLevel: LogLevel;
 
-    log(level: LogLevel, data: string): void {
-        const logLevelConversionArray = ['trace', 'debug', 'info', 'warn', 'error', 'cirtical'];
-        this[logLevelConversionArray[level]](data);
+    log(level: LogLevel, data: string, ...parameters: any): void {
+        const logLevelConversionArray = [
+            'trace',
+            'debug',
+            'info',
+            'warn',
+            'error',
+            'critical',
+        ];
+        // @ts-ignore
+        this[logLevelConversionArray[level]](data, ...parameters);
     }
-    
-    trace(data: string): void {
+
+    trace(data: string, ...parameters: any): void {
         if (LogLevel.trace === this.logLevel) {
-            console.log('TRACE: ' + data);
+            console.log('TRACE: ' + data, ...parameters);
         }
     }
-    
-    debug(data: string): void {
+
+    debug(data: string, ...parameters: any): void {
         if (LogLevel.debug >= this.logLevel) {
-            console.log('DEBUG: ' + data);
+            console.log('DEBUG: ' + data, ...parameters);
         }
     }
-    
-    info(data: string): void {
+
+    info(data: string, ...parameters: any): void {
         if (LogLevel.info >= this.logLevel) {
-            console.log('INFO: ' + data);
+            console.log('INFO: ' + data, ...parameters);
         }
     }
-    
-    warn(data: string): void {
+
+    warn(data: string, ...parameters: any): void {
         if (LogLevel.warn >= this.logLevel) {
-            console.log('WARN: ' + data);
+            console.log('WARN: ' + data, ...parameters);
         }
     }
-    
-    error(data: string): void {
+
+    error(data: string, ...parameters: any): void {
         if (LogLevel.error >= this.logLevel) {
-            console.log('ERROR: ' + data);
+            console.log('ERROR: ' + data, ...parameters);
         }
     }
-    
-    critical(data: string): void {
+
+    critical(data: string, ...parameters: any): void {
         if (LogLevel.critical >= this.logLevel) {
-            console.log('CRITICAL: ' + data);
+            console.log('CRITICAL: ' + data, ...parameters);
         }
     }
-    
 }

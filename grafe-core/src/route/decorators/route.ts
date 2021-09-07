@@ -1,11 +1,11 @@
-import { RouteConfigInjector } from '../routeConfigInjector';
+import { RouteConfigStore } from '../routeConfigStore';
 
 export function Route(): any {
     return function (target: any, name: any, descriptor: any) {
         // this is the decorator
         // do something with 'target' and 'value'...
-        RouteConfigInjector.getInstance().addTarget(target);
-        RouteConfigInjector.getInstance().cacheWithName(target.name);
-        RouteConfigInjector.getInstance().reset();
+        RouteConfigStore.getInstance().addTarget(target);
+        RouteConfigStore.getInstance().cacheWithName(target.name);
+        RouteConfigStore.getInstance().reset();
     };
 }

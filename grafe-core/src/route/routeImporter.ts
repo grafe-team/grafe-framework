@@ -1,7 +1,7 @@
 import getCallerPath = require('get-caller-file');
 import * as path from 'path';
 import { GrafeLogger } from '../logger/logger';
-import { RouteConfigInjector } from './routeConfigInjector';
+import { RouteConfigStore } from './routeConfigStore';
 import { RouteHandler } from './routeHandler';
 import { RouteImportConfig } from './routeImportConfig';
 import { Importer } from '../importer/importer';
@@ -12,7 +12,7 @@ export class RouteImporter extends Importer {
     }
 
     public import(filePath: string): RouteHandler {
-        const routeConfigInjector = RouteConfigInjector.getInstance();
+        const routeConfigInjector = RouteConfigStore.getInstance();
         routeConfigInjector.reset();
 
         const module = this.importModule(filePath);
@@ -59,7 +59,7 @@ export class RouteImporter extends Importer {
         let routeConfig: RouteImportConfig;
 
         for (let i = 0; i < classes.length; i++) {
-            routeConfig = RouteConfigInjector.getInstance().getCached(
+            routeConfig = RouteConfigStore.getInstance().getCached(
                 classes[i]
             );
             if (routeConfig !== undefined) {

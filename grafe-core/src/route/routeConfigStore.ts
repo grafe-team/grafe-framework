@@ -1,7 +1,7 @@
 import { GrafeLogger } from '../logger/logger';
 import { RouteImportConfig } from './routeImportConfig';
 
-export class RouteConfigInjector {
+export class RouteConfigStore {
     private config: RouteImportConfig = {
         events: {},
         target: undefined,
@@ -49,20 +49,20 @@ export class RouteConfigInjector {
 ===============================================================================================
 */
 
-    private static instance: RouteConfigInjector;
+    private static instance: RouteConfigStore;
 
     private constructor(private logger: GrafeLogger) {}
 
-    public static getInstance(logger?: GrafeLogger): RouteConfigInjector {
-        if (!RouteConfigInjector.instance) {
+    public static getInstance(logger?: GrafeLogger): RouteConfigStore {
+        if (!RouteConfigStore.instance) {
             if (!logger) {
                 throw ReferenceError(
                     'The logger needs to be supplied on the first call of getInstance()!'
                 );
             }
-            RouteConfigInjector.instance = new RouteConfigInjector(logger);
+            RouteConfigStore.instance = new RouteConfigStore(logger);
         }
 
-        return RouteConfigInjector.instance;
+        return RouteConfigStore.instance;
     }
 }

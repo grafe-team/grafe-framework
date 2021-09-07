@@ -1,5 +1,5 @@
 import { HttpMethods } from '../httpMethods';
-import { RouteConfigInjector } from '../routeConfigInjector';
+import { RouteConfigStore } from '../routeConfigStore';
 
 /**
  * The decorated function will be called if a get request is made on this path
@@ -92,7 +92,7 @@ function on(
     return function (target: any, name: any, descriptor: any): any {
         // this is the decorator
         // do something with 'target' and 'value'...
-        RouteConfigInjector.getInstance().addEvent(event, name);
+        RouteConfigStore.getInstance().addEvent(event, name);
     };
 }
 

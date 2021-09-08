@@ -1,6 +1,6 @@
 import { exception } from 'console';
 import { GrafeLogger } from '../logger/logger';
-import { HttpMethods } from './httpMethods';
+import { ComponentEvents } from '../components/componentEvents';
 import { RouteImportConfig } from './routeImportConfig';
 
 export class RouteHandler {
@@ -46,7 +46,7 @@ export class RouteHandler {
         this.onCall('patch', ...parameters);
     }
 
-    private onCall(method: HttpMethods, ...parameters: any) {
+    private onCall(method: ComponentEvents, ...parameters: any) {
         let result: any;
         try {
             const eventFunctionName = this.getEventFunction(method);

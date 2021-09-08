@@ -21,6 +21,11 @@ export interface GrafeLogger {
 }
 
 export class BasicLogger implements GrafeLogger {
+
+    constructor(logLevel?: LogLevel) {
+        this.logLevel = logLevel;
+    }
+
     logLevel: LogLevel;
 
     log(level: LogLevel, data: string, ...parameters: any): void {

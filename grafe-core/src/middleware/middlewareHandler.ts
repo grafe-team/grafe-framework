@@ -5,8 +5,8 @@ import { MiddlewareImportConfig } from './middlewareImportConfig';
 
 export class MiddlewareHandler {
     public constructor(
-        private routeInstance: any,
-        private routeConfig: MiddlewareImportConfig,
+        private middlewareInstance: any,
+        private middlewareConfig: MiddlewareImportConfig,
         private logger: GrafeLogger
     ) {}
 
@@ -25,7 +25,7 @@ export class MiddlewareHandler {
                 );
                 return;
             }
-            result = this.routeInstance[eventFunctionName](...parameters);
+            result = this.middlewareInstance[eventFunctionName](...parameters);
         } catch (error) {
             this.callErrorIfExists(error, event);
         }
@@ -49,14 +49,14 @@ export class MiddlewareHandler {
             // throw error;
             return;
         }
-        this.routeInstance[eventFunctionName](error);
+        this.middlewareInstance[eventFunctionName](error);
     }
 
     private getEventFunction(event: string): string | -1 {
-        if (!this.routeConfig.events[event]) {
+        if (!this.middlewareConfig.events[event]) {
             return -1;
         }
 
-        return this.routeConfig.events[event];
+        return this.middlewareConfig.events[event];
     }
 }

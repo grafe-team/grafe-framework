@@ -1,4 +1,4 @@
-export type HttpMethods =
+export type ComponentEvents =
     | 'get'
     | 'post'
     | 'put'
@@ -8,6 +8,7 @@ export type HttpMethods =
     | 'options'
     | 'trace'
     | 'patch'
-    | 'error'
-    | 'destroy'
-    | 'timeout';
+    | 'request'
+    | 'error';
+    // | 'destroy'
+    // | 'timeout';

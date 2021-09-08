@@ -1,6 +1,18 @@
-import { NextFunction, Request, Response } from 'express';
 
-export = (req: Request, res: Response, next: NextFunction) => {
-    
-    next();
+@Middleware({
+    description: '',
+    shortCut: ''
+})
+class Middleware {
+
+    @on('request')
+    onRequest() {
+
+    }
+
+    @on('error')
+    onError() {
+
+    }
+
 }

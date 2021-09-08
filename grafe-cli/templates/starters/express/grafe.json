@@ -6,14 +6,5 @@
             "prefix": "static"
         }
     ],
-    "projectType": "express",
-    "routePath": "build/routes",
-    "middlewarePath": "build/middlewares",
-    "middlewares": [
-        {
-            "name": "protected",
-            "description": "Just a place holder for now later this will be a loggin function for demostration purpouses",
-            "value": "pt"
-        }
-    ]
+    "projectType": "express"
 }
